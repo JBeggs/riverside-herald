@@ -155,8 +155,10 @@ export default async function DynamicPage({ params }: PageProps) {
 // Generate static params for known pages
 export async function generateStaticParams() {
   try {
-    const pages = await serverNewsApi.pages.list({ is_published: true }) as any
-    const pagesArray: any[] = Array.isArray(pages) ? pages : ((pages as any)?.results || [])
+    // @ts-ignore - API returns paginated response or array
+    const pages: any = await serverNewsApi.pages.list({ is_published: true })
+    // @ts-ignore - pages can be array or object with results property
+    const pagesArray: any[] = Array.isArray(pages) ? pages : (pages?.results || [])
     
     return pagesArray
       .filter((page: any) => page.slug !== 'home')
