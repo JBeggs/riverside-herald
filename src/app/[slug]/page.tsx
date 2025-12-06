@@ -155,7 +155,7 @@ export default async function DynamicPage({ params }: PageProps) {
 // Generate static params for known pages
 export async function generateStaticParams() {
   try {
-    const pages = await serverNewsApi.pages.list({ is_published: true }) as any
+    const pages: any = await serverNewsApi.pages.list({ is_published: true })
     const pagesArray = Array.isArray(pages) ? pages : (pages?.results || [])
     
     return pagesArray
