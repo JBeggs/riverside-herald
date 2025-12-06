@@ -282,8 +282,9 @@ export const serverNewsApi = {
 
   // Pages (for dynamic page content)
   pages: {
-    list: (params?: { slug?: string; is_published?: boolean }) =>
-      serverApi.get<any>('/news/pages/', params),
+    list: async (params?: { slug?: string; is_published?: boolean }): Promise<any> => {
+      return serverApi.get<any>('/news/pages/', params)
+    },
     getBySlug: async (slug: string) => {
       const results: any = await serverApi.get<any[]>('/news/pages/', { slug, is_published: true })
       const resultsArray = Array.isArray(results) ? results : (results?.results || [])
