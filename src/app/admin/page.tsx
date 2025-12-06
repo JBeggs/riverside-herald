@@ -4,6 +4,9 @@ import { serverNewsApi } from '@/lib/api-server'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
 import AdminSection from '@/components/profile/AdminSection'
 
+// Force dynamic rendering since we use cookies
+export const dynamic = 'force-dynamic'
+
 export default async function AdminPage() {
   // Check for auth token in cookies
   const cookieStore = await cookies()

@@ -1,9 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: {
-    // Allow warnings but fail on errors
-    ignoreDuringBuilds: true,
-  },
   typescript: {
     ignoreBuildErrors: false,
   },
@@ -14,8 +10,13 @@ const nextConfig = {
     '127.0.0.1',
   ],
   images: {
-    domains: ['localhost', 'images.unsplash.com', 'picsum.photos', 'ubtreccbytgrhpagaitr.supabase.co', '3pillars.pythonanywhere.com'],
     remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '',
+        pathname: '/**',
+      },
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',

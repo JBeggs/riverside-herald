@@ -10,6 +10,9 @@ import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import AuthMessage from '@/components/auth/AuthMessage'
 
+// Force dynamic rendering since we use cookies in Header/Footer
+export const dynamic = 'force-dynamic'
+
 const inter = Inter({ 
   subsets: ['latin'],
   variable: '--font-inter',

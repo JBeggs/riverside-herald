@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
@@ -17,7 +17,7 @@ const Plus = ({ className }: { className?: string }) => (
   </svg>
 )
 
-export default function ArticlesPage() {
+function ArticlesPageContent() {
   const { user, profile, loading: authLoading } = useAuth()
   const { showError } = useToast()
   const router = useRouter()
@@ -264,3 +264,14 @@ export default function ArticlesPage() {
   )
 }
 
+export default function ArticlesPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-pulse text-gray-600">Loading...</div>
+      </div>
+    }>
+      <ArticlesPageContent />
+    </Suspense>
+  )
+}
