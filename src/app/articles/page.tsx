@@ -25,8 +25,8 @@ function calculateReadingTime(content: string): number {
 
 async function getArticles() {
   try {
-    const articlesData = await serverNewsApi.articles.list({ status: 'published' })
-    const articles = articlesData.results || articlesData || []
+    const articlesData: any = await serverNewsApi.articles.list({ status: 'published' })
+    const articles = articlesData?.results || articlesData || []
     
     return articles.map((article: any) => ({
       id: article.id,
@@ -58,8 +58,8 @@ async function getArticles() {
 
 async function getCategories() {
   try {
-    const categoriesData = await serverNewsApi.categories.list()
-    return (categoriesData.results || categoriesData || []).map((cat: any) => ({
+    const categoriesData: any = await serverNewsApi.categories.list()
+    return (categoriesData?.results || categoriesData || []).map((cat: any) => ({
       id: cat.id,
       name: cat.name,
       slug: cat.slug,
@@ -112,7 +112,7 @@ export default async function ArticlesPage() {
             >
               All Articles
             </Link>
-            {categories.map((category) => (
+            {categories.map((category: any) => (
               <Link
                 key={category.id}
                 href={`/category/${category.slug}`}
@@ -202,7 +202,7 @@ export default async function ArticlesPage() {
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-8">Recent Articles</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {otherArticles.map((article) => {
+              {otherArticles.map((article: any) => {
                 const readingTime = article.read_time_minutes || calculateReadingTime(article.content)
                 const publishedDate = formatDate(article.published_at)
 

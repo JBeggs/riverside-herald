@@ -50,7 +50,7 @@ interface SiteSettings {
 async function getHomepageData() {
   try {
     // Get site settings
-    const settingsData = await serverNewsApi.siteSettings.list()
+    const settingsData: any = await serverNewsApi.siteSettings.list()
     const settingsArray = Array.isArray(settingsData) ? settingsData : (settingsData?.results || [])
     const settingsMap: Record<string, any> = {}
     
@@ -65,13 +65,13 @@ async function getHomepageData() {
     })
 
     // Get articles
-    const articlesData = await serverNewsApi.articles.list({ 
+    const articlesData: any = await serverNewsApi.articles.list({ 
       status: 'published',
       page: 1 
     })
     
     // Transform articles to match expected format
-    const articles: Article[] = (articlesData.results || articlesData || []).map((article: any) => {
+    const articles: Article[] = (articlesData?.results || articlesData || []).map((article: any) => {
       // Debug: log article data
       console.log('[DEBUG] Article:', article.id, article.title)
       console.log('[DEBUG] featured_media:', article.featured_media)
@@ -102,7 +102,7 @@ async function getHomepageData() {
     })
 
     // Get businesses
-    const businessesData = await serverNewsApi.businesses.list({ limit: 6 })
+    const businessesData: any = await serverNewsApi.businesses.list()
     const businesses: Business[] = (businessesData.results || businessesData || []).map((business: any) => ({
       id: business.id,
       name: business.name,

@@ -253,6 +253,12 @@ export const serverNewsApi = {
     },
   },
 
+  // Business Reviews
+  businessReviews: {
+    list: (params?: { business?: string; is_approved?: boolean }) =>
+      serverApi.get('/news/business-reviews/', params),
+  },
+
   // Site Settings
   siteSettings: {
     list: () => serverApi.get('/news/site-settings/'),

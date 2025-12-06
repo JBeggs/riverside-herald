@@ -293,7 +293,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           )}
 
           {/* Share Buttons */}
-          <ShareButtons article={article as any} />
+          <ShareButtons title={article.title} url={`/articles/${article.slug}`} />
 
           {/* Related Articles */}
           <RelatedArticles 

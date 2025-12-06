@@ -55,8 +55,8 @@ function renderStars(rating: number, size: 'sm' | 'md' = 'sm') {
 
 async function getBusinesses() {
   try {
-    const businessesData = await serverNewsApi.businesses.list()
-    const businesses = businessesData.results || businessesData || []
+    const businessesData: any = await serverNewsApi.businesses.list()
+    const businesses = businessesData?.results || businessesData || []
     
     return businesses.map((business: any) => ({
       id: business.id,
@@ -97,8 +97,8 @@ async function getBusinesses() {
 
 async function getIndustries() {
   try {
-    const businessesData = await serverNewsApi.businesses.list()
-    const businesses = businessesData.results || businessesData || []
+    const businessesData: any = await serverNewsApi.businesses.list()
+    const businesses = businessesData?.results || businessesData || []
     const industries = [...new Set(businesses.map((b: any) => b.industry).filter(Boolean))] as string[]
     return industries.sort()
   } catch (error: any) {
@@ -126,8 +126,8 @@ export default async function BusinessesPage() {
     getIndustries()
   ])
 
-  const featuredBusinesses = businesses.filter(b => b.is_verified).slice(0, 3)
-  const otherBusinesses = businesses.filter(b => !featuredBusinesses.some(fb => fb.id === b.id))
+  const featuredBusinesses = businesses.filter((b: any) => b.is_verified).slice(0, 3)
+  const otherBusinesses = businesses.filter((b: any) => !featuredBusinesses.some((fb: any) => fb.id === b.id))
 
   return (
     <div className="min-h-screen bg-white">
@@ -161,7 +161,7 @@ export default async function BusinessesPage() {
             </div>
             
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredBusinesses.map((business) => (
+              {featuredBusinesses.map((business: any) => (
                 <article
                   key={business.id}
                   className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-200 overflow-hidden border border-gray-100"
@@ -291,7 +291,7 @@ export default async function BusinessesPage() {
           
           {otherBusinesses.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {otherBusinesses.map((business) => (
+              {otherBusinesses.map((business: any) => (
                 <article
                   key={business.id}
                   className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-200 overflow-hidden border border-gray-100"

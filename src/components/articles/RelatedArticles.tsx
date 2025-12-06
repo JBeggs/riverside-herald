@@ -35,8 +35,8 @@ async function getRelatedArticles(currentArticleId: string, categoryId?: string)
       params.category = categoryId
     }
     
-    const articlesData = await serverNewsApi.articles.list(params)
-    const articles = articlesData.results || articlesData || []
+    const articlesData: any = await serverNewsApi.articles.list(params)
+    const articles = articlesData?.results || articlesData || []
     
     // Filter out current article and limit to 3
     const filtered = articles
@@ -45,11 +45,11 @@ async function getRelatedArticles(currentArticleId: string, categoryId?: string)
     
     // If we don't have enough with category filter, get more without it
     if (filtered.length < 3 && categoryId) {
-      const fallbackData = await serverNewsApi.articles.list({
+      const fallbackData: any = await serverNewsApi.articles.list({
         status: 'published',
         limit: 6
       })
-      const fallback = (fallbackData.results || fallbackData || [])
+      const fallback = (fallbackData?.results || fallbackData || [])
         .filter((article: any) => 
           article.id !== currentArticleId && 
           !filtered.some((f: any) => f.id === article.id)
@@ -108,7 +108,7 @@ export default async function RelatedArticles({ currentArticleId, categoryId }: 
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {relatedArticles.map((article) => {
+            {relatedArticles.map((article: any) => {
               const readingTime = calculateReadingTime(article.content)
               const publishedDate = formatDate(article.published_at)
 

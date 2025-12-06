@@ -92,33 +92,33 @@ export default function ArticleEditorModal({ isOpen, onClose, onSave, articleId 
   const loadArticle = async (id: string) => {
     setLoading(true)
     try {
-      const data = await newsApi.articles.get(id)
+      const data: any = await newsApi.articles.get(id)
       // Normalize article data - ensure author_id is set correctly
       // The API might return author as an object {id: "...", ...} or as a string ID
-      const authorId = data.author_id || (typeof data.author === 'object' ? data.author?.id : data.author) || ''
+      const authorId = data?.author_id || (typeof data?.author === 'object' ? data?.author?.id : data?.author) || ''
       
       const normalizedData = {
-        ...data,
+        ...(data || {}),
         author_id: String(authorId), // Ensure it's a string for comparison
         // Ensure all required fields are present
-        title: data.title || '',
-        content: data.content || '',
-        status: data.status || 'draft',
-        content_type: data.content_type || 'article',
-        subtitle: data.subtitle || '',
-        excerpt: data.excerpt || '',
-        featured_image_url: data.featured_media?.file_url || data.featured_image_url || '',
-        featured_media_id: data.featured_media?.id || data.featured_media_id || '',
-        category_id: data.category?.id || data.category_id || '',
-        is_premium: data.is_premium || false,
-        is_breaking_news: data.is_breaking_news || false,
-        is_trending: data.is_trending || false,
-        seo_title: data.seo_title || '',
-        seo_description: data.seo_description || '',
-        published_at: data.published_at || '',
-        scheduled_for: data.scheduled_for || '',
-        location_name: data.location_name || '',
-        read_time_minutes: data.read_time_minutes || null,
+        title: data?.title || '',
+        content: data?.content || '',
+        status: data?.status || 'draft',
+        content_type: data?.content_type || 'article',
+        subtitle: data?.subtitle || '',
+        excerpt: data?.excerpt || '',
+        featured_image_url: data?.featured_media?.file_url || data?.featured_image_url || '',
+        featured_media_id: data?.featured_media?.id || data?.featured_media_id || '',
+        category_id: data?.category?.id || data?.category_id || '',
+        is_premium: data?.is_premium || false,
+        is_breaking_news: data?.is_breaking_news || false,
+        is_trending: data?.is_trending || false,
+        seo_title: data?.seo_title || '',
+        seo_description: data?.seo_description || '',
+        published_at: data?.published_at || '',
+        scheduled_for: data?.scheduled_for || '',
+        location_name: data?.location_name || '',
+        read_time_minutes: data?.read_time_minutes || null,
       }
       console.log('Loaded article data:', normalizedData)
       setArticleData(normalizedData)

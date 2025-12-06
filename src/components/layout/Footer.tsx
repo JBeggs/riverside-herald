@@ -4,7 +4,7 @@ import FooterClient from './FooterClient'
 async function getFooterData() {
   try {
     // Get site settings for footer content
-    const settingsData = await serverNewsApi.siteSettings.list()
+    const settingsData: any = await serverNewsApi.siteSettings.list()
     const settingsArray = Array.isArray(settingsData) ? settingsData : (settingsData?.results || [])
     const settingsMap: Record<string, any> = {}
     

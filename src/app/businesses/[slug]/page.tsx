@@ -86,11 +86,11 @@ async function getBusiness(slug: string) {
     }
 
     // Get reviews
-    const reviewsData = await serverNewsApi.businessReviews.list({ 
+    const reviewsData: any = await serverNewsApi.businessReviews.list({ 
       business: business.id,
       is_approved: true 
     })
-    const reviews = reviewsData.results || reviewsData || []
+    const reviews = reviewsData?.results || reviewsData || []
 
     return {
       id: business.id,
@@ -142,8 +142,8 @@ export async function generateMetadata({ params }: BusinessPageProps): Promise<M
   }
 
   return {
-    title: business.seo_title || `${business.name} | The Riverside Herald`,
-    description: business.seo_description || business.description || '',
+    title: (business as any).seo_title || `${business.name} | The Riverside Herald`,
+    description: (business as any).seo_description || business.description || '',
     openGraph: {
       title: business.name,
       description: business.description || '',

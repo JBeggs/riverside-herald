@@ -94,7 +94,7 @@ export function BusinessEditModal({ businessId, onClose, onSuccess }: BusinessEd
   const loadAvailableMedia = async () => {
     setLoadingMedia(true)
     try {
-      const mediaList = await newsApi.media.list({ media_type: 'image' })
+      const mediaList: any = await newsApi.media.list({ media_type: 'image' })
       setAvailableMedia(Array.isArray(mediaList) ? mediaList : (mediaList?.results || []))
     } catch (error: any) {
       console.error('Error loading media:', error)

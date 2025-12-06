@@ -44,7 +44,7 @@ export default async function AdminPage() {
     let systemStats: any = null
     if (profile.role === 'admin' || profile.role === 'editor') {
       try {
-        const stats = await serverNewsApi.stats.dashboard()
+        const stats: any = await serverNewsApi.stats.dashboard()
         systemStats = {
           totalArticles: stats?.total_articles || 0,
           totalUsers: stats?.total_users || 0,

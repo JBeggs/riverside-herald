@@ -6,7 +6,7 @@ import ClientHeader from './ClientHeader'
 async function getHeaderData() {
   try {
     // Get site settings
-    const settingsData = await serverNewsApi.siteSettings.list()
+    const settingsData: any = await serverNewsApi.siteSettings.list()
     const settingsArray = Array.isArray(settingsData) ? settingsData : (settingsData?.results || [])
     const settingsMap: Record<string, any> = {}
     

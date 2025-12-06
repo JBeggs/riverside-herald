@@ -32,9 +32,9 @@ export function BusinessEditButton({ businessId, ownerId }: BusinessEditButtonPr
 
     try {
       // Check if the current user is the business owner
-      const business = await newsApi.businesses.get(businessId)
+      const business: any = await newsApi.businesses.get(businessId)
 
-      setIsBusinessOwner(business.owner === user.id || business.owner_id === user.id)
+      setIsBusinessOwner(business?.owner === user.id || business?.owner_id === user.id)
     } catch (error) {
       console.error('Error checking business ownership:', error)
       setIsBusinessOwner(false)
