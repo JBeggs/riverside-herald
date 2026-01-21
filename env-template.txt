@@ -2,6 +2,15 @@
 # Copy these to your Vercel dashboard or hosting provider
 
 # ==============================================
+# REQUIRED - Django API Configuration
+# ==============================================
+# The backend API URL
+NEXT_PUBLIC_API_URL=https://3pillars.pythonanywhere.com/api
+
+# Company slug for tenant context (riverside-herald for this project)
+NEXT_PUBLIC_COMPANY_SLUG=riverside-herald
+
+# ==============================================
 # REQUIRED - Supabase Configuration
 # ==============================================
 # Get these from: Supabase Dashboard → Settings → API

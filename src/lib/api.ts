@@ -4,6 +4,7 @@
  */
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+const DEFAULT_COMPANY_SLUG = process.env.NEXT_PUBLIC_COMPANY_SLUG || 'riverside-herald'
 
 export interface ApiError {
   message: string
@@ -192,6 +193,9 @@ export class ApiClient {
     if (companyId) {
       headers['X-Company-Id'] = companyId
     }
+    
+    // Always include company slug for tenant context
+    headers['X-Company-Slug'] = DEFAULT_COMPANY_SLUG
 
     return headers
   }
@@ -453,6 +457,8 @@ export class ApiClient {
       if (companyId) {
         headers['X-Company-Id'] = companyId
       }
+      // Always include company slug
+      headers['X-Company-Slug'] = DEFAULT_COMPANY_SLUG
 
       return fetch(`${this.baseURL}${endpoint}`, {
         method: 'POST',

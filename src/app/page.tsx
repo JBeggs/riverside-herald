@@ -365,37 +365,48 @@ export default async function HomePage() {
                 <div>
                   <h3 className="heading-sm mb-4">Featured Businesses</h3>
                   <div className="space-y-4">
-                    {businesses.slice(0, 4).map((business) => (
-                      <article key={business.id} className="card p-4">
-                        <div className="flex items-center space-x-3">
-                          <div className="flex-shrink-0">
-                            <Image
-                              src={getBusinessImageUrl(business)}
-                              alt={`${business.name} logo`}
-                              width={48}
-                              height={48}
-                              className="w-12 h-12 object-cover rounded-lg"
-                            />
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-sm">
-                              <Link href={`/businesses/${business.slug}`} className="hover:text-blue-600">
-                                {business.name}
-                              </Link>
-                            </h4>
-                            <p className="text-xs text-neutral-600 mb-1">{business.industry}</p>
-                            <div className="flex items-center">
-                              <div className="flex text-yellow-400">
-                                {'★'.repeat(Math.floor(business.rating || 0))}
+                    {businesses.slice(0, 4).map((business) => {
+                      const logoUrl = getBusinessImageUrl(business)
+                      return (
+                        <article key={business.id} className="card p-4">
+                          <div className="flex items-center space-x-3">
+                            <div className="flex-shrink-0">
+                              {logoUrl ? (
+                                <Image
+                                  src={logoUrl}
+                                  alt={`${business.name} logo`}
+                                  width={48}
+                                  height={48}
+                                  className="w-12 h-12 object-cover rounded-lg"
+                                />
+                              ) : (
+                                <div className="w-12 h-12 bg-neutral-200 rounded-lg flex items-center justify-center">
+                                  <span className="text-neutral-500 text-lg font-semibold">
+                                    {business.name?.charAt(0) || '?'}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-sm">
+                                <Link href={`/businesses/${business.slug}`} className="hover:text-blue-600">
+                                  {business.name}
+                                </Link>
+                              </h4>
+                              <p className="text-xs text-neutral-600 mb-1">{business.industry}</p>
+                              <div className="flex items-center">
+                                <div className="flex text-yellow-400">
+                                  {'★'.repeat(Math.floor(business.rating || 0))}
+                                </div>
+                                <span className="text-xs text-neutral-500 ml-1">
+                                  {business.rating} • {business.city}
+                                </span>
                               </div>
-                              <span className="text-xs text-neutral-500 ml-1">
-                                {business.rating} • {business.city}
-                              </span>
                             </div>
                           </div>
-                        </div>
-                      </article>
-                    ))}
+                        </article>
+                      )
+                    })}
                   </div>
                   <Link href="/businesses" className="btn btn-secondary w-full mt-4">
                     View All Businesses

@@ -4,6 +4,7 @@
  */
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+const DEFAULT_COMPANY_SLUG = process.env.NEXT_PUBLIC_COMPANY_SLUG || 'riverside-herald'
 
 class ServerApiClient {
   private baseURL: string
@@ -38,6 +39,9 @@ class ServerApiClient {
     if (companyId) {
       headers['X-Company-Id'] = companyId
     }
+    
+    // Always include company slug for tenant context
+    headers['X-Company-Slug'] = DEFAULT_COMPANY_SLUG
     
     // Add auth token from cookie if available and not already in headers
     const authToken = cookieStore.get('auth_token')?.value
