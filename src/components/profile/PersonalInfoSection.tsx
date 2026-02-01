@@ -40,6 +40,8 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [formData, setFormData] = useState({
+    first_name: profile.first_name || '',
+    last_name: profile.last_name || '',
     full_name: profile.full_name || '',
     username: profile.username || '',
     bio: profile.bio || '',
@@ -54,6 +56,8 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
 
     try {
       await newsApi.profile.update({
+        first_name: formData.first_name,
+        last_name: formData.last_name,
         full_name: formData.full_name,
         username: formData.username,
         bio: formData.bio,
@@ -73,6 +77,8 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
 
   const handleCancel = () => {
     setFormData({
+      first_name: profile.first_name || '',
+      last_name: profile.last_name || '',
       full_name: profile.full_name || '',
       username: profile.username || '',
       bio: profile.bio || '',
@@ -221,20 +227,40 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Full Name
+            First Name
           </label>
           {isEditing ? (
             <input
               type="text"
-              value={formData.full_name}
-              onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
+              value={formData.first_name}
+              onChange={(e) => setFormData(prev => ({ ...prev, first_name: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter your full name"
+              placeholder="Enter your first name"
             />
           ) : (
             <div className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg">
               <UserIcon className="w-4 h-4 text-gray-500" />
-              <span className="text-gray-900">{profile.full_name || 'Not provided'}</span>
+              <span className="text-gray-900">{profile.first_name || 'Not provided'}</span>
+            </div>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Last Name
+          </label>
+          {isEditing ? (
+            <input
+              type="text"
+              value={formData.last_name}
+              onChange={(e) => setFormData(prev => ({ ...prev, last_name: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter your last name"
+            />
+          ) : (
+            <div className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg">
+              <UserIcon className="w-4 h-4 text-gray-500" />
+              <span className="text-gray-900">{profile.last_name || 'Not provided'}</span>
             </div>
           )}
         </div>

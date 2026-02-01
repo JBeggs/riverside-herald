@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react'
 import { Edit3, LogIn } from 'lucide-react'
 import { newsApi } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
 import { BusinessAuthModal } from './BusinessAuthModal'
-import { BusinessEditModal } from './BusinessEditModal'
 
 interface BusinessEditButtonProps {
   businessId: string
@@ -14,8 +14,8 @@ interface BusinessEditButtonProps {
 
 export function BusinessEditButton({ businessId, ownerId }: BusinessEditButtonProps) {
   const { user } = useAuth()
+  const router = useRouter()
   const [showAuthModal, setShowAuthModal] = useState(false)
-  const [showEditModal, setShowEditModal] = useState(false)
   const [isBusinessOwner, setIsBusinessOwner] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -47,7 +47,7 @@ export function BusinessEditButton({ businessId, ownerId }: BusinessEditButtonPr
     if (!user) {
       setShowAuthModal(true)
     } else if (isBusinessOwner) {
-      setShowEditModal(true)
+      router.push(`/businesses/${businessId}/edit`)
     } else {
       // User is logged in but not the owner
       alert('You can only edit your own business profile.')
@@ -90,19 +90,6 @@ export function BusinessEditButton({ businessId, ownerId }: BusinessEditButtonPr
           onSuccess={() => {
             setShowAuthModal(false)
             checkBusinessOwnership()
-          }}
-        />
-      )}
-
-      {/* Business Edit Modal */}
-      {showEditModal && (
-        <BusinessEditModal
-          businessId={businessId}
-          onClose={() => setShowEditModal(false)}
-          onSuccess={() => {
-            setShowEditModal(false)
-            // Optionally refresh the page to show updated data
-            window.location.reload()
           }}
         />
       )}

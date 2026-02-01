@@ -14,6 +14,10 @@ export interface Profile {
   id: string
   email: string
   username?: string
+  first_name?: string
+  last_name?: string
+  first_name?: string
+  last_name?: string
   full_name?: string
   bio?: string
   avatar_url?: string
@@ -167,6 +171,9 @@ export interface Article {
   content_type: ContentType
   featured_media_id?: string
   author_id: string
+  author_name?: string
+  author_first_name?: string
+  author_last_name?: string
   co_authors?: string[]
   category_id?: string
   status: ArticleStatus
@@ -356,6 +363,8 @@ export interface Comment {
 export interface NewsletterSubscriber {
   id: string
   email: string
+  first_name?: string
+  last_name?: string
   full_name?: string
   subscribed_at: string
   unsubscribed_at?: string

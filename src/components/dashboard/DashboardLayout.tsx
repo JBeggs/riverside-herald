@@ -184,12 +184,14 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
             <div className="flex items-center space-x-3 mb-3">
               <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
                 <span className="text-white text-xs font-medium">
-                  {profile?.full_name?.charAt(0) || profile?.email?.charAt(0) || 'U'}
+                  {profile?.first_name?.charAt(0) || profile?.full_name?.charAt(0) || profile?.email?.charAt(0) || 'U'}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 truncate">
-                  {profile?.full_name || profile?.email || 'User'}
+                  {profile?.first_name && profile?.last_name 
+                    ? `${profile.first_name} ${profile.last_name}` 
+                    : profile?.full_name || profile?.email || 'User'}
                 </p>
                 <p className="text-xs text-gray-500 capitalize">{profile?.role || 'user'}</p>
               </div>

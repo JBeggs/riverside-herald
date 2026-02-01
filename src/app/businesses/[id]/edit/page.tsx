@@ -1,21 +1,23 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { BusinessEditModal } from '@/components/businesses/BusinessEditModal'
 
-export default function AddBusinessPage() {
+export default function EditBusinessPage() {
   const router = useRouter()
-  const { user } = useAuth()
+  const params = useParams()
+  const businessId = params.id as string
+  const { user, profile } = useAuth()
 
-  // Check if user is authenticated
-  if (!user) {
+  // Check if user is authenticated and is admin or business owner
+  if (!user || !profile || !['admin', 'business_owner'].includes(profile.role)) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Authentication Required</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
           <p className="text-gray-600 mb-6">
-            You must be logged in to create a business listing.
+            You do not have permission to edit this business listing.
           </p>
           <button
             onClick={() => router.push('/login')}
@@ -36,21 +38,19 @@ export default function AddBusinessPage() {
     router.push('/profile')
   }
 
-  // Use BusinessEditModal in create mode
-  // We'll pass a special ID that indicates creation mode
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container-wide">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Add New Business</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Edit Business</h1>
             <p className="text-gray-600">
-              Create a new business listing for your company. Fill in the details below to get started.
+              Update your business listing details below.
             </p>
           </div>
           
           <BusinessEditModal
-            businessId="new"
+            businessId={businessId}
             onClose={handleCancel}
             onSuccess={handleSuccess}
             isFullPage={true}
@@ -60,4 +60,3 @@ export default function AddBusinessPage() {
     </div>
   )
 }
-

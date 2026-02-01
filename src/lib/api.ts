@@ -539,8 +539,11 @@ export const authApi = {
         requestData.last_name = nameParts.slice(1).join(' ') || ''
       }
     } else {
-      // User registration uses full_name
+      // User registration uses first_name and last_name
       if (data.full_name) {
+        const nameParts = data.full_name.trim().split(/\s+/)
+        requestData.first_name = nameParts[0] || ''
+        requestData.last_name = nameParts.slice(1).join(' ') || ''
         requestData.full_name = data.full_name
       }
       // Add role if provided (for author registration)

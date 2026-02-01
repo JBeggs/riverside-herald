@@ -20,6 +20,8 @@ CREATE TABLE public.profiles (
   id UUID REFERENCES auth.users(id) PRIMARY KEY,
   email TEXT UNIQUE NOT NULL,
   username TEXT UNIQUE,
+  first_name TEXT,
+  last_name TEXT,
   full_name TEXT,
   bio TEXT,
   avatar_url TEXT,

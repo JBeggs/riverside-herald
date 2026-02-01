@@ -72,13 +72,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (profileData.user) {
         // If user is just an ID, we need to get full user data
         // For now, construct from profile
-        setUser({
-          id: profileData.user,
-          email: profileData.email,
-          username: profileData.username,
-          first_name: profileData.full_name?.split(' ')[0],
-          last_name: profileData.full_name?.split(' ').slice(1).join(' '),
-        })
+          setUser({
+            id: profileData.user,
+            email: profileData.email,
+            username: profileData.username,
+            first_name: profileData.first_name,
+            last_name: profileData.last_name,
+          })
       }
     } catch (error: any) {
       console.error('Error fetching profile:', error)

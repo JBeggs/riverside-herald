@@ -44,8 +44,6 @@ interface BusinessOwnerSectionProps {
 }
 
 export default function BusinessOwnerSection({ businesses, profile }: BusinessOwnerSectionProps) {
-  const [editingBusinessId, setEditingBusinessId] = useState<string | null>(null)
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -276,13 +274,13 @@ export default function BusinessOwnerSection({ businesses, profile }: BusinessOw
                       >
                         <ExternalLink className="w-4 h-4" />
                       </Link>
-                      <button
-                        onClick={() => setEditingBusinessId(business.id)}
+                      <Link
+                        href={`/businesses/${business.id}/edit`}
                         className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
                         title="Edit business"
                       >
                         <Edit3 className="w-4 h-4" />
-                      </button>
+                      </Link>
                     </div>
                   </div>
 
@@ -316,12 +314,12 @@ export default function BusinessOwnerSection({ businesses, profile }: BusinessOw
                     >
                       View Public Page
                     </Link>
-                    <button 
-                      onClick={() => setEditingBusinessId(business.id)}
+                    <Link 
+                      href={`/businesses/${business.id}/edit`}
                       className="flex-1 text-center py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
                       Edit Details
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -364,15 +362,6 @@ export default function BusinessOwnerSection({ businesses, profile }: BusinessOw
           </div>
         </div>
       </div>
-
-      {/* Business Edit Modal */}
-      {editingBusinessId && (
-        <BusinessEditModal
-          businessId={editingBusinessId}
-          onClose={() => setEditingBusinessId(null)}
-          onSuccess={handleEditSuccess}
-        />
-      )}
     </div>
   )
 }

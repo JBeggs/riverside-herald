@@ -85,10 +85,18 @@ export const adSchema = z.object({
 })
 
 export const profileUpdateSchema = z.object({
-  full_name: z.string()
-    .min(1, 'Full name is required')
-    .max(100, 'Name must be less than 100 characters')
+  first_name: z.string()
+    .min(1, 'First name is required')
+    .max(50, 'First name must be less than 50 characters')
     .transform(sanitizeText),
+  last_name: z.string()
+    .min(1, 'Last name is required')
+    .max(50, 'Last name must be less than 50 characters')
+    .transform(sanitizeText),
+  full_name: z.string()
+    .max(100, 'Name must be less than 100 characters')
+    .optional()
+    .transform(val => val ? sanitizeText(val) : val),
   avatar_url: z.string().url('Invalid avatar URL').optional(),
 })
 

@@ -7,6 +7,7 @@ interface User {
   email?: string
   username?: string
 }
+import { useRouter } from 'next/navigation'
 import { Profile } from '@/lib/types'
 import { 
   User as UserIcon, 
@@ -21,7 +22,6 @@ import {
   TrendingUp,
   Star
 } from 'lucide-react'
-import ArticleEditorModal from '@/components/articles/ArticleEditorModal'
 
 // Custom SVG icons for missing lucide-react icons
 const Settings = ({ className }: { className?: string }) => (
@@ -79,8 +79,8 @@ interface ProfilePageProps {
 type TabType = 'personal' | 'content' | 'businesses' | 'admin' | 'subscriber' | 'notifications'
 
 export default function ProfilePage({ user, profile, additionalData }: ProfilePageProps) {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState<TabType>('personal')
-  const [showEditorModal, setShowEditorModal] = useState(false)
 
   if (!profile) {
     return (
@@ -168,7 +168,9 @@ export default function ProfilePage({ user, profile, additionalData }: ProfilePa
             <div className="flex-1 min-w-0">
               <div className="flex items-center space-x-3 mb-2">
                 <h1 className="text-3xl font-bold text-gray-900 truncate">
-                  {profile.full_name || 'Anonymous User'}
+                  {profile.first_name && profile.last_name 
+                    ? `${profile.first_name} ${profile.last_name}` 
+                    : profile.full_name || 'Anonymous User'}
                 </h1>
                 <div className={`flex items-center space-x-1 px-3 py-1 rounded-full border text-sm font-medium ${getRoleColor(profile.role)}`}>
                   {getRoleIcon(profile.role)}
@@ -233,7 +235,7 @@ export default function ProfilePage({ user, profile, additionalData }: ProfilePa
             <AuthorDashboard 
               articles={additionalData.articles || []} 
               profile={profile}
-              onNewArticle={() => setShowEditorModal(true)}
+              onNewArticle={() => router.push('/admin/articles?action=create')}
             />
           )}
           
@@ -260,21 +262,6 @@ export default function ProfilePage({ user, profile, additionalData }: ProfilePa
           )}
         </div>
       </div>
-
-      {/* Article Editor Modal - at profile page level */}
-      {showEditorModal && (
-        <ArticleEditorModal
-          isOpen={showEditorModal}
-          onClose={() => setShowEditorModal(false)}
-          onSave={(newArticle) => {
-            setShowEditorModal(false)
-            if (newArticle) {
-              window.location.reload()
-            }
-          }}
-          articleId="new"
-        />
-      )}
     </div>
   )
 }

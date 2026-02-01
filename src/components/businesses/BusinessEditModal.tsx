@@ -9,6 +9,7 @@ interface BusinessEditModalProps {
   businessId: string
   onClose: () => void
   onSuccess: () => void
+  isFullPage?: boolean
 }
 
 interface BusinessData {
@@ -52,7 +53,7 @@ const socialPlatforms = [
   'tiktok'
 ]
 
-export function BusinessEditModal({ businessId, onClose, onSuccess }: BusinessEditModalProps) {
+export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage = false }: BusinessEditModalProps) {
   const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -380,7 +381,7 @@ export function BusinessEditModal({ businessId, onClose, onSuccess }: BusinessEd
 
   if (loading && businessId !== 'new') {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className={isFullPage ? "p-8" : "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"}>
         <div className="bg-white rounded-lg shadow-xl p-8">
           <div className="flex items-center justify-center">
             <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
@@ -391,52 +392,53 @@ export function BusinessEditModal({ businessId, onClose, onSuccess }: BusinessEd
     )
   }
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">
-            {businessId === 'new' ? 'Create New Business' : 'Edit Business Profile'}
-          </h2>
+  const content = (
+    <div className={`bg-white rounded-lg shadow-xl w-full overflow-hidden ${isFullPage ? '' : 'max-w-4xl max-h-[90vh]'}`}>
+      {/* Header */}
+      <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <h2 className="text-xl font-bold text-gray-900">
+          {businessId === 'new' ? 'Create New Business' : 'Edit Business Profile'}
+        </h2>
+        {!isFullPage && (
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
           >
             <X className="w-6 h-6" />
           </button>
-        </div>
+        )}
+      </div>
 
-        {/* Tabs */}
-        <div className="border-b border-gray-200">
-          <nav className="flex space-x-8 px-6">
-            {[
-              { id: 'basic', label: 'Basic Info' },
-              { id: 'contact', label: 'Contact' },
-              { id: 'services', label: 'Services' },
-              { id: 'hours', label: 'Hours' },
-              { id: 'social', label: 'Social Media' },
-              { id: 'images', label: 'Images' },
-              { id: 'seo', label: 'SEO' }
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </nav>
-        </div>
+      {/* Tabs */}
+      <div className="border-b border-gray-200 overflow-x-auto">
+        <nav className="flex space-x-8 px-6 min-w-max">
+          {[
+            { id: 'basic', label: 'Basic Info' },
+            { id: 'contact', label: 'Contact' },
+            { id: 'services', label: 'Services' },
+            { id: 'hours', label: 'Hours' },
+            { id: 'social', label: 'Social Media' },
+            { id: 'images', label: 'Images' },
+            { id: 'seo', label: 'SEO' }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
+                activeTab === tab.id
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+      </div>
 
-        {/* Content */}
-        <div className="overflow-y-auto max-h-[calc(90vh-200px)]">
-          <form onSubmit={handleSubmit} className="p-6">
+      {/* Content */}
+      <div className={`overflow-y-auto ${isFullPage ? '' : 'max-h-[calc(90vh-200px)]'}`}>
+        <form onSubmit={handleSubmit} className="p-6">
             {/* Basic Info Tab */}
             {activeTab === 'basic' && (
               <div className="space-y-6">
@@ -998,34 +1000,43 @@ export function BusinessEditModal({ businessId, onClose, onSuccess }: BusinessEd
           </form>
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-end space-x-4 p-6 border-t border-gray-200">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSubmit}
-            disabled={saving}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {saving ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                {businessId === 'new' ? 'Creating...' : 'Saving...'}
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4 mr-2" />
-                {businessId === 'new' ? 'Create Business' : 'Save Changes'}
-              </>
-            )}
-          </button>
-        </div>
+      {/* Footer */}
+      <div className="flex items-center justify-end space-x-4 p-6 border-t border-gray-200">
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleSubmit}
+          disabled={saving}
+          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          {saving ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+              {businessId === 'new' ? 'Creating...' : 'Saving...'}
+            </>
+          ) : (
+            <>
+              <Save className="w-4 h-4 mr-2" />
+              {businessId === 'new' ? 'Create Business' : 'Save Changes'}
+            </>
+          )}
+        </button>
       </div>
+    </div>
+  )
+
+  if (isFullPage) {
+    return content
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      {content}
     </div>
   )
 }

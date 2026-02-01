@@ -92,18 +92,13 @@ export default function AuthorDashboard({ articles, profile, onNewArticle }: Aut
           <p className="text-gray-600 mt-1">Manage your articles and track performance</p>
         </div>
         <div className="flex items-center space-x-3">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              onNewArticle?.()
-            }}
+          <Link
+            href="/admin/articles?action=create"
             className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Plus className="w-4 h-4" />
             <span>New Article</span>
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -162,13 +157,8 @@ export default function AuthorDashboard({ articles, profile, onNewArticle }: Aut
       <div className="bg-gray-50 rounded-lg p-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              onNewArticle?.()
-            }}
+          <Link
+            href="/admin/articles?action=create"
             className="flex items-center space-x-3 p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors w-full text-left"
           >
             <Plus className="w-5 h-5 text-blue-600" />
@@ -176,7 +166,7 @@ export default function AuthorDashboard({ articles, profile, onNewArticle }: Aut
               <p className="font-medium text-gray-900">Create New Article</p>
               <p className="text-sm text-gray-600">Start writing a new piece</p>
             </div>
-          </button>
+          </Link>
 
           <div className="flex items-center space-x-3 p-4 bg-white border border-gray-200 rounded-lg opacity-50 cursor-not-allowed">
             <Edit3 className="w-5 h-5 text-yellow-600" />
@@ -219,18 +209,13 @@ export default function AuthorDashboard({ articles, profile, onNewArticle }: Aut
             <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No articles yet</h3>
             <p className="text-gray-600 mb-6">Start by creating your first article</p>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                onNewArticle?.()
-              }}
+            <Link
+              href="/admin/articles?action=create"
               className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <Plus className="w-4 h-4" />
               <span>Create Article</span>
-            </button>
+            </Link>
           </div>
         ) : (
           <div className="space-y-4">

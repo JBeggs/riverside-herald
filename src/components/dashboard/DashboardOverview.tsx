@@ -9,7 +9,6 @@ import {
   Eye,
   Clock
 } from 'lucide-react'
-import ArticleEditorModal from '@/components/articles/ArticleEditorModal'
 
 // Custom icons not available in lucide-react
 const Users = ({ className }: { className?: string }) => (
@@ -37,8 +36,6 @@ interface DashboardOverviewProps {
 }
 
 export default function DashboardOverview({ profile, stats, recentArticles }: DashboardOverviewProps) {
-  const [showEditorModal, setShowEditorModal] = useState(false)
-  const [selectedArticleId, setSelectedArticleId] = useState<string | null>(null)
   const isAdmin = profile?.role === 'admin'
   const isEditor = profile?.role === 'editor'
   const isAuthor = profile?.role === 'author'
@@ -77,21 +74,16 @@ export default function DashboardOverview({ profile, stats, recentArticles }: Da
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
           <p className="text-gray-600 mt-1">
-            Welcome back, {profile?.full_name || profile?.email || 'User'}!
+            Welcome back, {profile?.first_name || profile?.full_name || profile?.email || 'User'}!
           </p>
         </div>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            setShowEditorModal(true)
-          }}
+        <Link
+          href="/admin/articles?action=create"
           className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
           <Plus className="w-5 h-5" />
           <span>New Article</span>
-        </button>
+        </Link>
       </div>
 
       {/* Stats Grid */}
@@ -165,13 +157,8 @@ export default function DashboardOverview({ profile, stats, recentArticles }: Da
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              setShowEditorModal(true)
-            }}
+          <Link
+            href="/admin/articles?action=create"
             className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors w-full text-left"
           >
             <div className="p-2 bg-blue-100 rounded-lg">
@@ -181,7 +168,7 @@ export default function DashboardOverview({ profile, stats, recentArticles }: Da
               <p className="font-medium text-gray-900">Create Article</p>
               <p className="text-sm text-gray-600">Write a new article</p>
             </div>
-          </button>
+          </Link>
 
           <Link
             href="/admin/media"
@@ -223,32 +210,20 @@ export default function DashboardOverview({ profile, stats, recentArticles }: Da
           <div className="text-center py-12">
             <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-600 mb-4">No articles yet</p>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                setShowEditorModal(true)
-              }}
+            <Link
+              href="/admin/articles?action=create"
               className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <Plus className="w-5 h-5" />
               <span>Create Your First Article</span>
-            </button>
+            </Link>
           </div>
         ) : (
           <div className="space-y-4">
             {filteredArticles.slice(0, 5).map((article: any) => (
-              <button
+              <Link
                 key={article.id}
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  const articleId = article.id ? String(article.id) : null
-                  setSelectedArticleId(articleId)
-                  setShowEditorModal(true)
-                }}
+                href={`/admin/articles?id=${article.id}`}
                 className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left"
               >
                 <div className="flex-1 min-w-0">
@@ -274,31 +249,11 @@ export default function DashboardOverview({ profile, stats, recentArticles }: Da
                   </div>
                 </div>
                 <ArrowRight className="w-5 h-5 text-gray-400 ml-4" />
-              </button>
+              </Link>
             ))}
           </div>
         )}
       </div>
-
-      {/* Article Editor Modal */}
-      {showEditorModal && (
-        <ArticleEditorModal
-          isOpen={showEditorModal}
-          onClose={() => {
-            setShowEditorModal(false)
-            setSelectedArticleId(null)
-          }}
-          onSave={(newArticle) => {
-            setShowEditorModal(false)
-            setSelectedArticleId(null)
-            // Optionally reload to show new/updated article
-            if (newArticle) {
-              window.location.reload()
-            }
-          }}
-          articleId={selectedArticleId || "new"}
-        />
-      )}
     </div>
   )
 }

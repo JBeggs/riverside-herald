@@ -62,7 +62,7 @@ export function MobileNav({ menuItems }: MobileNavProps) {
             {/* Mobile Authentication */}
             <div className="border-t border-neutral-200 pt-4 mt-4">
               <div className="flex justify-center">
-                <ClientHeader />
+                <ClientHeader onAction={() => setIsMenuOpen(false)} />
               </div>
             </div>
           </nav>

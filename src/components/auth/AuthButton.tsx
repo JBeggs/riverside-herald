@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { LogIn, LogOut, User, ChevronDown } from 'lucide-react'
 import AuthModal from './AuthModal'
 
-export default function AuthButton() {
+export default function AuthButton({ onAction }: { onAction?: () => void }) {
   const { user, profile, signOut, loading } = useAuth()
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
@@ -15,11 +15,13 @@ export default function AuthButton() {
   const handleAuthClick = (mode: 'login' | 'signup') => {
     setAuthMode(mode)
     setShowAuthModal(true)
+    if (onAction) onAction()
   }
 
   const handleSignOut = async () => {
     await signOut()
     setShowUserMenu(false)
+    if (onAction) onAction()
   }
 
   if (loading) {
@@ -42,7 +44,9 @@ export default function AuthButton() {
             <User className="w-4 h-4 text-white" />
           </div>
           <span className="text-sm font-medium text-gray-700 hidden sm:block">
-            {profile.full_name || user.email?.split('@')[0]}
+            {profile.first_name && profile.last_name 
+              ? `${profile.first_name} ${profile.last_name}` 
+              : profile.full_name || user.email?.split('@')[0]}
           </span>
           <ChevronDown className="w-4 h-4 text-gray-500" />
         </button>
@@ -51,7 +55,11 @@ export default function AuthButton() {
         {showUserMenu && (
           <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
             <div className="px-4 py-2 border-b border-gray-100">
-              <p className="text-sm font-medium text-gray-900">{profile.full_name}</p>
+              <p className="text-sm font-medium text-gray-900">
+                {profile.first_name && profile.last_name 
+                  ? `${profile.first_name} ${profile.last_name}` 
+                  : profile.full_name}
+              </p>
               <p className="text-xs text-gray-500">{user.email}</p>
               {profile.role && (
                 <span className="inline-block mt-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
@@ -60,18 +68,39 @@ export default function AuthButton() {
               )}
             </div>
             
-            <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+            <Link 
+              href="/profile" 
+              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+              onClick={() => {
+                setShowUserMenu(false)
+                if (onAction) onAction()
+              }}
+            >
               Profile Settings
             </Link>
             
             {(profile.role === 'admin' || profile.role === 'editor' || profile.role === 'author' || profile.role === 'business_owner') && (
-              <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+              <Link 
+                href="/dashboard" 
+                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                onClick={() => {
+                  setShowUserMenu(false)
+                  if (onAction) onAction()
+                }}
+              >
                 Dashboard
               </Link>
             )}
             
             {(profile.role === 'admin' || profile.role === 'editor') && (
-              <Link href="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+              <Link 
+                href="/admin" 
+                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                onClick={() => {
+                  setShowUserMenu(false)
+                  if (onAction) onAction()
+                }}
+              >
                 Admin Panel
               </Link>
             )}
