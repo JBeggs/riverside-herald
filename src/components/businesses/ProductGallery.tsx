@@ -3,8 +3,20 @@
 import React from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { ExternalLink, ShoppingBag } from 'lucide-react'
 import { ExternalProduct } from '@/lib/business-products'
+
+// Custom SVG icon for ArrowUpRight since it's missing in the current lucide-react version
+const ArrowUpRight = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 17L17 7M17 7H7M17 7V17" />
+  </svg>
+)
+
+const ShoppingBag = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+  </svg>
+)
 
 interface ProductGalleryProps {
   products: ExternalProduct[]
@@ -58,16 +70,16 @@ export default function ProductGallery({ products, businessName }: ProductGaller
             {/* Image Container */}
             <div className="relative aspect-square overflow-hidden bg-gray-100">
               <Image
-                src={product.image || product.imageUrl}
+                src={product.imageUrl}
                 alt={product.name}
                 fill
                 className="object-cover group-hover:scale-110 transition-transform duration-500"
-                unoptimized={(product.image || product.imageUrl || '').startsWith('http')}
+                unoptimized={(product.imageUrl || '').startsWith('http')}
               />
-              {(product.category_name || product.category) && (
+              {(product.category) && (
                 <div className="absolute top-3 left-3">
                   <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-gray-900 text-xs font-bold rounded-full shadow-sm">
-                    {product.category_name || product.category}
+                    {product.category}
                   </span>
                 </div>
               )}
@@ -85,17 +97,17 @@ export default function ProductGallery({ products, businessName }: ProductGaller
               </div>
               
               <p className="text-sm text-gray-600 line-clamp-2 mb-6 flex-1">
-                {product.short_description || product.description}
+                {product.description}
               </p>
 
               <a
-                href={product.externalUrl || `/products/${product.slug}`}
-                target={product.externalUrl ? "_blank" : "_self"}
-                rel={product.externalUrl ? "noopener noreferrer" : ""}
+                href={product.externalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center justify-center w-full px-4 py-3 bg-gray-900 text-white text-sm font-bold rounded-xl hover:bg-blue-600 transition-colors group/btn"
               >
-                <span>{product.externalUrl ? 'View on Website' : 'View Details'}</span>
-                <ExternalLink className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
+                <span>View on Website</span>
+                <ArrowUpRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
               </a>
             </div>
           </motion.div>

@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { serverNewsApi } from '@/lib/api-server'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
 import CategoryManager from '@/components/dashboard/CategoryManager'
+import { Profile } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,9 +16,9 @@ export default async function AdminCategoriesPage() {
   }
 
   try {
-    const profile = await serverNewsApi.profile.get()
+    const profile = await serverNewsApi.profile.get() as Profile
     
-    if (!profile || !profile.user) {
+    if (!profile) {
       redirect('/login')
     }
 
