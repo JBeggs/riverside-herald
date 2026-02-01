@@ -175,8 +175,10 @@ export default function AdminSection({ profile, systemStats }: AdminSectionProps
   return (
     <div className="space-y-6 md:space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
-        <Shield className="w-8 h-8 text-yellow-600" />
+      <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 text-center sm:text-left">
+        <div className="flex justify-center sm:justify-start">
+          <Shield className="w-8 h-8 text-yellow-600" />
+        </div>
         <div>
           <h2 className="text-xl md:text-2xl font-bold text-gray-900">Administration Panel</h2>
           <p className="text-sm text-gray-600">
@@ -187,12 +189,12 @@ export default function AdminSection({ profile, systemStats }: AdminSectionProps
 
       {/* System Overview */}
       {systemStats && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           <div className="bg-white border border-gray-200 rounded-lg p-4 md:p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs md:text-sm font-medium text-gray-600">Total Users</p>
-                <p className="text-2xl md:text-3xl font-bold text-blue-600">{systemStats.totalUsers.toLocaleString()}</p>
+                <p className="text-[10px] sm:text-sm font-medium text-gray-600">Users</p>
+                <p className="text-lg md:text-3xl font-bold text-blue-600">{systemStats.totalUsers.toLocaleString()}</p>
               </div>
               <div className="p-2 md:p-3 bg-blue-100 rounded-full">
                 <Users className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
@@ -203,8 +205,8 @@ export default function AdminSection({ profile, systemStats }: AdminSectionProps
           <div className="bg-white border border-gray-200 rounded-lg p-4 md:p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs md:text-sm font-medium text-gray-600">Total Articles</p>
-                <p className="text-2xl md:text-3xl font-bold text-green-600">{systemStats.totalArticles.toLocaleString()}</p>
+                <p className="text-[10px] sm:text-sm font-medium text-gray-600">Articles</p>
+                <p className="text-lg md:text-3xl font-bold text-green-600">{systemStats.totalArticles.toLocaleString()}</p>
               </div>
               <div className="p-2 md:p-3 bg-green-100 rounded-full">
                 <FileText className="w-5 h-5 md:w-6 md:h-6 text-green-600" />
@@ -212,11 +214,11 @@ export default function AdminSection({ profile, systemStats }: AdminSectionProps
             </div>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-lg p-4 md:p-6 shadow-sm sm:col-span-2 lg:col-span-1">
+          <div className="bg-white border border-gray-200 rounded-lg p-4 md:p-6 shadow-sm col-span-2 lg:col-span-1">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs md:text-sm font-medium text-gray-600">Total Businesses</p>
-                <p className="text-2xl md:text-3xl font-bold text-purple-600">{systemStats.totalBusinesses.toLocaleString()}</p>
+                <p className="text-[10px] sm:text-sm font-medium text-gray-600">Businesses</p>
+                <p className="text-lg md:text-3xl font-bold text-purple-600">{systemStats.totalBusinesses.toLocaleString()}</p>
               </div>
               <div className="p-2 md:p-3 bg-purple-100 rounded-full">
                 <Building2 className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
@@ -232,60 +234,60 @@ export default function AdminSection({ profile, systemStats }: AdminSectionProps
           <PlusCircle className="w-5 h-5 mr-2 text-blue-600" />
           Quick Actions
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
           <Link
             href="/admin/articles/add"
-            className="group flex flex-col p-4 bg-blue-50 border border-blue-100 rounded-xl hover:bg-blue-100 hover:border-blue-200 transition-all min-h-[110px]"
+            className="group flex flex-col p-3 sm:p-4 bg-blue-50 border border-blue-100 rounded-xl hover:bg-blue-100 hover:border-blue-200 transition-all min-h-[100px] sm:min-h-[110px]"
           >
-            <div className="p-2 bg-blue-500 text-white rounded-lg w-fit mb-2 group-hover:scale-110 transition-transform">
-              <FileText className="w-5 h-5" />
+            <div className="p-1.5 sm:p-2 bg-blue-500 text-white rounded-lg w-fit mb-2 group-hover:scale-110 transition-transform">
+              <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <span className="font-bold text-blue-900 text-sm md:text-base">New Article</span>
-            <span className="text-[10px] md:text-xs text-blue-700 mt-0.5">Create and publish news</span>
+            <span className="font-bold text-blue-900 text-xs sm:text-base">Article</span>
+            <span className="hidden sm:block text-[10px] text-blue-700 mt-0.5">Create news</span>
           </Link>
 
           <Link
             href="/admin/businesses/add"
-            className="group flex flex-col p-4 bg-green-50 border border-green-100 rounded-xl hover:bg-green-100 hover:border-green-200 transition-all min-h-[110px]"
+            className="group flex flex-col p-3 sm:p-4 bg-green-50 border border-green-100 rounded-xl hover:bg-green-100 hover:border-green-200 transition-all min-h-[100px] sm:min-h-[110px]"
           >
-            <div className="p-2 bg-green-500 text-white rounded-lg w-fit mb-2 group-hover:scale-110 transition-transform">
-              <Building2 className="w-5 h-5" />
+            <div className="p-1.5 sm:p-2 bg-green-500 text-white rounded-lg w-fit mb-2 group-hover:scale-110 transition-transform">
+              <Building2 className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <span className="font-bold text-green-900 text-sm md:text-base">Add Business</span>
-            <span className="text-[10px] md:text-xs text-green-700 mt-0.5">Register local business</span>
+            <span className="font-bold text-green-900 text-xs sm:text-base">Business</span>
+            <span className="hidden sm:block text-[10px] text-green-700 mt-0.5">Register listing</span>
           </Link>
 
           <Link
             href="/admin/articles?status=pending"
-            className="group flex flex-col p-4 bg-orange-50 border border-orange-100 rounded-xl hover:bg-orange-100 hover:border-orange-200 transition-all min-h-[110px]"
+            className="group flex flex-col p-3 sm:p-4 bg-orange-50 border border-orange-100 rounded-xl hover:bg-orange-100 hover:border-orange-200 transition-all min-h-[100px] sm:min-h-[110px]"
           >
-            <div className="p-2 bg-orange-500 text-white rounded-lg w-fit mb-2 group-hover:scale-110 transition-transform">
-              <CheckCircle2 className="w-5 h-5" />
+            <div className="p-1.5 sm:p-2 bg-orange-500 text-white rounded-lg w-fit mb-2 group-hover:scale-110 transition-transform">
+              <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <span className="font-bold text-orange-900 text-sm md:text-base">Review Content</span>
-            <span className="text-[10px] md:text-xs text-orange-700 mt-0.5">Approve pending drafts</span>
+            <span className="font-bold text-orange-900 text-xs sm:text-base">Review</span>
+            <span className="hidden sm:block text-[10px] text-orange-700 mt-0.5">Approve drafts</span>
           </Link>
 
           <Link
             href="/admin/categories"
-            className="group flex flex-col p-4 bg-yellow-50 border border-yellow-100 rounded-xl hover:bg-yellow-100 hover:border-yellow-200 transition-all min-h-[110px]"
+            className="group flex flex-col p-3 sm:p-4 bg-yellow-50 border border-yellow-100 rounded-xl hover:bg-yellow-100 hover:border-yellow-200 transition-all min-h-[100px] sm:min-h-[110px]"
           >
-            <div className="p-2 bg-yellow-500 text-white rounded-lg w-fit mb-2 group-hover:scale-110 transition-transform">
-              <Tag className="w-5 h-5" />
+            <div className="p-1.5 sm:p-2 bg-yellow-500 text-white rounded-lg w-fit mb-2 group-hover:scale-110 transition-transform">
+              <Tag className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <span className="font-bold text-yellow-900 text-sm md:text-base">Categories</span>
-            <span className="text-[10px] md:text-xs text-yellow-700 mt-0.5">Manage article topics</span>
+            <span className="font-bold text-yellow-900 text-xs sm:text-base">Topics</span>
+            <span className="hidden sm:block text-[10px] text-yellow-700 mt-0.5">Manage topics</span>
           </Link>
 
           <Link
             href="/admin/users"
-            className="group flex flex-col p-4 bg-purple-50 border border-purple-100 rounded-xl hover:bg-purple-100 hover:border-purple-200 transition-all min-h-[110px]"
+            className="group flex flex-col p-3 sm:p-4 bg-purple-50 border border-purple-100 rounded-xl hover:bg-purple-100 hover:border-purple-200 transition-all min-h-[100px] sm:min-h-[110px] col-span-2 lg:col-span-1"
           >
-            <div className="p-2 bg-purple-500 text-white rounded-lg w-fit mb-2 group-hover:scale-110 transition-transform">
-              <UsersIcon className="w-5 h-5" />
+            <div className="p-1.5 sm:p-2 bg-purple-500 text-white rounded-lg w-fit mb-2 group-hover:scale-110 transition-transform">
+              <UsersIcon className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <span className="font-bold text-purple-900 text-sm md:text-base">Manage Roles</span>
-            <span className="text-[10px] md:text-xs text-purple-700 mt-0.5">Update user permissions</span>
+            <span className="font-bold text-purple-900 text-xs sm:text-base">Roles</span>
+            <span className="hidden sm:block text-[10px] text-purple-700 mt-0.5">Permissions</span>
           </Link>
         </div>
       </div>

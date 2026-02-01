@@ -152,14 +152,14 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Personal Information</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Personal Information</h2>
         {!isEditing ? (
           <button
             onClick={() => setIsEditing(true)}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto"
           >
             <Edit3 className="w-4 h-4" />
             <span>Edit Profile</span>
@@ -169,14 +169,14 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
             <button
               onClick={handleSave}
               disabled={loading}
-              className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+              className="flex-1 sm:flex-none flex items-center justify-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               <span>{loading ? 'Saving...' : 'Save'}</span>
             </button>
             <button
               onClick={handleCancel}
-              className="flex items-center space-x-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex-1 sm:flex-none flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <X className="w-4 h-4" />
               <span>Cancel</span>
@@ -186,21 +186,21 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
       </div>
 
       {/* Profile Picture */}
-      <div className="bg-gray-50 rounded-lg p-6">
+      <div className="bg-gray-50 rounded-lg p-4 sm:p-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">Profile Picture</h3>
-        <div className="flex items-center space-x-6">
+        <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
           {(formData.avatar_url || profile.avatar_url) ? (
             <img 
               src={formData.avatar_url || profile.avatar_url} 
               alt="Profile" 
-              className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
+              className="w-20 h-20 rounded-full object-cover border-2 border-gray-200 shadow-sm"
             />
           ) : (
-            <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center border-2 border-gray-300">
+            <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center border-2 border-gray-300 shadow-sm">
               <UserIcon className="w-10 h-10 text-gray-500" />
             </div>
           )}
-          <div>
+          <div className="flex flex-col items-center sm:items-start">
             <input
               ref={fileInputRef}
               type="file"
@@ -211,12 +211,12 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
             <button 
               onClick={handleChangePhoto}
               disabled={uploading}
-              className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center space-x-2 px-4 py-2 border border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Camera className="w-4 h-4" />
               <span>{uploading ? 'Uploading...' : 'Change Photo'}</span>
             </button>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 mt-2 text-center sm:text-left">
               JPG, PNG or GIF. Max size 5MB.
             </p>
           </div>

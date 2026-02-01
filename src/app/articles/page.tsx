@@ -2,7 +2,8 @@ import { serverNewsApi } from '@/lib/api-server'
 import Link from 'next/link'
 import Image from 'next/image'
 import type { Metadata } from 'next'
-import { Calendar, Clock, User, Search } from 'lucide-react'
+import { Calendar, Clock, User, Search, Plus } from 'lucide-react'
+import { cookies } from 'next/headers'
 
 export const metadata: Metadata = {
   title: 'All Articles | The Riverside Herald',
@@ -74,6 +75,18 @@ async function getCategories() {
   }
 }
 
+async function getProfile() {
+  try {
+    const cookieStore = await cookies()
+    const authToken = cookieStore.get('auth_token')?.value
+    if (!authToken) return null
+    
+    return await serverNewsApi.profile.get()
+  } catch (error) {
+    return null
+  }
+}
+
 import { getArticleImageUrl } from '@/lib/image-utils'
 
 function getImageUrl(article: any) {
@@ -81,10 +94,13 @@ function getImageUrl(article: any) {
 }
 
 export default async function ArticlesPage() {
-  const [articles, categories] = await Promise.all([
+  const [articles, categories, profile] = await Promise.all([
     getArticles(),
-    getCategories()
+    getCategories(),
+    getProfile()
   ])
+
+  const canAddArticle = profile && ['admin', 'editor', 'author', 'business_owner'].includes(profile.role)
 
   const featuredArticle = articles[0]
   const otherArticles = articles.slice(1)
@@ -98,9 +114,21 @@ export default async function ArticlesPage() {
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
               All Articles
             </h1>
-            <p className="text-xl text-gray-600 leading-relaxed">
+            <p className="text-xl text-gray-600 leading-relaxed mb-8">
               Stay informed with our comprehensive coverage of local news, business, sports, and community events.
             </p>
+            
+            {canAddArticle && (
+              <div className="flex justify-center">
+                <Link
+                  href="/admin/articles?action=create"
+                  className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-md"
+                >
+                  <Plus className="w-5 h-5" />
+                  <span>Create New Article</span>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>

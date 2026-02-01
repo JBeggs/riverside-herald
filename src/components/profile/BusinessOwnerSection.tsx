@@ -80,16 +80,16 @@ export default function BusinessOwnerSection({ businesses, profile }: BusinessOw
   const verifiedCount = businesses.filter(business => business.is_verified).length
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">My Businesses</h2>
-          <p className="text-gray-600 mt-1">Manage your business listings and track performance</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">My Businesses</h2>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">Manage your business listings and track performance</p>
         </div>
         <Link
           href="/businesses/add"
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto"
         >
           <Plus className="w-4 h-4" />
           <span>Add Business</span>
@@ -98,51 +98,51 @@ export default function BusinessOwnerSection({ businesses, profile }: BusinessOw
 
       {/* Stats Overview */}
       {businesses.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Businesses</p>
-                <p className="text-3xl font-bold text-gray-900">{businesses.length}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Total</p>
+                <p className="text-xl sm:text-3xl font-bold text-gray-900">{businesses.length}</p>
               </div>
-              <div className="p-3 bg-blue-100 rounded-full">
-                <Building2 className="w-6 h-6 text-blue-600" />
+              <div className="p-2 sm:p-3 bg-blue-100 rounded-full">
+                <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Verified</p>
-                <p className="text-3xl font-bold text-green-600">{verifiedCount}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Verified</p>
+                <p className="text-xl sm:text-3xl font-bold text-green-600">{verifiedCount}</p>
               </div>
-              <div className="p-3 bg-green-100 rounded-full">
-                <CheckCircle className="w-6 h-6 text-green-600" />
+              <div className="p-2 sm:p-3 bg-green-100 rounded-full">
+                <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Avg Rating</p>
-                <p className="text-3xl font-bold text-yellow-600">{averageRating.toFixed(1)}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Rating</p>
+                <p className="text-xl sm:text-3xl font-bold text-yellow-600">{averageRating.toFixed(1)}</p>
               </div>
-              <div className="p-3 bg-yellow-100 rounded-full">
-                <Star className="w-6 h-6 text-yellow-600" />
+              <div className="p-2 sm:p-3 bg-yellow-100 rounded-full">
+                <Star className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Reviews</p>
-                <p className="text-3xl font-bold text-purple-600">{totalReviews}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Reviews</p>
+                <p className="text-xl sm:text-3xl font-bold text-purple-600">{totalReviews}</p>
               </div>
-              <div className="p-3 bg-purple-100 rounded-full">
-                <Users className="w-6 h-6 text-purple-600" />
+              <div className="p-2 sm:p-3 bg-purple-100 rounded-full">
+                <Users className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
               </div>
             </div>
           </div>
@@ -151,17 +151,17 @@ export default function BusinessOwnerSection({ businesses, profile }: BusinessOw
 
       {/* Quick Actions */}
       {businesses.length > 0 && (
-        <div className="bg-gray-50 rounded-lg p-6">
+        <div className="bg-gray-50 rounded-lg p-4 sm:p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Link
               href="/businesses/add"
               className="flex items-center space-x-3 p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <Plus className="w-5 h-5 text-blue-600" />
               <div>
-                <p className="font-medium text-gray-900">Add New Business</p>
-                <p className="text-sm text-gray-600">List another business</p>
+                <p className="font-medium text-gray-900">Add New</p>
+                <p className="text-xs text-gray-600">List business</p>
               </div>
             </Link>
 
@@ -172,7 +172,7 @@ export default function BusinessOwnerSection({ businesses, profile }: BusinessOw
               <CheckCircle className="w-5 h-5 text-green-600" />
               <div>
                 <p className="font-medium text-gray-900">Get Verified</p>
-                <p className="text-sm text-gray-600">Boost credibility</p>
+                <p className="text-xs text-gray-600">Boost credibility</p>
               </div>
             </Link>
 
@@ -182,8 +182,8 @@ export default function BusinessOwnerSection({ businesses, profile }: BusinessOw
             >
               <TrendingUp className="w-5 h-5 text-purple-600" />
               <div>
-                <p className="font-medium text-gray-900">View Analytics</p>
-                <p className="text-sm text-gray-600">Track performance</p>
+                <p className="font-medium text-gray-900">Analytics</p>
+                <p className="text-xs text-gray-600">Track performance</p>
               </div>
             </Link>
           </div>
@@ -195,7 +195,7 @@ export default function BusinessOwnerSection({ businesses, profile }: BusinessOw
         <h3 className="text-lg font-medium text-gray-900 mb-6">Your Businesses</h3>
         
         {businesses.length === 0 ? (
-          <div className="text-center py-12 bg-white border border-gray-200 rounded-lg">
+          <div className="text-center py-12 bg-white border border-gray-200 rounded-lg px-4">
             <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No businesses yet</h3>
             <p className="text-gray-600 mb-6">Start by adding your first business listing</p>
@@ -210,9 +210,9 @@ export default function BusinessOwnerSection({ businesses, profile }: BusinessOw
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {businesses.map((business) => (
-              <div key={business.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+              <div key={business.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow flex flex-col">
                 {/* Business Header */}
-                <div className="relative h-32 bg-gradient-to-r from-blue-500 to-purple-600 overflow-hidden">
+                <div className="relative h-32 bg-gradient-to-r from-blue-500 to-purple-600 overflow-hidden flex-shrink-0">
                   {/* Cover Image */}
                   {business.cover_image?.file_url ? (
                     <div className="absolute inset-0">
@@ -221,11 +221,9 @@ export default function BusinessOwnerSection({ businesses, profile }: BusinessOw
                         alt={`${business.name} cover`}
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          // Fallback to gradient if image fails to load
                           (e.target as HTMLImageElement).style.display = 'none'
                         }}
                       />
-                      {/* Overlay for better text readability */}
                       <div className="absolute inset-0 bg-black bg-opacity-20" />
                     </div>
                   ) : null}
@@ -258,17 +256,17 @@ export default function BusinessOwnerSection({ businesses, profile }: BusinessOw
                 </div>
 
                 {/* Business Info */}
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
+                <div className="p-4 sm:p-6 flex-1 flex flex-col">
+                  <div className="flex items-start justify-between mb-4 gap-2">
                     <div className="flex-1 min-w-0">
                       <h4 className="text-lg font-semibold text-gray-900 truncate">
                         {business.name}
                       </h4>
                       {business.industry && (
-                        <p className="text-sm text-gray-600">{business.industry}</p>
+                        <p className="text-sm text-gray-600 truncate">{business.industry}</p>
                       )}
                     </div>
-                    <div className="flex items-center space-x-1 ml-4">
+                    <div className="flex items-center space-x-1 flex-shrink-0">
                       <Link
                         href={`/businesses/${business.slug}`}
                         className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
@@ -288,37 +286,37 @@ export default function BusinessOwnerSection({ businesses, profile }: BusinessOw
 
                   {/* Rating */}
                   <div className="flex items-center space-x-2 mb-4">
-                    <div className="flex items-center space-x-1">
+                    <div className="flex items-center space-x-0.5">
                       {renderStars(Number(business.rating) || 0)}
                     </div>
-                    <span className="text-sm text-gray-600">
-                      {Number(business.rating || 0).toFixed(1)} ({business.review_count || 0} reviews)
+                    <span className="text-xs sm:text-sm text-gray-600">
+                      {Number(business.rating || 0).toFixed(1)} ({business.review_count || 0})
                     </span>
                   </div>
 
                   {/* Quick Info */}
-                  <div className="space-y-2 text-sm text-gray-600">
+                  <div className="space-y-2 text-sm text-gray-600 flex-1">
                     <div className="flex items-center space-x-2">
                       <MapPin className="w-4 h-4 flex-shrink-0" />
                       <span className="truncate">{business.city || 'Location not specified'}</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Building2 className="w-4 h-4 flex-shrink-0" />
-                      <span>Listed since {formatDate(business.created_at)}</span>
+                      <span className="truncate text-xs sm:text-sm">Listed {formatDate(business.created_at)}</span>
                     </div>
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center space-x-3 mt-6 pt-4 border-t border-gray-200">
+                  <div className="flex flex-col sm:flex-row items-center gap-3 mt-6 pt-4 border-t border-gray-200">
                     <Link
                       href={`/businesses/${business.slug}`}
-                      className="flex-1 text-center py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                      className="w-full sm:flex-1 text-center py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm"
                     >
-                      View Public Page
+                      Public Page
                     </Link>
                     <button 
                       onClick={() => setEditingBusinessId(business.id)}
-                      className="flex-1 text-center py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      className="w-full sm:flex-1 text-center py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
                     >
                       Edit Details
                     </button>

@@ -229,25 +229,25 @@ export default function NotificationSettings({ profile }: NotificationSettingsPr
   ]
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center space-x-3">
-          <Bell className="w-8 h-8 text-blue-600" />
+          <Bell className="w-8 h-8 text-blue-600 flex-shrink-0" />
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Notification Settings</h2>
-            <p className="text-gray-600">Customize how and when you receive notifications</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Notifications</h2>
+            <p className="text-xs sm:text-sm text-gray-600">Customize your alerts</p>
           </div>
         </div>
         
         <button
           onClick={handleSave}
           disabled={loading}
-          className={`flex items-center space-x-2 px-6 py-2 rounded-lg font-medium transition-colors ${
+          className={`w-full sm:w-auto flex items-center justify-center space-x-2 px-6 py-2 rounded-lg font-medium transition-colors ${
             saved 
               ? 'bg-green-600 text-white' 
               : 'bg-blue-600 text-white hover:bg-blue-700'
-          } disabled:opacity-50`}
+          } disabled:opacity-50 text-sm`}
         >
           {saved ? (
             <>
@@ -264,87 +264,91 @@ export default function NotificationSettings({ profile }: NotificationSettingsPr
       </div>
 
       {/* Notification Status */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 sm:p-6 shadow-sm">
         <div className="flex items-center space-x-3 mb-4">
           <div className="p-2 bg-blue-100 rounded-full">
             <Bell className="w-5 h-5 text-blue-600" />
           </div>
-          <h3 className="text-lg font-medium text-blue-900">Notification Status</h3>
+          <h3 className="text-lg font-medium text-blue-900">Status</h3>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-          <div className="flex items-center space-x-2">
-            <div className={`w-2 h-2 rounded-full ${preferences.email_notifications ? 'bg-green-500' : 'bg-gray-400'}`}></div>
-            <span className="text-blue-800">
-              Email: {preferences.email_notifications ? 'Enabled' : 'Disabled'}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-sm">
+          <div className="flex items-center space-x-2 bg-white bg-opacity-50 p-2 rounded-lg">
+            <div className={`w-2 h-2 rounded-full flex-shrink-0 ${preferences.email_notifications ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+            <span className="text-blue-800 truncate">
+              Email: {preferences.email_notifications ? 'On' : 'Off'}
             </span>
           </div>
-          <div className="flex items-center space-x-2">
-            <div className={`w-2 h-2 rounded-full ${preferences.push_notifications ? 'bg-green-500' : 'bg-gray-400'}`}></div>
-            <span className="text-blue-800">
-              Push: {preferences.push_notifications ? 'Enabled' : 'Disabled'}
+          <div className="flex items-center space-x-2 bg-white bg-opacity-50 p-2 rounded-lg">
+            <div className={`w-2 h-2 rounded-full flex-shrink-0 ${preferences.push_notifications ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+            <span className="text-blue-800 truncate">
+              Push: {preferences.push_notifications ? 'On' : 'Off'}
             </span>
           </div>
-          <div className="flex items-center space-x-2">
-            <div className={`w-2 h-2 rounded-full ${preferences.browser_notifications ? 'bg-green-500' : 'bg-gray-400'}`}></div>
-            <span className="text-blue-800">
-              Browser: {preferences.browser_notifications ? 'Enabled' : 'Disabled'}
+          <div className="flex items-center space-x-2 bg-white bg-opacity-50 p-2 rounded-lg">
+            <div className={`w-2 h-2 rounded-full flex-shrink-0 ${preferences.browser_notifications ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+            <span className="text-blue-800 truncate">
+              Browser: {preferences.browser_notifications ? 'On' : 'Off'}
             </span>
           </div>
         </div>
       </div>
 
       {/* Notification Groups */}
-      {notificationGroups.map((group, groupIndex) => {
-        const GroupIcon = group.icon
-        return (
-          <div key={groupIndex} className="bg-white border border-gray-200 rounded-lg p-6">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="p-2 bg-gray-100 rounded-full">
-                <GroupIcon className="w-5 h-5 text-gray-600" />
+      <div className="space-y-4 sm:space-y-6">
+        {notificationGroups.map((group, groupIndex) => {
+          const GroupIcon = group.icon
+          return (
+            <div key={groupIndex} className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 shadow-sm">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="p-2 bg-gray-100 rounded-full flex-shrink-0">
+                  <GroupIcon className="w-5 h-5 text-gray-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">{group.title}</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">{group.description}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-lg font-medium text-gray-900">{group.title}</h3>
-                <p className="text-sm text-gray-600">{group.description}</p>
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-              {group.settings.map((setting, settingIndex) => {
-                const SettingIcon = setting.icon
-                const isEnabled = preferences[setting.key]
-                
-                return (
-                  <div key={settingIndex} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <SettingIcon className="w-5 h-5 text-gray-500" />
-                      <div>
-                        <p className="font-medium text-gray-900">{setting.label}</p>
-                        <p className="text-sm text-gray-600">{setting.description}</p>
+              
+              <div className="space-y-3 sm:space-y-4">
+                {group.settings.map((setting, settingIndex) => {
+                  const SettingIcon = setting.icon
+                  const isEnabled = preferences[setting.key]
+                  
+                  return (
+                    <div key={settingIndex} className="flex items-start justify-between p-3 sm:p-4 bg-gray-50 rounded-xl gap-4">
+                      <div className="flex items-start space-x-3 min-w-0">
+                        <div className="mt-1 flex-shrink-0">
+                          <SettingIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-semibold text-gray-900 text-sm sm:text-base truncate">{setting.label}</p>
+                          <p className="text-[10px] sm:text-xs text-gray-500 line-clamp-2">{setting.description}</p>
+                        </div>
                       </div>
+                      
+                      <label className="relative inline-flex items-center cursor-pointer flex-shrink-0 mt-1">
+                        <input 
+                          type="checkbox" 
+                          checked={isEnabled}
+                          onChange={() => handleToggle(setting.key)}
+                          className="sr-only peer" 
+                        />
+                        <div className="w-10 h-5 sm:w-11 sm:h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      </label>
                     </div>
-                    
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        checked={isEnabled}
-                        onChange={() => handleToggle(setting.key)}
-                        className="sr-only peer" 
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
-                  </div>
-                )
-              })}
+                  )
+                })}
+              </div>
             </div>
-          </div>
-        )
-      })}
+          )
+        })}
+      </div>
 
       {/* Quick Actions */}
-      <div className="bg-gray-50 rounded-lg p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
-        <div className="flex flex-wrap gap-3">
+      <div className="bg-gray-50 rounded-xl p-4 sm:p-6 border border-gray-200">
+        <h3 className="text-base font-bold text-gray-900 mb-4">Quick Actions</h3>
+        <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={() => {
               const allEnabled = { ...preferences }
@@ -354,7 +358,7 @@ export default function NotificationSettings({ profile }: NotificationSettingsPr
               setPreferences(allEnabled)
               setSaved(false)
             }}
-            className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold shadow-sm"
           >
             <Volume2 className="w-4 h-4" />
             <span>Enable All</span>
@@ -369,7 +373,7 @@ export default function NotificationSettings({ profile }: NotificationSettingsPr
               setPreferences(allDisabled)
               setSaved(false)
             }}
-            className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-semibold shadow-sm"
           >
             <VolumeX className="w-4 h-4" />
             <span>Disable All</span>
@@ -394,7 +398,7 @@ export default function NotificationSettings({ profile }: NotificationSettingsPr
               setPreferences(essentialOnly)
               setSaved(false)
             }}
-            className="flex items-center space-x-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-semibold"
           >
             <Bell className="w-4 h-4" />
             <span>Essential Only</span>

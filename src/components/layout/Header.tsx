@@ -55,12 +55,16 @@ export async function Header() {
       {/* Top Bar */}
       <div className="bg-neutral-900 text-white">
         <div className="container-wide">
-          <div className="flex items-center justify-between py-2 text-sm">
+          <div className="flex items-center justify-between py-2 text-xs sm:text-sm">
             <div className="flex items-center space-x-4">
-              <span>{new Date().toLocaleDateString('en-US', { 
+              <span className="hidden xs:inline">{new Date().toLocaleDateString('en-US', { 
                 weekday: 'long', 
                 year: 'numeric', 
                 month: 'long', 
+                day: 'numeric' 
+              })}</span>
+              <span className="xs:hidden">{new Date().toLocaleDateString('en-US', { 
+                month: 'short', 
                 day: 'numeric' 
               })}</span>
             </div>

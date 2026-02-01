@@ -147,49 +147,53 @@ export default function ProfilePage({ user, profile, additionalData }: ProfilePa
     <div className="container-wide py-8">
       {/* Profile Header */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
-        <div className="px-6 py-8">
-          <div className="flex items-start space-x-6">
+        <div className="px-4 py-6 sm:px-6 sm:py-8">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left">
             {/* Avatar */}
             <div className="flex-shrink-0">
               {profile.avatar_url ? (
                 <img 
                   src={profile.avatar_url} 
                   alt={profile.full_name || 'Profile'} 
-                  className="w-24 h-24 rounded-full object-cover"
+                  className="w-24 h-24 rounded-full object-cover border-2 border-gray-100 shadow-sm"
                 />
               ) : (
-                <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center">
+                <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center border-2 border-gray-100 shadow-sm">
                   <UserIcon className="w-12 h-12 text-gray-500" />
                 </div>
               )}
             </div>
             
             {/* Profile Info */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center space-x-3 mb-2">
-                <h1 className="text-3xl font-bold text-gray-900 truncate">
+            <div className="flex-1 min-w-0 w-full">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 mb-2 space-y-2 sm:space-y-0">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">
                   {profile.first_name && profile.last_name 
                     ? `${profile.first_name} ${profile.last_name}` 
                     : profile.full_name || 'Anonymous User'}
                 </h1>
-                <div className={`flex items-center space-x-1 px-3 py-1 rounded-full border text-sm font-medium ${getRoleColor(profile.role)}`}>
-                  {getRoleIcon(profile.role)}
-                  <span className="capitalize">
-                    {profile.role.replace('_', ' ')}
-                  </span>
+                <div className="flex justify-center sm:justify-start">
+                  <div className={`flex items-center space-x-1 px-3 py-1 rounded-full border text-sm font-medium ${getRoleColor(profile.role)}`}>
+                    {getRoleIcon(profile.role)}
+                    <span className="capitalize">
+                      {profile.role.replace('_', ' ')}
+                    </span>
+                  </div>
                 </div>
                 {profile.is_verified && (
-                  <div className="flex items-center space-x-1 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                    <Shield className="w-3 h-3" />
-                    <span>Verified</span>
+                  <div className="flex justify-center sm:justify-start">
+                    <div className="flex items-center space-x-1 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                      <Shield className="w-3 h-3" />
+                      <span>Verified</span>
+                    </div>
                   </div>
                 )}
               </div>
               
-              <p className="text-gray-600 mb-2">{user.email}</p>
+              <p className="text-gray-600 mb-2 break-all">{user.email}</p>
               
               {profile.bio && (
-                <p className="text-gray-700 max-w-2xl">{profile.bio}</p>
+                <p className="text-gray-700 max-w-2xl mx-auto sm:mx-0">{profile.bio}</p>
               )}
               
               {profile.username && (
@@ -201,9 +205,9 @@ export default function ProfilePage({ user, profile, additionalData }: ProfilePa
       </div>
 
       {/* Navigation Tabs */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
-        <div className="border-b border-gray-200">
-          <nav className="flex space-x-8 px-6" aria-label="Tabs">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8 overflow-hidden">
+        <div className="border-b border-gray-200 overflow-x-auto scrollbar-hide">
+          <nav className="flex space-x-4 sm:space-x-8 px-4 sm:px-6 min-w-max" aria-label="Tabs">
             {tabs.map((tab) => {
               const Icon = tab.icon
               const isActive = activeTab === tab.id
@@ -211,13 +215,13 @@ export default function ProfilePage({ user, profile, additionalData }: ProfilePa
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                  className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors ${
                     isActive
                       ? 'border-blue-500 text-blue-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
-                  <Icon className="w-5 h-5" />
+                  <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span>{tab.label}</span>
                 </button>
               )
@@ -226,7 +230,7 @@ export default function ProfilePage({ user, profile, additionalData }: ProfilePa
         </div>
 
         {/* Tab Content */}
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {activeTab === 'personal' && (
             <PersonalInfoSection user={user} profile={profile} />
           )}
