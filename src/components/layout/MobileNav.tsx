@@ -134,6 +134,7 @@ export function MobileNav({ menuItems }: MobileNavProps) {
             </div>
           </nav>
         </div>
+      )}
       {/* Auth Modal */}
       <AuthModal
         isOpen={showAuthModal}
