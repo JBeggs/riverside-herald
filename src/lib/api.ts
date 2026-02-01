@@ -512,6 +512,8 @@ export const authApi = {
     company_name?: string  // Optional - if provided, creates business; otherwise connects to Riverside Herald
     company_email?: string
     full_name?: string
+    first_name?: string
+    last_name?: string
     password_confirm?: string
     role?: string  // Optional role for user registration (e.g., 'author')
   }) {
