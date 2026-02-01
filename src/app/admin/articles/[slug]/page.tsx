@@ -63,14 +63,12 @@ export default function ArticleEditPage() {
   return (
     <DashboardLayout profile={profile}>
       <div className="max-w-5xl mx-auto py-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <EnhancedArticleEditor
-            article={article}
-            onSave={() => router.push('/admin/articles')}
-            onCancel={() => router.push('/admin/articles')}
-            inModal={true}
-          />
-        </div>
+        <EnhancedArticleEditor
+          article={article}
+          onSave={() => router.push('/admin/articles')}
+          onCancel={() => router.push('/admin/articles')}
+          inModal={true}
+        />
       </div>
     </DashboardLayout>
   )

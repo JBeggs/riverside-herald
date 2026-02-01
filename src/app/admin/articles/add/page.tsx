@@ -28,14 +28,12 @@ export default function AddArticlePage() {
   return (
     <DashboardLayout profile={profile}>
       <div className="max-w-5xl mx-auto py-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <EnhancedArticleEditor
-            article={{ id: 'new', title: '', content: '', author_id: profile.user, status: 'draft' }}
-            onSave={handleSave}
-            onCancel={handleCancel}
-            inModal={true}
-          />
-        </div>
+        <EnhancedArticleEditor
+          article={{ id: 'new', title: '', content: '', author_id: profile.user, status: 'draft' }}
+          onSave={handleSave}
+          onCancel={handleCancel}
+          inModal={true}
+        />
       </div>
     </DashboardLayout>
   )

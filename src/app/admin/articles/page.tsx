@@ -7,7 +7,6 @@ import { useToast } from '@/contexts/ToastContext'
 import { newsApi } from '@/lib/api'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
 import ArticlesList from '@/components/dashboard/ArticlesList'
-import ArticleEditor from '@/components/dashboard/ArticleEditor'
 import Link from 'next/link'
 import { Search, Filter } from 'lucide-react'
 
@@ -22,16 +21,11 @@ function ArticlesPageContent() {
   const { user, profile, loading: authLoading } = useAuth()
   const { showError } = useToast()
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const action = searchParams.get('action')
-  const articleId = searchParams.get('id')
 
   const [articles, setArticles] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
-  const [selectedArticle, setSelectedArticle] = useState<any>(null)
-  const [showEditor, setShowEditor] = useState(false)
 
   // Redirect if not authorized
   useEffect(() => {
@@ -43,30 +37,8 @@ function ArticlesPageContent() {
   // Load articles
   useEffect(() => {
     if (!profile) return
-    // Don't reload if editor is open - it causes flickering
-    if (showEditor) return
-
     loadArticles()
-  }, [profile, statusFilter, searchQuery, showEditor])
-
-  // Load specific article if editing (only if URL has articleId)
-  useEffect(() => {
-    if (articleId && !selectedArticle && profile && !showEditor) {
-      loadArticle(articleId)
-    }
-  }, [articleId, profile, selectedArticle, showEditor])
-
-  // Handle URL params for initial load (removed sessionStorage - modals handle their own state)
-  useEffect(() => {
-    // Only run once on mount
-    if (showEditor || selectedArticle !== null) return
-    
-    // Only handle URL params on initial page load
-    if (action === 'create') {
-      setSelectedArticle({ id: 'new' })
-      setShowEditor(true)
-    }
-  }, []) // Only run on mount - eslint-disable-line react-hooks/exhaustive-deps
+  }, [profile, statusFilter, searchQuery])
 
   const loadArticles = async () => {
     setLoading(true)
@@ -93,44 +65,10 @@ function ArticlesPageContent() {
       setArticles(Array.isArray(data) ? data : (data?.results || []))
     } catch (error: any) {
       console.error('Error loading articles:', error)
-      alert(error.message || 'Failed to load articles')
+      showError(error.message || 'Failed to load articles')
     } finally {
       setLoading(false)
     }
-  }
-
-  const loadArticle = async (id: string) => {
-    try {
-      setLoading(true)
-      const article = await newsApi.articles.get(id)
-      setSelectedArticle(article)
-      setShowEditor(true)
-    } catch (error: any) {
-      console.error('Error loading article:', error)
-      const errorMessage = error?.message || error?.details?.message || 'Failed to load article'
-      showError(errorMessage)
-      setShowEditor(false)
-      // Don't navigate - just close editor
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleCreateNew = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
-    e.stopPropagation()
-    e.nativeEvent.stopImmediatePropagation()
-    // Create a new article object with id 'new' so ArticleEditor recognizes it
-    setSelectedArticle({ id: 'new' })
-    setShowEditor(true)
-    // NO NAVIGATION - stay on the same page
-    return false
-  }
-
-  const handleEdit = (article: any) => {
-    setSelectedArticle(article)
-    setShowEditor(true)
-    // Don't navigate - stay on the same page and open editor inline
   }
 
   const handleDelete = async (articleId: string) => {
@@ -141,35 +79,10 @@ function ArticlesPageContent() {
     try {
       await newsApi.articles.delete(articleId)
       await loadArticles()
-      if (selectedArticle?.id === articleId) {
-        setSelectedArticle(null)
-        setShowEditor(false)
-        // Don't navigate - just close editor
-      }
     } catch (error: any) {
       console.error('Error deleting article:', error)
-      alert(error.message || 'Failed to delete article')
+      showError(error.message || 'Failed to delete article')
     }
-  }
-
-  const handleEditorClose = () => {
-    setShowEditor(false)
-    setSelectedArticle(null)
-    // DON'T navigate - just close editor and reload list
-    loadArticles()
-  }
-
-  const handleEditorSave = async (newArticle?: any) => {
-    // If a new article was created, update selectedArticle to the new article
-    if (newArticle && newArticle.id) {
-      setSelectedArticle(newArticle)
-      // DON'T update URL - it causes navigation
-      // Just update the state to keep editor open
-    }
-    // Reload articles list to show the new/updated article
-    await loadArticles()
-    // Stay on the same page - don't close the editor
-    // The editor will handle showing success message
   }
 
   if (authLoading || !profile) {
@@ -204,8 +117,7 @@ function ArticlesPageContent() {
             href="/admin/articles/add"
             className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            <Plus className="w-5 h-5
-            " />
+            <Plus className="w-5 h-5" />
             <span>New Article</span>
           </Link>
         </div>
