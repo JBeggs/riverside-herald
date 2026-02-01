@@ -11,7 +11,7 @@ export type MediaType = 'image' | 'video' | 'audio' | 'document' | 'embed'
 
 // Enhanced Profile interface
 export interface Profile {
-  id: string
+  user: string
   email: string
   username?: string
   first_name?: string

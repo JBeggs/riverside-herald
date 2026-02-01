@@ -56,15 +56,19 @@ export default async function Profile() {
 
     if (profile?.role === 'admin' || profile?.role === 'editor') {
       // Get system stats for admins/editors (token is automatically read from cookies)
-      const stats: any = await serverNewsApi.stats.dashboard()
-      
-      additionalData = { 
-        ...additionalData, 
-        systemStats: stats || {
-          totalArticles: 0,
-          totalUsers: 0,
-          totalBusinesses: 0
+      try {
+        const stats: any = await serverNewsApi.stats.dashboard()
+        
+        additionalData = { 
+          ...additionalData, 
+          systemStats: stats || {
+            totalArticles: 0,
+            totalUsers: 0,
+            totalBusinesses: 0
+          }
         }
+      } catch (e) {
+        console.error('Error fetching dashboard stats:', e)
       }
     }
 
@@ -83,6 +87,8 @@ export default async function Profile() {
       id: profile.user,
       email: profile.email || '',
       username: profile.username || '',
+      first_name: profile.first_name || '',
+      last_name: profile.last_name || '',
     }
 
     return (

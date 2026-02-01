@@ -107,8 +107,8 @@ export function MobileNav({ menuItems }: MobileNavProps) {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold text-gray-900 truncate">
-                          {profile?.first_name && profile?.last_name 
-                            ? `${profile.first_name} ${profile.last_name}` 
+                          {profile?.first_name || profile?.last_name 
+                            ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() 
                             : profile?.full_name || user.email?.split('@')[0]}
                         </p>
                         <p className="text-xs text-gray-500 truncate">{user.email}</p>

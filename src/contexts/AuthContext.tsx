@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import { authApi, apiClient, newsApi } from '@/lib/api'
+import { Profile } from '@/lib/types'
 
 interface User {
   id: string
@@ -9,24 +10,6 @@ interface User {
   username?: string
   first_name?: string
   last_name?: string
-}
-
-interface Profile {
-  user: string
-  email: string
-  username?: string
-  first_name?: string
-  last_name?: string
-  full_name?: string
-  bio?: string
-  avatar_url?: string
-  role: 'user' | 'admin' | 'editor' | 'author' | 'business_owner' | 'subscriber' | 'premium_subscriber'
-  is_verified: boolean
-  social_links: Record<string, string>
-  preferences: Record<string, any>
-  last_seen_at?: string
-  created_at: string
-  updated_at: string
 }
 
 interface AuthContextType {

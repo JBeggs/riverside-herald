@@ -45,8 +45,8 @@ export default function AuthButton({ onAction }: { onAction?: () => void }) {
             <User className="w-4 h-4 text-white" />
           </div>
           <span className="text-sm font-medium text-gray-700 hidden sm:block">
-            {profile.first_name && profile.last_name 
-              ? `${profile.first_name} ${profile.last_name}` 
+            {profile.first_name || profile.last_name 
+              ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() 
               : profile.full_name || user.email?.split('@')[0]}
           </span>
           <ChevronDown className="w-4 h-4 text-gray-500" />
@@ -57,8 +57,8 @@ export default function AuthButton({ onAction }: { onAction?: () => void }) {
           <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
             <div className="px-4 py-2 border-b border-gray-100">
               <p className="text-sm font-medium text-gray-900">
-                {profile.first_name && profile.last_name 
-                  ? `${profile.first_name} ${profile.last_name}` 
+                {profile.first_name || profile.last_name 
+                  ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() 
                   : profile.full_name}
               </p>
               <p className="text-xs text-gray-500">{user.email}</p>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Profile } from '@/lib/types'
 import { newsApi } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
@@ -50,6 +50,19 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
   })
   const { refreshProfile } = useAuth()
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Update form data when profile prop changes (e.g. after refreshProfile)
+  useEffect(() => {
+    setFormData({
+      first_name: profile.first_name || '',
+      last_name: profile.last_name || '',
+      full_name: profile.full_name || '',
+      username: profile.username || '',
+      bio: profile.bio || '',
+      avatar_url: profile.avatar_url || '',
+      social_links: profile.social_links || {}
+    })
+  }, [profile])
 
   const handleSave = async () => {
     setLoading(true)

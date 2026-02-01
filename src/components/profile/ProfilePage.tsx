@@ -1,13 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 // User type from API
 interface User {
   id: string
   email?: string
   username?: string
+  first_name?: string
+  last_name?: string
 }
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/contexts/AuthContext'
 import { Profile } from '@/lib/types'
 import { 
   User as UserIcon, 
@@ -78,9 +81,21 @@ interface ProfilePageProps {
 
 type TabType = 'personal' | 'content' | 'businesses' | 'admin' | 'subscriber' | 'notifications'
 
-export default function ProfilePage({ user, profile, additionalData }: ProfilePageProps) {
+export default function ProfilePage({ user: initialUser, profile: initialProfile, additionalData }: ProfilePageProps) {
   const router = useRouter()
+  const { profile: authProfile, user: authUser } = useAuth()
   const [activeTab, setActiveTab] = useState<TabType>('personal')
+
+  // Use auth profile if available, otherwise fallback to initial data from server
+  const profile = authProfile || initialProfile
+  const user = authUser || initialUser
+
+  console.log('[DEBUG] ProfilePage rendering with profile:', {
+    user: profile?.user,
+    first_name: profile?.first_name,
+    last_name: profile?.last_name,
+    full_name: profile?.full_name
+  })
 
   if (!profile) {
     return (
@@ -168,8 +183,8 @@ export default function ProfilePage({ user, profile, additionalData }: ProfilePa
             <div className="flex-1 min-w-0 w-full">
               <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 mb-2 space-y-2 sm:space-y-0">
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">
-                  {profile.first_name && profile.last_name 
-                    ? `${profile.first_name} ${profile.last_name}` 
+                  {profile.first_name || profile.last_name 
+                    ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() 
                     : profile.full_name || 'Anonymous User'}
                 </h1>
                 <div className="flex justify-center sm:justify-start">
