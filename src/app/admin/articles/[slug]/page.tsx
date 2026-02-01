@@ -6,7 +6,7 @@ import { useRouter, useParams } from 'next/navigation'
 export default function ArticleEditPage() {
   const router = useRouter()
   const params = useParams()
-  const articleId = params.id as string
+  const articleId = params.slug as string
 
   useEffect(() => {
     // Redirect to the correct route with query parameter
@@ -21,4 +21,3 @@ export default function ArticleEditPage() {
     </div>
   )
 }
-
