@@ -100,7 +100,7 @@ export default function ArticleEditor({ article, onClose, onSave }: ArticleEdito
       </div>
 
       <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <EnhancedArticleEditor article={articleData} onSave={onSave} onCancel={onClose} />
+        <EnhancedArticleEditor article={articleData} onSave={onSave} onCancel={onClose} inModal={true} />
       </div>
     </div>
   )

@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { newsApi } from '@/lib/api'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
-import ArticleEditor from '@/components/dashboard/ArticleEditor'
+import EnhancedArticleEditor from '@/components/articles/EnhancedArticleEditor'
 import { useToast } from '@/contexts/ToastContext'
 
 export default function ArticleEditPage() {
@@ -58,23 +58,17 @@ export default function ArticleEditPage() {
     )
   }
 
-  if (!profile) return null
+  if (!profile || !article) return null
 
   return (
     <DashboardLayout profile={profile}>
       <div className="max-w-5xl mx-auto py-6">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Edit Article</h1>
-            <p className="text-gray-600 mt-1">Update your article content and settings</p>
-          </div>
-        </div>
-        
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <ArticleEditor
+          <EnhancedArticleEditor
             article={article}
             onSave={() => router.push('/admin/articles')}
-            onClose={() => router.push('/admin/articles')}
+            onCancel={() => router.push('/admin/articles')}
+            inModal={true}
           />
         </div>
       </div>

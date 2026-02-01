@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
-import ArticleEditor from '@/components/dashboard/ArticleEditor'
+import EnhancedArticleEditor from '@/components/articles/EnhancedArticleEditor'
 
 export default function AddArticlePage() {
   const router = useRouter()
@@ -21,23 +21,19 @@ export default function AddArticlePage() {
     router.push('/admin/articles')
   }
 
-  const handleClose = () => {
+  const handleCancel = () => {
     router.push('/admin/articles')
   }
 
   return (
     <DashboardLayout profile={profile}>
       <div className="max-w-5xl mx-auto py-6">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Create New Article</h1>
-          <p className="text-gray-600 mt-1">Write and publish a new article to the platform</p>
-        </div>
-        
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <ArticleEditor
-            article={{ id: 'new' }}
+          <EnhancedArticleEditor
+            article={{ id: 'new', title: '', content: '', author_id: profile.user, status: 'draft' }}
             onSave={handleSave}
-            onClose={handleClose}
+            onCancel={handleCancel}
+            inModal={true}
           />
         </div>
       </div>
