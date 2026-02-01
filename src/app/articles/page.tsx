@@ -2,7 +2,14 @@ import { serverNewsApi } from '@/lib/api-server'
 import Link from 'next/link'
 import Image from 'next/image'
 import type { Metadata } from 'next'
-import { Calendar, Clock, User, Search, Plus } from 'lucide-react'
+import { Calendar, Clock, User, Search } from 'lucide-react'
+
+// Custom Plus icon
+const Plus = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+  </svg>
+)
 import { cookies } from 'next/headers'
 
 export const metadata: Metadata = {
@@ -75,7 +82,7 @@ async function getCategories() {
   }
 }
 
-async function getProfile() {
+async function getProfile(): Promise<any> {
   try {
     const cookieStore = await cookies()
     const authToken = cookieStore.get('auth_token')?.value
