@@ -5,6 +5,8 @@ import type { Metadata } from 'next'
 import { MapPin, Phone, Mail, Globe, Star, Clock, Edit3, CheckCircle } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { BusinessEditButton } from '@/components/businesses/BusinessEditButton'
+import ProductGallery from '@/components/businesses/ProductGallery'
+import { BUSINESS_PRODUCTS } from '@/lib/business-products'
 
 function formatPhone(phone?: string): string {
   if (!phone) return ''
@@ -23,16 +25,37 @@ function formatBusinessHours(hours?: any) {
   
   return daysOfWeek.map((day, index) => {
     const dayData = hours[day]
-    if (dayData && dayData.open && dayData.close) {
+    
+    // Handle object format { open: '...', close: '...' }
+    if (dayData && typeof dayData === 'object' && dayData.open && dayData.close) {
       return {
         day: dayNames[index],
         hours: `${dayData.open} - ${dayData.close}`
       }
-    } else {
+    } 
+    
+    // Handle object format { closed: true }
+    if (dayData && typeof dayData === 'object' && dayData.closed) {
       return {
         day: dayNames[index],
         hours: 'Closed'
       }
+    }
+
+    // Handle string format (e.g. "9:00 am to 5:00 pm")
+    if (typeof dayData === 'string' && dayData.trim() !== '') {
+      // Capitalize first letter if it's "closed"
+      const displayHours = dayData.toLowerCase() === 'closed' ? 'Closed' : dayData
+      return {
+        day: dayNames[index],
+        hours: displayHours
+      }
+    }
+
+    // Default to Closed
+    return {
+      day: dayNames[index],
+      hours: 'Closed'
     }
   })
 }
@@ -167,6 +190,17 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
   }
 
   const businessHours = formatBusinessHours(business.business_hours)
+  
+  // Fetch products from the real API
+  let products: any[] = []
+  try {
+    if (business.slug) {
+      const productsData: any = await serverNewsApi.products.getByBusiness(business.slug)
+      products = productsData?.data || []
+    }
+  } catch (error) {
+    console.error('Error fetching products for business:', error)
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -193,36 +227,36 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
       </div>
 
       {/* Business Header */}
-      <div className="container-wide py-8">
+      <div className="container-wide py-6 md:py-8">
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
           <div className="flex-1">
-            <div className="flex items-center space-x-3 mb-4">
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
+            <div className="flex items-center space-x-3 mb-3 md:mb-4">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900">
                 {business.name}
               </h1>
             </div>
             
             {business.industry && (
-              <p className="text-lg text-gray-600 mb-4">{business.industry}</p>
+              <p className="text-base md:text-lg text-gray-600 mb-3 md:mb-4">{business.industry}</p>
             )}
 
             {/* Rating */}
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="flex items-center space-x-1">
-                {renderStars(business.rating)}
+            <div className="flex items-center space-x-2 md:space-x-3 mb-3 md:mb-4">
+              <div className="flex items-center space-x-0.5 md:space-x-1">
+                {renderStars(business.rating || 0, 'sm')}
               </div>
-              <span className="text-lg font-semibold text-gray-900">
-                {business.rating.toFixed(1)}
+              <span className="text-base md:text-lg font-semibold text-gray-900">
+                {(business.rating || 0).toFixed(1)}
               </span>
-              <span className="text-gray-600">
-                ({business.review_count} {business.review_count === 1 ? 'review' : 'reviews'})
+              <span className="text-sm md:text-base text-gray-600">
+                ({business.review_count || 0} {(business.review_count || 0) === 1 ? 'review' : 'reviews'})
               </span>
             </div>
 
             {/* Location */}
             {(business.address || business.city) && (
-              <div className="flex items-center space-x-2 text-gray-600 mb-4">
-                <MapPin className="w-5 h-5" />
+              <div className="flex items-start space-x-2 text-sm md:text-base text-gray-600 mb-3 md:mb-4">
+                <MapPin className="w-4 h-4 md:w-5 md:h-5 mt-0.5 flex-shrink-0" />
                 <span>
                   {business.address && business.city 
                     ? `${business.address}, ${business.city}${business.state ? `, ${business.state}` : ''} ${business.zip_code || ''}`
@@ -233,11 +267,11 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
             )}
 
             {/* Contact Info */}
-            <div className="flex flex-wrap gap-4 text-sm">
+            <div className="flex flex-wrap gap-3 md:gap-4 text-xs md:text-sm">
               {business.phone && (
                 <a 
                   href={`tel:${business.phone}`}
-                  className="flex items-center space-x-2 text-blue-600 hover:text-blue-800"
+                  className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 min-h-[32px]"
                 >
                   <Phone className="w-4 h-4" />
                   <span>{formatPhone(business.phone)}</span>
@@ -246,7 +280,7 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
               {business.email && (
                 <a 
                   href={`mailto:${business.email}`}
-                  className="flex items-center space-x-2 text-blue-600 hover:text-blue-800"
+                  className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 min-h-[32px]"
                 >
                   <Mail className="w-4 h-4" />
                   <span>{business.email}</span>
@@ -257,7 +291,7 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
                   href={business.website_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center space-x-2 text-blue-600 hover:text-blue-800"
+                  className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 min-h-[32px]"
                 >
                   <Globe className="w-4 h-4" />
                   <span>Visit Website</span>
@@ -267,12 +301,21 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
           </div>
 
           {/* Edit Button (for owners) */}
-          <BusinessEditButton businessId={business.id} ownerId={business.owner_id} />
+          <div className="mt-2 md:mt-0">
+            <BusinessEditButton businessId={business.id} ownerId={business.owner_id} />
+          </div>
         </div>
       </div>
 
       {/* Business Content */}
       <div className="container-wide pb-12">
+        {/* Product Gallery Section */}
+        {products && products.length > 0 && (
+          <div className="mb-12">
+            <ProductGallery products={products} businessName={business.name} />
+          </div>
+        )}
+
         <div className="grid md:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="md:col-span-2 space-y-8">
@@ -308,29 +351,29 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
             {/* Reviews */}
             {business.reviews && business.reviews.length > 0 && (
               <section>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6">
                   Reviews ({business.review_count})
                 </h2>
-                <div className="space-y-6">
+                <div className="space-y-4 md:space-y-6">
                   {business.reviews.map((review: any) => (
-                    <div key={review.id} className="border-b border-gray-200 pb-6 last:border-0">
+                    <div key={review.id} className="border-b border-gray-200 pb-4 md:pb-6 last:border-0">
                       <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <h4 className="font-semibold text-gray-900">
+                        <div className="flex-1 min-w-0 mr-2">
+                          <h4 className="font-semibold text-gray-900 truncate">
                             {review.reviewer_name || review.reviewer || 'Anonymous'}
                           </h4>
                           {review.title && (
-                            <p className="text-gray-700 font-medium">{review.title}</p>
+                            <p className="text-sm md:text-base text-gray-700 font-medium line-clamp-1">{review.title}</p>
                           )}
                         </div>
-                        <div className="flex items-center space-x-1">
+                        <div className="flex items-center space-x-0.5 flex-shrink-0">
                           {renderStars(review.rating, 'sm')}
                         </div>
                       </div>
                       {review.comment && (
-                        <p className="text-gray-600 mt-2">{review.comment}</p>
+                        <p className="text-sm md:text-base text-gray-600 mt-2 line-clamp-4 md:line-clamp-none">{review.comment}</p>
                       )}
-                      <time className="text-sm text-gray-500 mt-2 block">
+                      <time className="text-[10px] md:text-sm text-gray-500 mt-2 block">
                         {new Date(review.created_at).toLocaleDateString()}
                       </time>
                     </div>

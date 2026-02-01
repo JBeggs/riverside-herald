@@ -173,15 +173,15 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             </Link>
           )}
           
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             {article.title}
           </h1>
           
           {article.subtitle && (
-            <p className="text-xl text-gray-600 mb-6">{article.subtitle}</p>
+            <p className="text-lg sm:text-xl text-gray-600 mb-6">{article.subtitle}</p>
           )}
 
-          <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-xs sm:text-sm text-gray-600">
             <div className="flex items-center space-x-2">
               <User className="w-4 h-4" />
               <span>{article.author?.full_name || 'Staff Writer'}</span>
@@ -208,8 +208,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
       {/* Featured Image */}
       {article.featured_media && (
-        <div className="container-wide py-8">
-          <div className="relative w-full h-96 md:h-[500px] rounded-2xl overflow-hidden">
+        <div className="container-wide py-4 md:py-8">
+          <div className="relative w-full h-64 sm:h-80 md:h-96 lg:h-[500px] rounded-xl md:rounded-2xl overflow-hidden">
             <Image
               src={getImageUrl(article)}
               alt={article.featured_media.alt_text || article.title}
@@ -223,9 +223,9 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
       {/* Article Gallery */}
       {article.article_media && article.article_media.length > 0 && (
-        <div className="container-wide py-8">
-          <h2 className="text-2xl font-bold mb-6">Gallery</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="container-wide py-4 md:py-8">
+          <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Gallery</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
             {article.article_media.map((item: any) => {
               const imageUrl = item.media?.file_url
               if (!imageUrl) {
@@ -258,7 +258,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       )}
 
       {/* Article Content */}
-      <article className="container-wide py-12">
+      <article className="container-wide py-8 md:py-12">
         <div className="max-w-4xl mx-auto">
           {/* Article Editor (for authors/admins) */}
           <EnhancedArticleEditor article={article as any} />
@@ -266,7 +266,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           {/* Article Body */}
           {article.content && (
             <div
-              className="prose prose-lg max-w-none mb-12"
+              className="prose prose-sm sm:prose-base md:prose-lg max-w-none mb-12"
               dangerouslySetInnerHTML={{ __html: article.content }}
             />
           )}

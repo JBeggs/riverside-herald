@@ -50,7 +50,7 @@ interface SiteSettings {
 async function getHomepageData() {
   try {
     // Get site settings
-    const settingsData: any = await serverNewsApi.siteSettings.list()
+    const settingsData: any = await serverNewsApi.siteSettings.list({ skipTenant: true })
     const settingsArray = Array.isArray(settingsData) ? settingsData : (settingsData?.results || [])
     const settingsMap: Record<string, any> = {}
     
@@ -67,8 +67,9 @@ async function getHomepageData() {
     // Get articles
     const articlesData: any = await serverNewsApi.articles.list({ 
       status: 'published',
-      page: 1 
-    })
+      page: 1,
+      skipTenant: true
+    } as any)
     
     // Transform articles to match expected format
     const articles: Article[] = (articlesData?.results || articlesData || []).map((article: any) => {
@@ -102,8 +103,9 @@ async function getHomepageData() {
     })
 
     // Get businesses
-    const businessesData: any = await serverNewsApi.businesses.list()
-    const businesses: Business[] = (businessesData.results || businessesData || []).map((business: any) => ({
+    const businessesData: any = await serverNewsApi.businesses.list({ skipTenant: true } as any)
+    const businessesArray = Array.isArray(businessesData) ? businessesData : (businessesData?.results || [])
+    const businesses: Business[] = businessesArray.map((business: any) => ({
       id: business.id,
       name: business.name,
       slug: business.slug,
@@ -173,10 +175,10 @@ export default async function HomePage() {
       {breakingNews && (
         <div className="breaking-news">
           <div className="container-wide">
-            <div className="flex items-center space-x-4">
-              <span className="breaking-news-text">Breaking News</span>
-              <Link href={`/articles/${breakingNews.slug}`} className="hover:underline">
-                <span className="font-medium">{breakingNews.title}</span>
+            <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-4">
+              <span className="breaking-news-text flex-shrink-0">Breaking News</span>
+              <Link href={`/articles/${breakingNews.slug}`} className="hover:underline line-clamp-1 sm:line-clamp-none">
+                <span className="font-medium text-sm sm:text-base">{breakingNews.title}</span>
               </Link>
             </div>
           </div>
@@ -195,8 +197,8 @@ export default async function HomePage() {
           {featuredArticles.length > 0 && (
             <div className="news-grid news-grid-main mb-16">
               {/* Main Featured Article */}
-              <div className="lg:col-span-2 xl:col-span-2">
-                <article className="card-elevated p-6">
+              <div className="md:col-span-1 lg:col-span-2 xl:col-span-2">
+                <article className="card-elevated p-4 md:p-6">
                   <div className="relative mb-4">
                     {getImageUrl(featuredArticles[0]) && (
                       <Image
@@ -204,12 +206,12 @@ export default async function HomePage() {
                         alt={featuredArticles[0]?.title}
                         width={800}
                         height={400}
-                        className="news-image-featured"
+                        className="news-image-featured h-64 sm:h-80 md:h-96 lg:h-[500px]"
                       />
                     )}
                     {featuredArticles[0]?.category && (
                       <span 
-                        className="absolute top-4 left-4 tag tag-accent"
+                        className="absolute top-3 left-3 md:top-4 md:left-4 tag tag-accent"
                         style={{ backgroundColor: featuredArticles[0].category.color }}
                       >
                         {featuredArticles[0].category.name}
@@ -221,25 +223,25 @@ export default async function HomePage() {
                       {featuredArticles[0]?.title}
                     </Link>
                   </h2>
-                  <p className="body-lg mb-4">{featuredArticles[0]?.excerpt}</p>
-                  <div className="flex items-center justify-between text-sm text-neutral-500">
-                    <div className="flex items-center space-x-4">
-                      <span>By {featuredArticles[0]?.author_name || 'Staff Writer'}</span>
-                      <span className="flex items-center">
+                  <p className="body-lg mb-4 line-clamp-3 md:line-clamp-none">{featuredArticles[0]?.excerpt}</p>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs md:text-sm text-neutral-500 space-y-2 sm:space-y-0">
+                    <div className="flex items-center space-x-3 md:space-x-4">
+                      <span className="truncate max-w-[150px]">By {featuredArticles[0]?.author_name || 'Staff Writer'}</span>
+                      <span className="flex items-center flex-shrink-0">
                         <Clock className="w-4 h-4 mr-1" />
                         {featuredArticles[0]?.read_time_minutes || 5} min read
                       </span>
                     </div>
-                    <time>{formatDate(featuredArticles[0]?.published_at)}</time>
+                    <time className="flex-shrink-0">{formatDate(featuredArticles[0]?.published_at)}</time>
                   </div>
                 </article>
               </div>
 
               {/* Side Articles */}
-              <div className="lg:col-span-1 xl:col-span-2 space-y-6">
+              <div className="md:col-span-1 lg:col-span-1 xl:col-span-2 space-y-4 md:space-y-6">
                 {featuredArticles.slice(1, 4).map((article) => (
-                  <article key={article.id} className="card p-4">
-                    <div className="flex space-x-4">
+                  <article key={article.id} className="card p-3 md:p-4">
+                    <div className="flex space-x-3 md:space-x-4">
                       {getImageUrl(article) && (
                         <div className="flex-shrink-0">
                           <Image
@@ -247,28 +249,28 @@ export default async function HomePage() {
                             alt={article.title}
                             width={120}
                             height={80}
-                            className="w-20 h-16 object-cover rounded"
+                            className="w-20 h-16 md:w-24 md:h-20 object-cover rounded"
                           />
                         </div>
                       )}
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         {article.category && (
                           <span 
-                            className="tag tag-primary mb-2"
+                            className="tag tag-primary mb-1 md:mb-2"
                             style={{ backgroundColor: `${article.category.color}20`, color: article.category.color }}
                           >
                             {article.category.name}
                           </span>
                         )}
-                        <h3 className="heading-xs mb-2">
+                        <h3 className="heading-xs mb-1 md:mb-2 line-clamp-2">
                           <Link href={`/articles/${article.slug}`} className="hover:text-blue-600">
                             {article.title}
                           </Link>
                         </h3>
-                        <div className="flex items-center text-xs text-neutral-500">
-                          <span>{article.author_name || 'Staff Writer'}</span>
-                          <span className="mx-2">•</span>
-                          <time>{new Date(article.published_at).toLocaleDateString()}</time>
+                        <div className="flex items-center text-[10px] md:text-xs text-neutral-500 truncate">
+                          <span className="truncate max-w-[80px] md:max-w-none">{article.author_name || 'Staff Writer'}</span>
+                          <span className="mx-1 md:mx-2 flex-shrink-0">•</span>
+                          <time className="flex-shrink-0">{new Date(article.published_at).toLocaleDateString()}</time>
                         </div>
                       </div>
                     </div>
@@ -281,18 +283,18 @@ export default async function HomePage() {
       </section>
 
       {/* Trending & Recent News */}
-      <section className="py-12">
+      <section className="py-8 md:py-12">
         <div className="container-wide">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
             {/* Trending Articles */}
             <div className="lg:col-span-2">
               <div className="section-header">
                 <h2 className="section-title">Latest News</h2>
-                <Link href="/articles" className="btn btn-secondary">View All</Link>
+                <Link href="/articles" className="btn btn-secondary text-xs md:text-sm">View All</Link>
               </div>
-              <div className="news-grid news-grid-secondary">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                 {recentArticles.slice(0, 6).map((article) => (
-                  <article key={article.id} className="card">
+                  <article key={article.id} className="card overflow-hidden">
                     {getImageUrl(article) && (
                       <div className="relative">
                         <Image
@@ -300,7 +302,7 @@ export default async function HomePage() {
                           alt={article.title}
                           width={400}
                           height={200}
-                          className="news-image"
+                          className="w-full h-40 sm:h-48 object-cover"
                         />
                         {article.category && (
                           <span 
@@ -312,16 +314,16 @@ export default async function HomePage() {
                         )}
                       </div>
                     )}
-                    <div className="p-4">
-                      <h3 className="heading-xs mb-2">
+                    <div className="p-3 md:p-4">
+                      <h3 className="heading-xs mb-2 line-clamp-2">
                         <Link href={`/articles/${article.slug}`} className="hover:text-blue-600">
                           {article.title}
                         </Link>
                       </h3>
-                      <p className="body-sm mb-3 text-neutral-600 line-clamp-2">{article.excerpt}</p>
-                      <div className="flex items-center justify-between text-xs text-neutral-500">
-                        <span>{article.author_name || 'Staff Writer'}</span>
-                        <time>{new Date(article.published_at).toLocaleDateString()}</time>
+                      <p className="text-xs md:text-sm mb-3 text-neutral-600 line-clamp-2">{article.excerpt}</p>
+                      <div className="flex items-center justify-between text-[10px] md:text-xs text-neutral-500">
+                        <span className="truncate max-w-[100px]">{article.author_name || 'Staff Writer'}</span>
+                        <time className="flex-shrink-0">{new Date(article.published_at).toLocaleDateString()}</time>
                       </div>
                     </div>
                   </article>

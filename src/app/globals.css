@@ -38,23 +38,23 @@ body {
 
 /* Typography - News24/BBC inspired */
 .heading-xl {
-  @apply text-4xl md:text-5xl lg:text-6xl font-bold font-playfair text-neutral-900 leading-tight;
+  @apply text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-playfair text-neutral-900 leading-tight;
 }
 
 .heading-lg {
-  @apply text-3xl md:text-4xl font-bold font-playfair text-neutral-900 leading-tight;
+  @apply text-2xl sm:text-3xl md:text-4xl font-bold font-playfair text-neutral-900 leading-tight;
 }
 
 .heading-md {
-  @apply text-2xl md:text-3xl font-bold font-playfair text-neutral-900 leading-tight;
+  @apply text-xl sm:text-2xl md:text-3xl font-bold font-playfair text-neutral-900 leading-tight;
 }
 
 .heading-sm {
-  @apply text-xl md:text-2xl font-semibold text-neutral-900 leading-snug;
+  @apply text-lg sm:text-xl md:text-2xl font-semibold text-neutral-900 leading-snug;
 }
 
 .heading-xs {
-  @apply text-lg md:text-xl font-semibold text-neutral-900 leading-snug;
+  @apply text-base sm:text-lg md:text-xl font-semibold text-neutral-900 leading-snug;
 }
 
 .body-lg {
@@ -212,19 +212,9 @@ body {
   @apply heading-md text-neutral-900;
 }
 
-/* Responsive text sizes */
+/* Responsive text sizes - handled by utility classes above, but keeping for legacy if needed */
 @media (max-width: 640px) {
-  .heading-xl {
-    @apply text-3xl;
-  }
-  
-  .heading-lg {
-    @apply text-2xl;
-  }
-  
-  .heading-md {
-    @apply text-xl;
-  }
+  /* These are now integrated into the classes above using sm: and base sizes */
 }
 
 /* Focus styles for accessibility */

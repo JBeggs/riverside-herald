@@ -268,6 +268,32 @@ export interface Business {
   cover_image?: Media
   gallery?: BusinessMedia[]
   reviews?: BusinessReview[]
+  products?: Product[]
+}
+
+export interface Product {
+  id: string
+  business_id: string
+  name: string
+  slug: string
+  description?: string
+  price: number
+  currency: string
+  image_id?: string
+  category?: string
+  inventory_count: number
+  is_active: boolean
+  metadata: Record<string, any>
+  created_at: string
+  updated_at: string
+  // Relations
+  image?: Media
+  business?: Business
+}
+
+export interface CartItem {
+  product: Product
+  quantity: number
 }
 
 export interface BusinessMedia {

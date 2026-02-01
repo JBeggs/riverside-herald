@@ -14,7 +14,7 @@ class ServerApiClient {
     this.baseURL = baseURL.endsWith('/') ? baseURL.slice(0, -1) : baseURL
   }
 
-  private async getHeaders(customHeaders?: HeadersInit): Promise<Record<string, string>> {
+  private async getHeaders(customHeaders?: HeadersInit, skipTenant: boolean = false): Promise<Record<string, string>> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     }
@@ -34,10 +34,12 @@ class ServerApiClient {
     const { cookies } = await import('next/headers')
     const cookieStore = await cookies()
     
-    // Add company ID from cookie or env
-    const companyId = cookieStore.get('company_id')?.value || process.env.NEXT_PUBLIC_DEFAULT_COMPANY_ID
-    if (companyId) {
-      headers['X-Company-Id'] = companyId
+    // Add company ID from cookie or env, unless skipTenant is true
+    if (!skipTenant) {
+      const companyId = cookieStore.get('company_id')?.value || process.env.NEXT_PUBLIC_DEFAULT_COMPANY_ID
+      if (companyId) {
+        headers['X-Company-Id'] = companyId
+      }
     }
     
     // Always include company slug for tenant context
@@ -75,12 +77,13 @@ class ServerApiClient {
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    skipTenant: boolean = false
   ): Promise<T> {
     const url = this.buildUrl(endpoint)
     
     // Get headers
-    const headers = await this.getHeaders(options.headers as HeadersInit)
+    const headers = await this.getHeaders(options.headers as HeadersInit, skipTenant)
 
     // Debug logging (remove in production)
     if (process.env.NODE_ENV === 'development') {
@@ -88,6 +91,7 @@ class ServerApiClient {
       console.log(`[API] Headers:`, {
         'Authorization': headers['Authorization'] ? 'Bearer ***' : 'missing',
         'X-Company-Id': headers['X-Company-Id'] || 'missing',
+        'X-Company-Slug': headers['X-Company-Slug'] || 'missing',
       })
     }
 
@@ -139,23 +143,30 @@ class ServerApiClient {
     return await response.text() as unknown as T
   }
 
-  async get<T>(endpoint: string, params?: Record<string, any> | { headers?: HeadersInit }): Promise<T> {
+  async get<T>(endpoint: string, params?: Record<string, any> | { headers?: HeadersInit; skipTenant?: boolean }): Promise<T> {
     let url = this.buildUrl(endpoint)
     let customHeaders: HeadersInit | undefined
+    let skipTenant = false
     
-    // Check if params contains headers
-    if (params && 'headers' in params) {
-      customHeaders = params.headers
-      // Remove headers from params for URL search params
-      const { headers: _, ...urlParams } = params
+    // Check if params contains headers or skipTenant
+    if (params) {
+      if ('headers' in params) {
+        customHeaders = (params as any).headers
+      }
+      if ('skipTenant' in params) {
+        skipTenant = !!(params as any).skipTenant
+      }
+      
+      // Remove internal options from params for URL search params
+      const { headers: _, skipTenant: __, ...urlParams } = params as any
       params = urlParams
     }
     
     // Add query params if any
-    if (params) {
+    if (params && Object.keys(params).length > 0) {
       const urlObj = new URL(url)
       Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && key !== 'headers') {
+        if (value !== undefined && value !== null && key !== 'headers' && key !== 'skipTenant') {
           urlObj.searchParams.append(key, String(value))
         }
       })
@@ -165,16 +176,16 @@ class ServerApiClient {
     return this.request<T>(url, {
       method: 'GET',
       headers: customHeaders,
-    })
+    }, skipTenant)
   }
 
-  async post<T>(endpoint: string, data?: any, customHeaders?: HeadersInit): Promise<T> {
+  async post<T>(endpoint: string, data?: any, customHeaders?: HeadersInit, skipTenant: boolean = false): Promise<T> {
     const url = this.buildUrl(endpoint)
     return this.request<T>(url, {
       method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
       headers: customHeaders,
-    })
+    }, skipTenant)
   }
 }
 
@@ -252,8 +263,27 @@ export const serverNewsApi = {
     list: (params?: { industry?: string; is_verified?: boolean; search?: string; owner?: string }) =>
       serverApi.get('/news/businesses/', params),
     getBySlug: async (slug: string) => {
-      const results = await serverApi.get<any[]>('/news/businesses/', { slug })
-      return results?.[0] || null
+      try {
+        const results = await serverApi.get<any>('/news/businesses/', { slug })
+        const businesses = Array.isArray(results) ? results : (results?.results || [])
+        
+        // Find the exact match by slug in the results
+        const business = businesses.find((b: any) => b.slug === slug) || null
+        
+        if (business && business.id) {
+          try {
+            // Fetch full detail to get all fields
+            return await serverApi.get<any>(`/news/businesses/${business.id}/`)
+          } catch (error) {
+            console.warn('Failed to fetch business detail, using list item:', error)
+            return business
+          }
+        }
+        return business
+      } catch (error) {
+        console.error(`Error fetching business by slug "${slug}":`, error)
+        throw error
+      }
     },
   },
 
@@ -261,6 +291,16 @@ export const serverNewsApi = {
   businessReviews: {
     list: (params?: { business?: string; is_approved?: boolean }) =>
       serverApi.get('/news/business-reviews/', params),
+  },
+
+  // Products
+  products: {
+    list: (params?: { business?: string; category?: string; search?: string; is_active?: boolean }) =>
+      serverApi.get('/v1/public/products/', params),
+    getByBusiness: (businessSlug: string) =>
+      serverApi.get(`/v1/public/${businessSlug}/products/`),
+    getBySlug: (businessSlug: string, slug: string) =>
+      serverApi.get(`/v1/public/${businessSlug}/products/slug/${slug}/`),
   },
 
   // Site Settings

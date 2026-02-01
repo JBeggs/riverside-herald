@@ -4,6 +4,10 @@
 
 The Riverside Herald is a local news platform with integrated business directory. This document outlines how to use and manage the system.
 
+### 📚 Documentation & Guides
+- [User Roles & Permissions Guide](docs/USER_ROLES_GUIDE.md) - Detailed overview of user types and access levels.
+- [API Conversion Complete](docs/API_CONVERSION_COMPLETE.md) - Status of the backend migration.
+
 ## User Roles & Permissions
 
 ### 🔑 **Admin** (Full Access)

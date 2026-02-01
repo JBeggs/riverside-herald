@@ -170,12 +170,14 @@ export function BusinessEditModal({ businessId, onClose, onSuccess }: BusinessEd
     
     const formatted: Record<string, string> = {}
     for (const [day, time] of Object.entries(hours)) {
-      if (time && typeof time === 'object' && 'open' in time && 'close' in time) {
-        const timeObj = time as { open: string; close: string; closed?: boolean }
+      if (time && typeof time === 'object') {
+        const timeObj = time as { open?: string; close?: string; closed?: boolean }
         if (timeObj.closed) {
           formatted[day] = 'Closed'
-        } else {
+        } else if (timeObj.open && timeObj.close) {
           formatted[day] = `${timeObj.open} - ${timeObj.close}`
+        } else {
+          formatted[day] = ''
         }
       } else if (typeof time === 'string') {
         formatted[day] = time

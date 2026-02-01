@@ -165,14 +165,14 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
                   href={item.href}
                   onClick={() => setSidebarOpen(false)}
                   className={`
-                    flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                    flex items-center space-x-3 px-3 py-3 md:py-2 rounded-lg text-sm font-medium transition-colors min-h-[44px]
                     ${active 
                       ? 'bg-blue-50 text-blue-700' 
                       : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                     }
                   `}
                 >
-                  <Icon className="w-5 h-5" />
+                  <Icon className="w-5 h-5 flex-shrink-0" />
                   <span>{item.name}</span>
                 </Link>
               )
@@ -194,16 +194,16 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
                 <p className="text-xs text-gray-500 capitalize">{profile?.role || 'user'}</p>
               </div>
             </div>
-            <div className="flex space-x-2">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
               <Link
                 href="/profile"
-                className="flex-1 text-center px-3 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                className="flex-1 text-center px-3 py-3 md:py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors min-h-[44px] flex items-center justify-center"
               >
                 Profile
               </Link>
               <button
                 onClick={signOut}
-                className="flex-1 flex items-center justify-center space-x-1 px-3 py-2 text-sm text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                className="flex-1 flex items-center justify-center space-x-1 px-3 py-3 md:py-2 text-sm text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors min-h-[44px]"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Logout</span>
@@ -219,21 +219,21 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
         <div className="sticky top-0 z-10 bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 flex-shrink-0">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500"
+            className="lg:hidden p-2 -ml-2 rounded-md text-gray-400 hover:text-gray-500 min-w-[44px] min-h-[44px] flex items-center justify-center"
           >
             <Menu className="w-6 h-6" />
           </button>
           <div className="flex-1" />
           <Link
             href="/"
-            className="text-sm text-gray-600 hover:text-gray-900"
+            className="text-sm font-medium text-blue-600 hover:text-blue-700 min-h-[44px] flex items-center px-2"
           >
             View Site →
           </Link>
         </div>
 
         {/* Page content */}
-        <div className="flex-1 p-6 overflow-y-auto">
+        <div className="flex-1 p-4 md:p-6 overflow-y-auto">
           {children}
         </div>
       </div>

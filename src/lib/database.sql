@@ -5,7 +5,7 @@
 -- Note: JWT secret is handled by Supabase automatically
 
 -- Create custom types/enums
-CREATE TYPE user_role AS ENUM ('user', 'admin', 'editor', 'author', 'subscriber', 'premium_subscriber');
+CREATE TYPE user_role AS ENUM ('user', 'admin', 'editor', 'author', 'business_owner', 'subscriber', 'premium_subscriber');
 CREATE TYPE article_status AS ENUM ('draft', 'scheduled', 'published', 'archived', 'featured');
 CREATE TYPE ad_status AS ENUM ('active', 'paused', 'expired', 'pending_approval');
 CREATE TYPE subscription_status AS ENUM ('active', 'canceled', 'expired', 'trial', 'past_due');

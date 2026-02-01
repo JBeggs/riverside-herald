@@ -20,17 +20,17 @@ export function MobileNav({ menuItems }: MobileNavProps) {
   return (
     <>
       {/* Right Side Actions */}
-      <div className="flex items-center space-x-4">
-        <button className="p-2 text-neutral-600 hover:text-blue-600">
+      <div className="flex items-center space-x-2 sm:space-x-4">
+        <button className="p-2 text-neutral-600 hover:text-blue-600 min-w-[44px] min-h-[44px] flex items-center justify-center">
           <Search className="w-5 h-5" />
         </button>
-        <button className="p-2 text-neutral-600 hover:text-blue-600">
+        <button className="p-2 text-neutral-600 hover:text-blue-600 min-w-[44px] min-h-[44px] flex items-center justify-center">
           <Bell className="w-5 h-5" />
         </button>
         
         {/* Mobile Menu Button */}
         <button 
-          className="md:hidden p-2 text-neutral-600"
+          className="md:hidden p-2 text-neutral-600 min-w-[44px] min-h-[44px] flex items-center justify-center"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
           {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -39,11 +39,11 @@ export function MobileNav({ menuItems }: MobileNavProps) {
 
       {/* Mobile Navigation Menu */}
       {isMenuOpen && (
-        <div className="absolute top-full left-0 right-0 md:hidden bg-white border-b border-neutral-200 shadow-lg">
-          <nav className="container-wide py-4 space-y-2">
+        <div className="absolute top-full left-0 right-0 md:hidden bg-white border-b border-neutral-200 shadow-xl z-[60]">
+          <nav className="container-wide py-6 space-y-1">
             <Link 
               href="/" 
-              className="block py-2 text-neutral-700 hover:text-blue-600"
+              className="block py-3 px-4 text-neutral-700 hover:text-blue-600 hover:bg-neutral-50 rounded-lg transition-colors min-h-[44px] flex items-center"
               onClick={() => setIsMenuOpen(false)}
             >
               Home
@@ -52,7 +52,7 @@ export function MobileNav({ menuItems }: MobileNavProps) {
               <Link 
                 key={item.href}
                 href={item.href} 
-                className="block py-2 text-neutral-700 hover:text-blue-600"
+                className="block py-3 px-4 text-neutral-700 hover:text-blue-600 hover:bg-neutral-50 rounded-lg transition-colors min-h-[44px] flex items-center"
                 onClick={() => setIsMenuOpen(false)}
               >
                 {item.title}

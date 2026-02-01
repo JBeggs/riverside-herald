@@ -64,7 +64,7 @@ export default function AuthButton() {
               Profile Settings
             </Link>
             
-            {(profile.role === 'admin' || profile.role === 'editor' || profile.role === 'author') && (
+            {(profile.role === 'admin' || profile.role === 'editor' || profile.role === 'author' || profile.role === 'business_owner') && (
               <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                 Dashboard
               </Link>
