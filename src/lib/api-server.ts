@@ -196,19 +196,19 @@ export const serverApi = new ServerApiClient()
 export const serverNewsApi = {
   // Articles
   articles: {
-    list: (params?: { status?: string; category?: string; search?: string; page?: number; author?: string; limit?: number; ordering?: string; slug?: string }) =>
+    list: (params?: { status?: string; category?: string; search?: string; page?: number; author?: string; limit?: number; ordering?: string; slug?: string; skipTenant?: boolean }) =>
       serverApi.get('/news/articles/', params),
     getBySlug: async (slug: string) => {
       try {
         // Get by slug using filter - this returns list view, need detail view for full data
         // Don't filter by status for authenticated users - they should see all articles
-        const results = await serverApi.get<any>('/news/articles/', { slug })
+        const results = await serverApi.get<any>('/news/articles/', { slug, skipTenant: true })
         // Handle paginated response
         const articles = Array.isArray(results) ? results : (results?.results || [])
         const article = articles?.[0] || null
         if (!article) {
           // Try without status filter in case article is not published
-          const allResults = await serverApi.get<any>('/news/articles/', { slug })
+          const allResults = await serverApi.get<any>('/news/articles/', { slug, skipTenant: true })
           const allArticles = Array.isArray(allResults) ? allResults : (allResults?.results || [])
           const foundArticle = allArticles?.[0] || null
           if (!foundArticle) {
@@ -217,7 +217,7 @@ export const serverNewsApi = {
           // Fetch full detail
           if (foundArticle.id) {
             try {
-              const fullArticle = await serverApi.get<any>(`/news/articles/${foundArticle.id}/`)
+              const fullArticle = await serverApi.get<any>(`/news/articles/${foundArticle.id}/`, { skipTenant: true })
               return fullArticle
             } catch (error) {
               console.warn('Failed to fetch article detail, using list item:', error)
@@ -229,7 +229,7 @@ export const serverNewsApi = {
         // If we got a list item, fetch the full detail to get article_media and all fields
         if (article.id) {
           try {
-            const fullArticle = await serverApi.get<any>(`/news/articles/${article.id}/`)
+            const fullArticle = await serverApi.get<any>(`/news/articles/${article.id}/`, { skipTenant: true })
             return fullArticle
           } catch (error) {
             // If detail fetch fails, return the list item
@@ -244,27 +244,27 @@ export const serverNewsApi = {
       }
     },
     incrementViews: async (id: string) => {
-      return serverApi.post(`/news/articles/${id}/increment_views/`, {})
+      return serverApi.post(`/news/articles/${id}/increment_views/`, {}, undefined, true)
     },
   },
 
   // Categories
   categories: {
-    list: () => serverApi.get('/news/categories/'),
+    list: (params?: { skipTenant?: boolean }) => serverApi.get('/news/categories/', params),
   },
 
   // Tags
   tags: {
-    list: () => serverApi.get('/news/tags/'),
+    list: (params?: { skipTenant?: boolean }) => serverApi.get('/news/tags/', params),
   },
 
   // Businesses
   businesses: {
-    list: (params?: { industry?: string; is_verified?: boolean; search?: string; owner?: string }) =>
+    list: (params?: { industry?: string; is_verified?: boolean; search?: string; owner?: string; skipTenant?: boolean }) =>
       serverApi.get('/news/businesses/', params),
     getBySlug: async (slug: string) => {
       try {
-        const results = await serverApi.get<any>('/news/businesses/', { slug })
+        const results = await serverApi.get<any>('/news/businesses/', { slug, skipTenant: true })
         const businesses = Array.isArray(results) ? results : (results?.results || [])
         
         // Find the exact match by slug in the results
@@ -273,7 +273,7 @@ export const serverNewsApi = {
         if (business && business.id) {
           try {
             // Fetch full detail to get all fields
-            return await serverApi.get<any>(`/news/businesses/${business.id}/`)
+            return await serverApi.get<any>(`/news/businesses/${business.id}/`, { skipTenant: true })
           } catch (error) {
             console.warn('Failed to fetch business detail, using list item:', error)
             return business
@@ -289,25 +289,25 @@ export const serverNewsApi = {
 
   // Business Reviews
   businessReviews: {
-    list: (params?: { business?: string; is_approved?: boolean }) =>
+    list: (params?: { business?: string; is_approved?: boolean; skipTenant?: boolean }) =>
       serverApi.get('/news/business-reviews/', params),
   },
 
   // Products
   products: {
-    list: (params?: { business?: string; category?: string; search?: string; is_active?: boolean }) =>
+    list: (params?: { business?: string; category?: string; search?: string; is_active?: boolean; skipTenant?: boolean }) =>
       serverApi.get('/v1/public/products/', params),
     getByBusiness: (businessSlug: string) =>
-      serverApi.get(`/v1/public/${businessSlug}/products/`),
+      serverApi.get(`/v1/public/${businessSlug}/products/`, { skipTenant: true }),
     getBySlug: (businessSlug: string, slug: string) =>
-      serverApi.get(`/v1/public/${businessSlug}/products/slug/${slug}/`),
+      serverApi.get(`/v1/public/${businessSlug}/products/slug/${slug}/`, { skipTenant: true }),
   },
 
   // Site Settings
   siteSettings: {
-    list: () => serverApi.get('/news/site-settings/'),
+    list: (params?: { skipTenant?: boolean }) => serverApi.get('/news/site-settings/', params),
     getByKey: async (key: string) => {
-      const settings: any = await serverApi.get<any[]>('/news/site-settings/')
+      const settings: any = await serverApi.get<any[]>('/news/site-settings/', { skipTenant: true })
       const settingsArray = Array.isArray(settings) ? settings : (settings?.results || [])
       return settingsArray.find((s: any) => s.key === key) || null
     },

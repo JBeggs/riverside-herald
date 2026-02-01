@@ -55,7 +55,7 @@ function renderStars(rating: number, size: 'sm' | 'md' = 'sm') {
 
 async function getBusinesses() {
   try {
-    const businessesData: any = await serverNewsApi.businesses.list()
+    const businessesData: any = await serverNewsApi.businesses.list({ skipTenant: true })
     const businesses = businessesData?.results || businessesData || []
     
     return businesses.map((business: any) => ({
@@ -97,7 +97,7 @@ async function getBusinesses() {
 
 async function getIndustries() {
   try {
-    const businessesData: any = await serverNewsApi.businesses.list()
+    const businessesData: any = await serverNewsApi.businesses.list({ skipTenant: true })
     const businesses = businessesData?.results || businessesData || []
     const industries = [...new Set(businesses.map((b: any) => b.industry).filter(Boolean))] as string[]
     return industries.sort()

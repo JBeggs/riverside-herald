@@ -240,6 +240,17 @@ export default function AdminSection({ profile, systemStats }: AdminSectionProps
           </Link>
 
           <Link
+            href="/admin/categories"
+            className="group flex flex-col p-4 bg-yellow-50 border border-yellow-100 rounded-xl hover:bg-yellow-100 hover:border-yellow-200 transition-all min-h-[110px]"
+          >
+            <div className="p-2 bg-yellow-500 text-white rounded-lg w-fit mb-2 group-hover:scale-110 transition-transform">
+              <Tag className="w-5 h-5" />
+            </div>
+            <span className="font-bold text-yellow-900 text-sm md:text-base">Categories</span>
+            <span className="text-[10px] md:text-xs text-yellow-700 mt-0.5">Manage article topics</span>
+          </Link>
+
+          <Link
             href="/admin/users"
             className="group flex flex-col p-4 bg-purple-50 border border-purple-100 rounded-xl hover:bg-purple-100 hover:border-purple-200 transition-all min-h-[110px]"
           >

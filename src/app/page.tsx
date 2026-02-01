@@ -69,7 +69,7 @@ async function getHomepageData() {
       status: 'published',
       page: 1,
       skipTenant: true
-    } as any)
+    })
     
     // Transform articles to match expected format
     const articles: Article[] = (articlesData?.results || articlesData || []).map((article: any) => {
@@ -103,7 +103,7 @@ async function getHomepageData() {
     })
 
     // Get businesses
-    const businessesData: any = await serverNewsApi.businesses.list({ skipTenant: true } as any)
+    const businessesData: any = await serverNewsApi.businesses.list({ skipTenant: true })
     const businessesArray = Array.isArray(businessesData) ? businessesData : (businessesData?.results || [])
     const businesses: Business[] = businessesArray.map((business: any) => ({
       id: business.id,

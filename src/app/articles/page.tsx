@@ -25,7 +25,10 @@ function calculateReadingTime(content: string): number {
 
 async function getArticles() {
   try {
-    const articlesData: any = await serverNewsApi.articles.list({ status: 'published' })
+    const articlesData: any = await serverNewsApi.articles.list({ 
+      status: 'published',
+      skipTenant: true
+    })
     const articles = articlesData?.results || articlesData || []
     
     return articles.map((article: any) => ({
@@ -58,7 +61,7 @@ async function getArticles() {
 
 async function getCategories() {
   try {
-    const categoriesData: any = await serverNewsApi.categories.list()
+    const categoriesData: any = await serverNewsApi.categories.list({ skipTenant: true })
     return (categoriesData?.results || categoriesData || []).map((cat: any) => ({
       id: cat.id,
       name: cat.name,
