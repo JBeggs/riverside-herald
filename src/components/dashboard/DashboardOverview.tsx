@@ -78,7 +78,7 @@ export default function DashboardOverview({ profile, stats, recentArticles }: Da
           </p>
         </div>
         <Link
-          href="/admin/articles?action=create"
+          href="/admin/articles/add"
           className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
           <Plus className="w-5 h-5" />
@@ -158,7 +158,7 @@ export default function DashboardOverview({ profile, stats, recentArticles }: Da
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Link
-            href="/admin/articles?action=create"
+            href="/admin/articles/add"
             className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors w-full text-left"
           >
             <div className="p-2 bg-blue-100 rounded-lg">
@@ -211,7 +211,7 @@ export default function DashboardOverview({ profile, stats, recentArticles }: Da
             <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-600 mb-4">No articles yet</p>
             <Link
-              href="/admin/articles?action=create"
+              href="/admin/articles/add"
               className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <Plus className="w-5 h-5" />
@@ -223,7 +223,7 @@ export default function DashboardOverview({ profile, stats, recentArticles }: Da
             {filteredArticles.slice(0, 5).map((article: any) => (
               <Link
                 key={article.id}
-                href={`/admin/articles?id=${article.id}`}
+                href={`/admin/articles/${article.slug || article.id}`}
                 className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left"
               >
                 <div className="flex-1 min-w-0">

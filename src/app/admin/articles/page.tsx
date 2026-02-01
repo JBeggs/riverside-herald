@@ -8,6 +8,7 @@ import { newsApi } from '@/lib/api'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
 import ArticlesList from '@/components/dashboard/ArticlesList'
 import ArticleEditor from '@/components/dashboard/ArticleEditor'
+import Link from 'next/link'
 import { Search, Filter } from 'lucide-react'
 
 // Custom Plus icon
@@ -192,74 +193,64 @@ function ArticlesPageContent() {
 
   return (
     <DashboardLayout profile={profile}>
-      {showEditor ? (
-        <ArticleEditor
-          article={selectedArticle}
-          onClose={handleEditorClose}
-          onSave={handleEditorSave}
-        />
-      ) : (
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Articles</h1>
-              <p className="text-gray-600 mt-1">Manage your articles and content</p>
-            </div>
-            <button
-              type="button"
-              onClick={handleCreateNew}
-              onMouseDown={(e) => e.preventDefault()} // Prevent any default behavior
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <Plus className="w-5 h-5" />
-              <span>New Article</span>
-            </button>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Articles</h1>
+            <p className="text-gray-600 mt-1">Manage your articles and content</p>
           </div>
-
-          {/* Filters */}
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <div className="flex flex-col md:flex-row gap-4">
-              {/* Search */}
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search articles..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-
-              {/* Status Filter */}
-              <div className="flex items-center space-x-2">
-                <Filter className="w-5 h-5 text-gray-400" />
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="all">All Status</option>
-                  <option value="published">Published</option>
-                  <option value="draft">Draft</option>
-                  <option value="scheduled">Scheduled</option>
-                  <option value="archived">Archived</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Articles List */}
-          <ArticlesList
-            articles={articles}
-            loading={loading}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            profile={profile}
-          />
+          <Link
+            href="/admin/articles/add"
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <Plus className="w-5 h-5" />
+            <span>New Article</span>
+          </Link>
         </div>
-      )}
+
+        {/* Filters */}
+        <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <div className="flex flex-col md:flex-row gap-4">
+            {/* Search */}
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search articles..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+
+            {/* Status Filter */}
+            <div className="flex items-center space-x-2">
+              <Filter className="w-5 h-5 text-gray-400" />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">All Status</option>
+                <option value="published">Published</option>
+                <option value="draft">Draft</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="archived">Archived</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Articles List */}
+        <ArticlesList
+          articles={articles}
+          loading={loading}
+          onEdit={(article) => router.push(`/admin/articles/${article.id}/edit`)}
+          onDelete={handleDelete}
+          profile={profile}
+        />
+      </div>
     </DashboardLayout>
   )
 }

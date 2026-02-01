@@ -128,7 +128,7 @@ export default async function ArticlesPage() {
             {canAddArticle && (
               <div className="flex justify-center">
                 <Link
-                  href="/admin/articles?action=create"
+                  href="/admin/articles/add"
                   className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-md"
                 >
                   <Plus className="w-5 h-5" />

@@ -38,14 +38,14 @@ export default async function AdminPage() {
       redirect('/login')
     }
 
-    // Check if user has admin/editor role
-    if (!['admin', 'editor'].includes(profile.role)) {
+    // Check if user has admin/editor/business_owner role
+    if (!['admin', 'editor', 'business_owner'].includes(profile.role)) {
       redirect('/dashboard')
     }
 
     // Get system stats for admin panel
     let systemStats: any = null
-    if (profile.role === 'admin' || profile.role === 'editor') {
+    if (['admin', 'editor', 'business_owner'].includes(profile.role)) {
       try {
         const stats: any = await serverNewsApi.stats.dashboard()
         systemStats = {

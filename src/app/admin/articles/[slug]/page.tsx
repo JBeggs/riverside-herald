@@ -1,23 +1,83 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import { useAuth } from '@/contexts/AuthContext'
+import { newsApi } from '@/lib/api'
+import DashboardLayout from '@/components/dashboard/DashboardLayout'
+import ArticleEditor from '@/components/dashboard/ArticleEditor'
+import { useToast } from '@/contexts/ToastContext'
 
 export default function ArticleEditPage() {
   const router = useRouter()
   const params = useParams()
-  const articleId = params.slug as string
+  const slug = params.slug as string
+  const { profile, loading: authLoading } = useAuth()
+  const { showError } = useToast()
+  
+  const [article, setArticle] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Redirect to the correct route with query parameter
-    if (articleId) {
-      router.replace(`/admin/articles?id=${articleId}`)
+    if (slug && profile) {
+      loadArticle()
     }
-  }, [articleId, router])
+  }, [slug, profile])
+
+  const loadArticle = async () => {
+    setLoading(true)
+    try {
+      // Try to get by slug first, then by ID if that fails
+      let data: any
+      try {
+        data = await newsApi.articles.getBySlug(slug)
+      } catch (e) {
+        data = await newsApi.articles.get(slug)
+      }
+      
+      if (data) {
+        setArticle(data)
+      } else {
+        showError('Article not found')
+        router.push('/admin/articles')
+      }
+    } catch (error: any) {
+      console.error('Error loading article:', error)
+      showError('Failed to load article')
+      router.push('/admin/articles')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (authLoading || loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-pulse text-gray-600">Loading article...</div>
+      </div>
+    )
+  }
+
+  if (!profile) return null
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="animate-pulse text-gray-600">Loading article...</div>
-    </div>
+    <DashboardLayout profile={profile}>
+      <div className="max-w-5xl mx-auto py-6">
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Edit Article</h1>
+            <p className="text-gray-600 mt-1">Update your article content and settings</p>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <ArticleEditor
+            article={article}
+            onSave={() => router.push('/admin/articles')}
+            onClose={() => router.push('/admin/articles')}
+          />
+        </div>
+      </div>
+    </DashboardLayout>
   )
 }

@@ -93,7 +93,7 @@ export default function AuthorDashboard({ articles, profile, onNewArticle }: Aut
         </div>
         <div className="flex items-center w-full sm:w-auto">
           <Link
-            href="/admin/articles?action=create"
+            href="/admin/articles/add"
             className="flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto"
           >
             <Plus className="w-4 h-4" />
@@ -158,7 +158,7 @@ export default function AuthorDashboard({ articles, profile, onNewArticle }: Aut
         <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Link
-            href="/admin/articles?action=create"
+            href="/admin/articles/add"
             className="flex items-center space-x-3 p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors w-full text-left"
           >
             <Plus className="w-5 h-5 text-blue-600" />
@@ -210,7 +210,7 @@ export default function AuthorDashboard({ articles, profile, onNewArticle }: Aut
             <h3 className="text-lg font-medium text-gray-900 mb-2">No articles yet</h3>
             <p className="text-gray-600 mb-6">Start by creating your first article</p>
             <Link
-              href="/admin/articles?action=create"
+              href="/admin/articles/add"
               className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <Plus className="w-4 h-4" />

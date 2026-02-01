@@ -254,7 +254,7 @@ export default function ProfilePage({ user: initialUser, profile: initialProfile
             <AuthorDashboard 
               articles={additionalData.articles || []} 
               profile={profile}
-              onNewArticle={() => router.push('/admin/articles?action=create')}
+              onNewArticle={() => router.push('/admin/articles/add')}
             />
           )}
           

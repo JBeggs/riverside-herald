@@ -202,13 +202,13 @@ export default function ArticlesList({ articles, loading, onEdit, onDelete, prof
                     )}
                     {canEdit(article) && (
                       <>
-                        <Link
-                          href={`/admin/articles?id=${article.id}`}
+                        <button
+                          onClick={() => onEdit(article)}
                           className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
                           title="Edit article"
                         >
                           <Edit3 className="w-4 h-4" />
-                        </Link>
+                        </button>
                         <button
                           onClick={() => handleDelete(article.id)}
                           disabled={deletingId === article.id}
