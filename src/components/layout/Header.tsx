@@ -51,7 +51,7 @@ export async function Header() {
   const { siteName, tagline, menuItems } = await getHeaderData()
 
   return (
-    <header className="bg-white border-b border-neutral-200 sticky top-0 z-50">
+    <header className="bg-white border-b border-neutral-200 sticky top-0 z-[100]">
       {/* Top Bar */}
       <div className="bg-neutral-900 text-white">
         <div className="container-wide">

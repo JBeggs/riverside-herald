@@ -13,6 +13,7 @@ export default function AuthButton({ onAction }: { onAction?: () => void }) {
   const [showUserMenu, setShowUserMenu] = useState(false)
 
   const handleAuthClick = (mode: 'login' | 'signup') => {
+    console.log('Auth button clicked:', mode);
     setAuthMode(mode)
     setShowAuthModal(true)
     if (onAction) onAction()
