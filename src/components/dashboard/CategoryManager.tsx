@@ -70,7 +70,7 @@ export default function CategoryManager({ profile }: CategoryManagerProps) {
     sort_order: 0
   })
 
-  const isAdmin = profile.role === 'admin'
+  const isAdmin = profile.role === 'admin' || profile.role === 'business_owner'
 
   useEffect(() => {
     fetchCategories()
@@ -126,7 +126,7 @@ export default function CategoryManager({ profile }: CategoryManagerProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!isAdmin) {
-      showError('Only site owners can manage categories')
+      showError('You do not have permission to manage categories')
       return
     }
 

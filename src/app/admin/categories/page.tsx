@@ -22,8 +22,8 @@ export default async function AdminCategoriesPage() {
       redirect('/login')
     }
 
-    // Admins and Editors can access the page, but only Admin can edit (handled in component)
-    if (!['admin', 'editor'].includes(profile.role)) {
+    // Admins, Editors, and Business Owners can access the page
+    if (!['admin', 'editor', 'business_owner'].includes(profile.role)) {
       redirect('/dashboard')
     }
 

@@ -55,15 +55,17 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
     setLoading(true)
 
     try {
-      await newsApi.profile.update({
+      const payload = {
         first_name: formData.first_name,
         last_name: formData.last_name,
-        full_name: formData.full_name,
+        full_name: `${formData.first_name} ${formData.last_name}`.trim(),
         username: formData.username,
         bio: formData.bio,
         avatar_url: formData.avatar_url,
         social_links: formData.social_links,
-      })
+      }
+      console.log('[DEBUG] Saving profile with payload:', payload)
+      await newsApi.profile.update(payload)
 
       await refreshProfile()
       setIsEditing(false)

@@ -68,19 +68,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchProfile = async () => {
     try {
       const profileData: any = await newsApi.profile.get()
+      console.log('[DEBUG] Profile data fetched:', profileData)
       setProfile(profileData)
       
       // Extract user data from profile
       if (profileData.user) {
         // If user is just an ID, we need to get full user data
         // For now, construct from profile
-          setUser({
+          const userData = {
             id: profileData.user,
             email: profileData.email,
             username: profileData.username,
             first_name: profileData.first_name,
             last_name: profileData.last_name,
-          })
+          }
+          console.log('[DEBUG] Setting user state:', userData)
+          setUser(userData)
       }
     } catch (error: any) {
       console.error('Error fetching profile:', error)

@@ -545,6 +545,10 @@ export const authApi = {
         requestData.first_name = nameParts[0] || ''
         requestData.last_name = nameParts.slice(1).join(' ') || ''
         requestData.full_name = data.full_name
+      } else if (data.first_name && data.last_name) {
+        requestData.first_name = data.first_name
+        requestData.last_name = data.last_name
+        requestData.full_name = `${data.first_name} ${data.last_name}`
       }
       // Add role if provided (for author registration)
       if (data.role) {
