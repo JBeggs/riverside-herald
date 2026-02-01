@@ -62,7 +62,7 @@ export default function ArticleEditPage() {
 
   return (
     <DashboardLayout profile={profile}>
-      <div className="max-w-5xl mx-auto py-6">
+      <div className="min-h-full">
         <EnhancedArticleEditor
           article={article}
           onSave={() => router.push('/admin/articles')}

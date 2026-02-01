@@ -1351,9 +1351,9 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
   }
 
   return (
-    <div className="w-full flex flex-col">
+    <div className="w-full flex flex-col bg-white min-h-screen">
       {/* Step Navigation */}
-      <div className="px-4 sm:px-6 py-3 border-b border-gray-200 bg-gray-50 rounded-t-xl">
+      <div className="px-4 sm:px-6 py-4 border-b border-gray-200 bg-gray-50 sticky top-0 z-20">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide">
             {steps.map((step, index) => {
@@ -1366,11 +1366,11 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
                   key={step.id}
                   type="button"
                   onClick={() => setCurrentStep(step.id)}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors text-sm whitespace-nowrap ${
+                  className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg transition-all text-sm font-bold whitespace-nowrap ${
                     isActive 
-                      ? 'bg-blue-600 text-white shadow-sm' 
+                      ? 'bg-blue-600 text-white shadow-md scale-105' 
                       : isCompleted 
-                        ? 'bg-green-100 text-green-700 hover:bg-green-200' 
+                        ? 'bg-green-100 text-green-700 hover:bg-green-200 border border-green-200' 
                         : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
                   }`}
                 >
@@ -1386,30 +1386,30 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
               type="button"
               onClick={() => setCurrentStep(steps[currentStepIndex - 1].id)}
               disabled={!canGoPrev}
-              className="p-2 rounded-lg bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200"
+              className="p-2.5 rounded-lg bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200 shadow-sm"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-5 h-5" />
             </button>
             <button
               type="button"
               onClick={() => setCurrentStep(steps[currentStepIndex + 1].id)}
               disabled={!canGoNext}
-              className="p-2 rounded-lg bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200"
+              className="p-2.5 rounded-lg bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200 shadow-sm"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-5 h-5" />
             </button>
           </div>
         </div>
       </div>
 
       {/* Step Content */}
-      <div className="p-4 sm:p-8">
+      <div className="flex-1 p-6 sm:p-10 max-w-6xl mx-auto w-full">
         {renderStepContent()}
       </div>
       
       {/* Footer with Save/Cancel buttons */}
-      <div className="px-4 sm:px-6 py-6 border-t border-gray-200 bg-gray-50 flex items-center justify-between flex-wrap gap-4 rounded-b-xl">
-        <div className="flex items-center space-x-3">
+      <div className="px-4 sm:px-6 py-8 border-t border-gray-200 bg-gray-50 flex items-center justify-between flex-wrap gap-6 sticky bottom-0 z-20">
+        <div className="flex items-center space-x-4">
           <button
             type="button"
             onClick={(e) => {
@@ -1417,34 +1417,34 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
               e.stopPropagation()
               handleCancel()
             }}
-            className="flex items-center space-x-2 px-6 py-2.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors font-semibold shadow-sm"
+            className="flex items-center space-x-2 px-8 py-3 bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl transition-all font-bold shadow-sm active:scale-95"
           >
-            <X className="w-4 h-4" />
-            <span>Cancel</span>
+            <X className="w-5 h-5" />
+            <span>Cancel & Exit</span>
           </button>
         </div>
         
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-6">
           {/* Mobile Navigation */}
-          <div className="sm:hidden flex items-center space-x-3">
+          <div className="sm:hidden flex items-center space-x-4">
             <button
               type="button"
               onClick={() => canGoPrev && setCurrentStep(steps[currentStepIndex - 1].id)}
               disabled={!canGoPrev}
-              className="p-2 rounded-lg bg-white text-gray-600 border border-gray-200 disabled:opacity-50"
+              className="p-3 rounded-xl bg-white text-gray-600 border-2 border-gray-200 disabled:opacity-50 shadow-sm"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-5 h-5" />
             </button>
-            <span className="text-sm font-medium text-gray-500">
+            <span className="text-sm font-bold text-gray-500">
               {currentStepIndex + 1} / {steps.length}
             </span>
             <button
               type="button"
               onClick={() => canGoNext && setCurrentStep(steps[currentStepIndex + 1].id)}
               disabled={!canGoNext}
-              className="p-2 rounded-lg bg-white text-gray-600 border border-gray-200 disabled:opacity-50"
+              className="p-3 rounded-xl bg-white text-gray-600 border-2 border-gray-200 disabled:opacity-50 shadow-sm"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-5 h-5" />
             </button>
           </div>
           
@@ -1452,17 +1452,17 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
             type="button"
             onClick={handleSave}
             disabled={isSaving || !validateArticle().valid}
-            className="flex items-center space-x-2 px-8 py-2.5 bg-green-600 text-white hover:bg-green-700 rounded-lg transition-all font-bold shadow-md disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95"
+            className="flex items-center space-x-3 px-12 py-4 bg-green-600 text-white hover:bg-green-700 rounded-xl transition-all font-black text-lg shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95"
             title={!validateArticle().valid ? validateArticle().message : 'Save article'}
           >
             {isSaving ? (
               <>
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Loader2 className="w-6 h-6 animate-spin" />
                 <span>Saving...</span>
               </>
             ) : (
               <>
-                <Save className="w-5 h-5" />
+                <Save className="w-6 h-6" />
                 <span>Save Article</span>
               </>
             )}

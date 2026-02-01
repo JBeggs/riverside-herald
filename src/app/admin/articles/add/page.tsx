@@ -27,7 +27,7 @@ export default function AddArticlePage() {
 
   return (
     <DashboardLayout profile={profile}>
-      <div className="max-w-5xl mx-auto py-6">
+      <div className="min-h-full">
         <EnhancedArticleEditor
           article={{ id: 'new', title: '', content: '', author_id: profile.user, status: 'draft' }}
           onSave={handleSave}
