@@ -18,7 +18,8 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
     defaultUserType === 'business_owner' ? 'business_owner' : 'author'
   )
   const [formData, setFormData] = useState({
-    fullName: '',
+    firstName: '',
+    lastName: '',
     email: '',
     companyName: '',
     password: '',
@@ -39,8 +40,12 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
   }
 
   const validateForm = () => {
-    if (!formData.fullName.trim()) {
-      return 'Please enter your full name'
+    if (!formData.firstName.trim()) {
+      return 'Please enter your first name'
+    }
+    
+    if (!formData.lastName.trim()) {
+      return 'Please enter your last name'
     }
     
     // Company name is required for business owners
@@ -89,7 +94,8 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
       const { error } = await signUp(
         formData.email, 
         formData.password, 
-        formData.fullName,
+        formData.firstName,
+        formData.lastName,
         userType === 'business_owner' ? formData.companyName.trim() : undefined,  // Only send if business owner
         userType  // Pass user type
       )
@@ -105,7 +111,7 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
         setSuccess(successMessage)
         showSuccess(successMessage)
         // Clear form
-        setFormData({ fullName: '', email: '', companyName: '', password: '', confirmPassword: '' })
+        setFormData({ firstName: '', lastName: '', email: '', companyName: '', password: '', confirmPassword: '' })
         setUserType('author') // Reset to default
         setTimeout(() => {
           onSuccess?.()
@@ -194,24 +200,48 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Full Name Field */}
-          <div>
-            <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-              Full Name
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <User className="h-5 w-5 text-gray-400" />
+          {/* Name Fields */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* First Name Field */}
+            <div>
+              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
+                First Name
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <User className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="firstName"
+                  type="text"
+                  value={formData.firstName}
+                  onChange={(e) => handleInputChange('firstName', e.target.value)}
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                  placeholder="First name"
+                  required
+                />
               </div>
-              <input
-                id="fullName"
-                type="text"
-                value={formData.fullName}
-                onChange={(e) => handleInputChange('fullName', e.target.value)}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
-                placeholder="Enter your full name"
-                required
-              />
+            </div>
+
+            {/* Last Name Field */}
+            <div>
+              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
+                Last Name
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <User className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="lastName"
+                  type="text"
+                  value={formData.lastName}
+                  onChange={(e) => handleInputChange('lastName', e.target.value)}
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                  placeholder="Last name"
+                  required
+                />
+              </div>
             </div>
           </div>
 

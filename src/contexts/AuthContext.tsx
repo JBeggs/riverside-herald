@@ -109,7 +109,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (
     email: string,
     password: string,
-    fullName: string,
+    firstName: string,
+    lastName: string,
     companyName?: string,  // Optional - if provided, creates business; otherwise regular user
     userType?: 'author' | 'business_owner'  // User type: author or business_owner
   ) => {
@@ -119,7 +120,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email,
         password,
         password_confirm: password,
-        full_name: fullName,
+        first_name: firstName,
+        last_name: lastName,
         role: userType === 'business_owner' ? undefined : 'author', // Set role for authors
         // Only include company fields if companyName is provided (business registration)
         ...(companyName ? {

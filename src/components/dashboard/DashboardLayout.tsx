@@ -67,62 +67,55 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
   const isAuthor = profile?.role === 'author'
   const isBusinessOwner = profile?.role === 'business_owner'
 
-  const navigation = [
-    {
-      name: 'Overview',
-      href: '/dashboard',
-      icon: LayoutDashboard,
-      roles: ['admin', 'editor', 'author', 'business_owner']
-    },
-    {
-      name: 'Profile',
-      href: '/profile',
-      icon: User,
-      roles: ['admin', 'editor', 'author', 'business_owner']
-    },
-    {
-      name: 'Administration',
-      href: '/admin',
-      icon: Shield,
-      roles: ['admin', 'editor', 'business_owner']
-    },
-    {
-      name: 'Businesses',
-      href: '/admin/businesses',
-      icon: Building2,
-      roles: ['admin', 'editor']
-    },
-    {
-      name: 'Categories & Tags',
-      href: '/admin/categories',
-      icon: Tag,
-      roles: ['admin', 'editor', 'business_owner']
-    },
-    {
-      name: 'Media Library',
-      href: '/admin/media',
-      icon: Image,
-      roles: ['admin', 'editor', 'author', 'business_owner']
-    },
-    {
-      name: 'Users',
-      href: '/admin/users',
-      icon: Users,
-      roles: ['admin']
-    },
-    {
-      name: 'Analytics',
-      href: '/admin/analytics',
-      icon: BarChart3,
-      roles: ['admin', 'editor']
-    },
-    {
-      name: 'Settings',
-      href: '/admin/settings',
-      icon: Settings,
-      roles: ['admin']
-    },
-  ].filter(item => item.roles.includes(profile?.role))
+  // Role-based navigation with different menus for different user types
+  const getNavigationForRole = (role: string) => {
+    switch (role) {
+      case 'author':
+        return [
+          { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+          { name: 'My Articles', href: '/admin/articles', icon: FileText },
+          { name: 'Media Library', href: '/admin/media', icon: Image }
+        ]
+        
+      case 'business_owner':
+        return [
+          { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+          { name: 'My Articles', href: '/admin/articles', icon: FileText },
+          { name: 'My Business', href: '/businesses/my', icon: Building2 },
+          { name: 'Media Library', href: '/admin/media', icon: Image }
+        ]
+        
+      case 'editor':
+        return [
+          { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+          { name: 'All Articles', href: '/admin/articles', icon: FileText },
+          { name: 'Categories & Tags', href: '/admin/categories', icon: Tag },
+          { name: 'Media Library', href: '/admin/media', icon: Image },
+          { name: 'Content Review', href: '/admin/review', icon: Shield }
+        ]
+        
+      case 'admin':
+        return [
+          { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+          { name: 'Articles', href: '/admin/articles', icon: FileText },
+          { name: 'Users', href: '/admin/users', icon: Users },
+          { name: 'Businesses', href: '/admin/businesses', icon: Building2 },
+          { name: 'Categories', href: '/admin/categories', icon: Tag },
+          { name: 'Media Library', href: '/admin/media', icon: Image },
+          { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
+          { name: 'Settings', href: '/admin/settings', icon: Settings }
+        ]
+        
+      default: // subscribers and other roles
+        return [
+          { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+          { name: 'Saved Articles', href: '/profile/saved', icon: FileText },
+          { name: 'Subscription', href: '/profile/subscription', icon: User }
+        ]
+    }
+  }
+
+  const navigation = getNavigationForRole(profile?.role || 'subscriber')
 
   const isActive = (href: string) => {
     if (href === '/dashboard') {
@@ -167,10 +160,11 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
+          <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
             {navigation.map((item) => {
               const Icon = item.icon
               const active = isActive(item.href)
+              
               return (
                 <Link
                   key={item.name}

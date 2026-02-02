@@ -114,13 +114,23 @@ export function MobileNav({ menuItems }: MobileNavProps) {
                         <p className="text-xs text-gray-500 truncate">{user.email}</p>
                       </div>
                     </div>
-                    <Link 
-                      href="/profile" 
-                      className="w-full flex items-center justify-center py-3 px-4 rounded-lg bg-gray-100 text-gray-900 font-medium hover:bg-gray-200 transition-colors min-h-[48px]"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Profile Settings
-                    </Link>
+                    {(profile?.role === 'admin' || profile?.role === 'editor' || profile?.role === 'author' || profile?.role === 'business_owner') ? (
+                      <Link 
+                        href="/dashboard" 
+                        className="w-full flex items-center justify-center py-3 px-4 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors min-h-[48px]"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Dashboard
+                      </Link>
+                    ) : (
+                      <Link 
+                        href="/profile" 
+                        className="w-full flex items-center justify-center py-3 px-4 rounded-lg bg-gray-100 text-gray-900 font-medium hover:bg-gray-200 transition-colors min-h-[48px]"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Profile Settings
+                      </Link>
+                    )}
                     <button
                       onClick={handleSignOut}
                       className="w-full flex items-center justify-center py-3 px-4 rounded-lg bg-red-50 text-red-600 font-medium hover:bg-red-100 transition-colors min-h-[48px]"

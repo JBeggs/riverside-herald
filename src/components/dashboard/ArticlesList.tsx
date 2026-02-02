@@ -53,7 +53,7 @@ export default function ArticlesList({ articles, loading, onEdit, onDelete, prof
 
   const canEdit = (article: any) => {
     if (profile.role === 'admin' || profile.role === 'editor') return true
-    if (profile.role === 'author') {
+    if (profile.role === 'author' || profile.role === 'business_owner') {
       return article.author === profile.user || article.author_id === profile.user
     }
     return false

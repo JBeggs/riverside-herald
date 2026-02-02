@@ -511,9 +511,9 @@ export const authApi = {
     password: string
     company_name?: string  // Optional - if provided, creates business; otherwise connects to Riverside Herald
     company_email?: string
-    full_name?: string
-    first_name?: string
-    last_name?: string
+    first_name?: string    // Preferred - first name
+    last_name?: string     // Preferred - last name  
+    full_name?: string     // Fallback - will be split into first/last if first_name and last_name not provided
     password_confirm?: string
     role?: string  // Optional role for user registration (e.g., 'author')
   }) {
@@ -534,15 +534,22 @@ export const authApi = {
       requestData.company_name = data.company_name
       requestData.company_email = data.company_email || data.email
       
-      // Split full_name into first_name and last_name for business registration
-      if (data.full_name) {
+      // Use provided first_name and last_name, or split full_name if provided
+      if (data.first_name && data.last_name) {
+        requestData.first_name = data.first_name
+        requestData.last_name = data.last_name
+      } else if (data.full_name) {
         const nameParts = data.full_name.trim().split(/\s+/)
         requestData.first_name = nameParts[0] || ''
         requestData.last_name = nameParts.slice(1).join(' ') || ''
       }
     } else {
       // User registration uses first_name and last_name
-      if (data.full_name) {
+      if (data.first_name && data.last_name) {
+        requestData.first_name = data.first_name
+        requestData.last_name = data.last_name
+        requestData.full_name = `${data.first_name} ${data.last_name}`
+      } else if (data.full_name) {
         const nameParts = data.full_name.trim().split(/\s+/)
         requestData.first_name = nameParts[0] || ''
         requestData.last_name = nameParts.slice(1).join(' ') || ''

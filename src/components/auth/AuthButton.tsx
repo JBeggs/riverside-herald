@@ -69,17 +69,6 @@ export default function AuthButton({ onAction }: { onAction?: () => void }) {
               )}
             </div>
             
-            <Link 
-              href="/profile" 
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-              onClick={() => {
-                setShowUserMenu(false)
-                if (onAction) onAction()
-              }}
-            >
-              Profile Settings
-            </Link>
-            
             {(profile.role === 'admin' || profile.role === 'editor' || profile.role === 'author' || profile.role === 'business_owner') && (
               <Link 
                 href="/dashboard" 
