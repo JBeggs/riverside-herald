@@ -96,8 +96,8 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
         formData.password, 
         formData.firstName,
         formData.lastName,
-        userType === 'business_owner' ? formData.companyName.trim() : undefined,  // Only send if business owner
-        userType  // Pass user type
+        userType === 'business_owner' ? formData.companyName.trim() : undefined,
+        userType
       )
       
       if (error) {

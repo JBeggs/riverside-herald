@@ -5,7 +5,27 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
 import { newsApi } from '@/lib/api'
-import { MapPin, Phone, Mail, Globe, Camera, ArrowRight, ArrowLeft, Check } from 'lucide-react'
+import { MapPin, Phone, Mail, Globe, Check } from 'lucide-react'
+
+// Custom icons not available in lucide-react
+const Camera = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+)
+
+const ArrowRight = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+  </svg>
+)
+
+const ArrowLeft = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+  </svg>
+)
 
 interface BusinessTemplate {
   id: string
@@ -180,7 +200,7 @@ export default function BusinessCreationWizard({ onComplete, onCancel, inModal =
         owner: profile?.user
       }
 
-      const business = await newsApi.businesses.create(businessData)
+      const business: any = await newsApi.businesses.create(businessData)
       showSuccess('Business created successfully!')
       
       if (onComplete) {

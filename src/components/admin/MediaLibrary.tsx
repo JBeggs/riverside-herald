@@ -1,7 +1,14 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { Upload, File, Image, Trash2, Download, Search, Grid, List, Plus } from 'lucide-react'
+import { FileText, Trash2, Search } from 'lucide-react'
+
+// Custom Plus icon (not available in lucide-react)
+const Plus = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+  </svg>
+)
 
 interface MediaLibraryProps {
   profile: any
@@ -73,10 +80,8 @@ export default function MediaLibrary({ profile }: MediaLibraryProps) {
   }
 
   const getFileIcon = (type: string) => {
-    if (type.startsWith('image/')) {
-      return <Image className="w-5 h-5" />
-    }
-    return <File className="w-5 h-5" />
+    // Use FileText for all file types since we don't have access to Image icon from lucide-react
+    return <FileText className="w-5 h-5" />
   }
 
   const filteredFiles = files.filter(file =>
@@ -111,7 +116,7 @@ export default function MediaLibrary({ profile }: MediaLibraryProps) {
           className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors cursor-pointer"
           onClick={() => fileInputRef.current?.click()}
         >
-          <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <Plus className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">Upload Files</h3>
           <p className="text-gray-600 mb-4">
             Click to browse or drag and drop your files here
@@ -149,23 +154,23 @@ export default function MediaLibrary({ profile }: MediaLibraryProps) {
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2 rounded-lg ${
+              className={`px-3 py-2 text-sm rounded-lg ${
                 viewMode === 'grid' 
                   ? 'bg-blue-100 text-blue-600' 
                   : 'text-gray-400 hover:text-gray-600'
               }`}
             >
-              <Grid className="w-5 h-5" />
+              Grid
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2 rounded-lg ${
+              className={`px-3 py-2 text-sm rounded-lg ${
                 viewMode === 'list' 
                   ? 'bg-blue-100 text-blue-600' 
                   : 'text-gray-400 hover:text-gray-600'
               }`}
             >
-              <List className="w-5 h-5" />
+              List
             </button>
           </div>
         </div>
@@ -180,7 +185,7 @@ export default function MediaLibrary({ profile }: MediaLibraryProps) {
           </div>
         ) : filteredFiles.length === 0 ? (
           <div className="text-center py-12">
-            <File className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
               {searchQuery ? 'No files found' : 'No files uploaded yet'}
             </h3>
@@ -222,10 +227,10 @@ export default function MediaLibrary({ profile }: MediaLibraryProps) {
                   <div className="flex space-x-1">
                     <button
                       onClick={() => window.open(file.url, '_blank')}
-                      className="p-1 bg-white border border-gray-200 rounded shadow-sm hover:bg-gray-50"
-                      title="Download"
+                      className="px-2 py-1 bg-white border border-gray-200 rounded shadow-sm hover:bg-gray-50 text-xs"
+                      title="View"
                     >
-                      <Download className="w-3 h-3 text-gray-600" />
+                      View
                     </button>
                     <button
                       onClick={() => handleDelete(file.id)}
@@ -257,10 +262,10 @@ export default function MediaLibrary({ profile }: MediaLibraryProps) {
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => window.open(file.url, '_blank')}
-                    className="p-2 text-gray-400 hover:text-blue-600"
-                    title="Download"
+                    className="px-3 py-2 text-sm text-blue-600 hover:text-blue-800"
+                    title="View"
                   >
-                    <Download className="w-4 h-4" />
+                    View
                   </button>
                   <button
                     onClick={() => handleDelete(file.id)}

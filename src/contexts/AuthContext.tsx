@@ -18,7 +18,7 @@ interface AuthContextType {
   companyId: string | null
   loading: boolean
   signIn: (username: string, password: string) => Promise<{ error: any }>
-  signUp: (email: string, password: string, fullName: string, companyName?: string, userType?: 'author' | 'business_owner') => Promise<{ error: any }>
+  signUp: (email: string, password: string, firstName: string, lastName: string, companyName?: string, userType?: 'author' | 'business_owner') => Promise<{ error: any }>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
 }

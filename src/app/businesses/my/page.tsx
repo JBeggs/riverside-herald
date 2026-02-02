@@ -36,8 +36,7 @@ export default async function MyBusinessPage() {
     // Try to find user's business
     try {
       const businessesData: any = await serverNewsApi.businesses.list({
-        owner: profile.user,
-        limit: 1
+        owner: profile.user
       })
       
       const businesses = Array.isArray(businessesData) ? businessesData : (businessesData?.results || [])
