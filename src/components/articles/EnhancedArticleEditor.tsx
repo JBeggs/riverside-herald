@@ -112,6 +112,12 @@ interface ArticleEditorProps {
     } | null
     featured_media_id?: string
     author_id: string
+    category?: {
+      id: string
+      name: string
+      slug: string
+      color: string
+    }
     category_id?: string
     status: string
     content_type?: string
@@ -177,6 +183,33 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
     read_time_minutes: article.read_time_minutes || null
   })
 
+  // Update editData when article prop changes
+  useEffect(() => {
+    if (article && article.id !== 'new') {
+      console.log('[DEBUG] Article prop changed, updating editData. Content length:', article.content?.length || 0)
+      setEditData({
+        title: article.title || '',
+        subtitle: article.subtitle || '',
+        content: article.content || '',
+        excerpt: article.excerpt || '',
+        featured_image_url: article.featured_media?.file_url || article.featured_image_url || '',
+        featured_media_id: article.featured_media?.id || article.featured_media_id || '',
+        category_id: article.category?.id || article.category_id || '',
+        status: article.status || 'draft',
+        content_type: article.content_type || 'article',
+        is_premium: article.is_premium || false,
+        is_breaking_news: article.is_breaking_news || false,
+        is_trending: article.is_trending || false,
+        seo_title: article.seo_title || '',
+        seo_description: article.seo_description || '',
+        published_at: article.published_at ? new Date(article.published_at).toISOString().slice(0, 16) : '',
+        scheduled_for: article.scheduled_for ? new Date(article.scheduled_for).toISOString().slice(0, 16) : '',
+        location_name: article.location_name || '',
+        read_time_minutes: article.read_time_minutes || null
+      })
+    }
+  }, [article])
+
   // Check if user can edit this article
   // Normalize author_id - it might be in article.author.id or article.author_id
   const articleAuthorId = article.author_id || (article as any).author?.id || (article as any).author || ''
@@ -198,11 +231,11 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
   // Load categories and tags - load immediately for new articles, or when editing starts
   useEffect(() => {
     // For new articles, load categories immediately
-    // For existing articles, load when editing starts
+    // For existing articles, load when editing starts or article data changes
     if (article.id === 'new' || isEditing) {
       loadCategoriesAndTags()
     }
-  }, [isEditing, article.id])
+  }, [isEditing, article.id, article]) // Added article to dependencies
 
   const loadCategoriesAndTags = async () => {
     try {

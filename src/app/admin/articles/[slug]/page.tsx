@@ -27,15 +27,27 @@ export default function ArticleEditPage() {
   const loadArticle = async () => {
     setLoading(true)
     try {
-      // Try to get by slug first, then by ID if that fails
+      console.log('[DEBUG] Loading article for slug/id:', slug)
+      // Try to get by slug first
       let data: any
       try {
-        data = await newsApi.articles.getBySlug(slug)
+        const results = await newsApi.articles.getBySlug(slug) as any
+        const articles = Array.isArray(results) ? results : (results?.results || [])
+        data = articles?.[0] || null
+        if (data) console.log('[DEBUG] Found article by slug:', data.title)
       } catch (e) {
+        console.log('[DEBUG] Slug lookup failed, trying ID lookup')
         data = await newsApi.articles.get(slug)
       }
       
-      if (data) {
+      if (data && data.id) {
+        console.log('[DEBUG] Fetching full article detail for ID:', data.id)
+        // Fetch full detail by ID to ensure we have content and all fields
+        const fullArticle: any = await newsApi.articles.get(data.id)
+        console.log('[DEBUG] Full article loaded, content length:', fullArticle.content?.length || 0)
+        setArticle(fullArticle)
+      } else if (data) {
+        console.log('[DEBUG] Using article data from initial lookup, content length:', (data as any).content?.length || 0)
         setArticle(data)
       } else {
         showError('Article not found')
