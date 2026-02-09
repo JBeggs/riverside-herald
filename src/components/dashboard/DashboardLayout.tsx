@@ -81,7 +81,7 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
         return [
           { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
           { name: 'My Articles', href: '/admin/articles', icon: FileText },
-          { name: 'My Business', href: '/businesses', icon: Building2 },
+          { name: 'My Business', href: '/businesses/my', icon: Building2 },
           { name: 'Media Library', href: '/admin/media', icon: Image }
         ]
         
