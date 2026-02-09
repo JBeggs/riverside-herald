@@ -69,10 +69,15 @@ export default function DashboardOverview({ profile, stats, recentArticles }: Da
   const loadUserBusinesses = async () => {
     try {
       setLoadingBusinesses(true)
-      const businesses = await newsApi.businesses.myBusinesses()
+      // Use existing API endpoint with owner filter since my_businesses doesn't exist in production yet
+      const businesses = await newsApi.businesses.list({ owner: profile?.user })
       const businessList = Array.isArray(businesses) ? businesses : (businesses as any)?.results || []
-      setUserBusinesses(businessList)
-      setHasBusinessProfile(businessList.length > 0)
+      // Filter by current user's businesses client-side as backup
+      const userBusinessList = businessList.filter((business: any) => 
+        business.owner === profile?.user || business.owner_id === profile?.user
+      )
+      setUserBusinesses(userBusinessList)
+      setHasBusinessProfile(userBusinessList.length > 0)
     } catch (error) {
       console.error('Error loading businesses:', error)
       setHasBusinessProfile(false)
@@ -265,7 +270,7 @@ export default function DashboardOverview({ profile, stats, recentArticles }: Da
               </div>
             </div>
             <Link
-              href={hasBusinessProfile ? "/businesses/my" : "/businesses/create"}
+              href={hasBusinessProfile ? "/businesses" : "/businesses/create"}
               className={`text-sm mt-4 inline-flex items-center ${hasBusinessProfile ? 'text-green-600 hover:text-green-700' : 'text-orange-600 hover:text-orange-700'}`}
             >
               {hasBusinessProfile ? 'Manage business' : 'Create now'} <ArrowRight className="w-4 h-4 ml-1" />
