@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Clock, MapPin, TrendingUp } from 'lucide-react'
 import { getArticleImageUrl, getBusinessImageUrl as getBusinessImageUrlUtil } from '@/lib/image-utils'
+import FeaturedBusinessCard from '@/components/businesses/FeaturedBusinessCard'
 
 interface Article {
   id: string
@@ -36,9 +37,25 @@ interface Business {
   industry: string
   city: string
   rating: number
+  review_count?: number
+  website_url?: string
+  phone?: string
+  email?: string
+  is_verified?: boolean
   logo?: {
     file_url: string
   }
+  cover_image?: {
+    file_url: string
+  }
+  products?: Array<{
+    id: string
+    name: string
+    price?: number
+    currency?: string
+    image?: { file_url: string }
+    description?: string
+  }>
 }
 
 interface SiteSettings {
@@ -102,8 +119,32 @@ async function getHomepageData() {
       }
     })
 
-    // Get businesses
-    const businessesData: any = await serverNewsApi.businesses.list({ skipTenant: true })
+    // Get businesses with products for enhanced display
+    let businessesData: any
+    try {
+      businessesData = await serverNewsApi.businesses.listEnhanced({ 
+        skipTenant: true,
+        includeProducts: true // Include products for featured display
+      })
+      console.log('📋 Homepage businesses data:', {
+        hasData: !!businessesData,
+        isArray: Array.isArray(businessesData),
+        count: Array.isArray(businessesData) ? businessesData.length : (businessesData?.results?.length || 0)
+      })
+    } catch (businessError) {
+      console.error('❌ Failed to fetch enhanced businesses, falling back to basic:', businessError)
+      // Fallback to basic business list if enhanced fails
+      try {
+        businessesData = await serverNewsApi.businesses.list({ skipTenant: true })
+        console.log('📋 Fallback businesses data:', {
+          hasData: !!businessesData,
+          count: Array.isArray(businessesData) ? businessesData.length : (businessesData?.results?.length || 0)
+        })
+      } catch (fallbackError) {
+        console.error('❌ Even basic business fetch failed:', fallbackError)
+        businessesData = []
+      }
+    }
     const businessesArray = Array.isArray(businessesData) ? businessesData : (businessesData?.results || [])
     const businesses: Business[] = businessesArray.map((business: any) => ({
       id: business.id,
@@ -113,9 +154,18 @@ async function getHomepageData() {
       industry: business.industry || '',
       city: business.city || '',
       rating: parseFloat(business.rating) || 0,
+      review_count: business.review_count || 0,
+      website_url: business.website_url,
+      phone: business.phone,
+      email: business.email,
+      is_verified: business.is_verified,
       logo: business.logo ? {
         file_url: business.logo.file_url
       } : undefined,
+      cover_image: business.cover_image ? {
+        file_url: business.cover_image.file_url
+      } : undefined,
+      products: business.products || [],
     }))
 
     // Separate articles by type
@@ -362,57 +412,50 @@ export default async function HomePage() {
                 </div>
               )}
 
-              {/* Local Businesses */}
+              {/* Featured Businesses with Products */}
               {businesses.length > 0 && (
                 <div>
-                  <h3 className="heading-sm mb-4">Featured Businesses</h3>
-                  <div className="space-y-4">
-                    {businesses.slice(0, 4).map((business) => {
-                      const logoUrl = getBusinessImageUrl(business)
-                      return (
-                        <article key={business.id} className="card p-4">
-                          <div className="flex items-center space-x-3">
-                            <div className="flex-shrink-0">
-                              {logoUrl ? (
-                                <Image
-                                  src={logoUrl}
-                                  alt={`${business.name} logo`}
-                                  width={48}
-                                  height={48}
-                                  className="w-12 h-12 object-cover rounded-lg"
-                                />
-                              ) : (
-                                <div className="w-12 h-12 bg-neutral-200 rounded-lg flex items-center justify-center">
-                                  <span className="text-neutral-500 text-lg font-semibold">
-                                    {business.name?.charAt(0) || '?'}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                            <div className="flex-1">
-                              <h4 className="font-semibold text-sm">
-                                <Link href={`/businesses/${business.slug}`} className="hover:text-blue-600">
-                                  {business.name}
-                                </Link>
-                              </h4>
-                              <p className="text-xs text-neutral-600 mb-1">{business.industry}</p>
-                              <div className="flex items-center">
-                                <div className="flex text-yellow-400">
-                                  {'★'.repeat(Math.floor(business.rating || 0))}
-                                </div>
-                                <span className="text-xs text-neutral-500 ml-1">
-                                  {business.rating} • {business.city}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </article>
-                      )
-                    })}
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="heading-sm">Featured Businesses</h3>
+                    <Link 
+                      href="/businesses" 
+                      className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      View All →
+                    </Link>
                   </div>
-                  <Link href="/businesses" className="btn btn-secondary w-full mt-4">
-                    View All Businesses
-                  </Link>
+                  <div className="space-y-6">
+                    {businesses.slice(0, 3).map((business) => (
+                      <FeaturedBusinessCard
+                        key={business.id}
+                        business={business}
+                        showProducts={true}
+                        showWebsiteLink={true}
+                      />
+                    ))}
+                  </div>
+                  
+                  {/* Debug info - remove in production */}
+                  {process.env.NODE_ENV === 'development' && (
+                    <div className="mt-4 p-4 bg-gray-100 rounded text-sm">
+                      <p>Debug: {businesses.length} businesses found</p>
+                      {businesses.slice(0, 3).map(business => (
+                        <div key={business.id} className="text-xs">
+                          {business.name} - Products: {business.products?.length || 0} - Website: {business.website_url || 'none'}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {businesses.length > 3 && (
+                    <div className="mt-6 text-center">
+                      <Link 
+                        href="/businesses" 
+                        className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                      >
+                        Discover {businesses.length - 3} More Businesses
+                      </Link>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

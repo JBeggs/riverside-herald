@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { 
   FileText, 
@@ -13,6 +13,7 @@ import {
   AlertCircle
 } from 'lucide-react'
 import ArticleCard from '@/components/ui/ArticleCard'
+import { newsApi } from '@/lib/api'
 
 // Custom Lightbulb icon
 const Lightbulb = ({ className }: { className?: string }) => (
@@ -48,13 +49,38 @@ interface DashboardOverviewProps {
 
 export default function DashboardOverview({ profile, stats, recentArticles }: DashboardOverviewProps) {
   const [dismissedOnboarding, setDismissedOnboarding] = useState(false)
-  const [hasBusinessProfile, setHasBusinessProfile] = useState(false) // This should come from props/API
+  const [hasBusinessProfile, setHasBusinessProfile] = useState(false)
+  const [userBusinesses, setUserBusinesses] = useState<any[]>([])
+  const [loadingBusinesses, setLoadingBusinesses] = useState(true)
   
   const isAdmin = profile?.role === 'admin'
   const isEditor = profile?.role === 'editor'
   const isAuthor = profile?.role === 'author'
   const isBusinessOwner = profile?.role === 'business_owner'
   const isSubscriber = !isAdmin && !isEditor && !isAuthor && !isBusinessOwner
+  
+  // Load user's businesses when component mounts
+  useEffect(() => {
+    if (isBusinessOwner && profile) {
+      loadUserBusinesses()
+    }
+  }, [isBusinessOwner, profile])
+
+  const loadUserBusinesses = async () => {
+    try {
+      setLoadingBusinesses(true)
+      const businesses = await newsApi.businesses.myBusinesses()
+      const businessList = Array.isArray(businesses) ? businesses : (businesses as any)?.results || []
+      setUserBusinesses(businessList)
+      setHasBusinessProfile(businessList.length > 0)
+    } catch (error) {
+      console.error('Error loading businesses:', error)
+      setHasBusinessProfile(false)
+      setUserBusinesses([])
+    } finally {
+      setLoadingBusinesses(false)
+    }
+  }
   
   // Filter articles to only show user's articles if they're author or business_owner
   const filteredArticles = (isAuthor || isBusinessOwner) && profile?.user
@@ -218,19 +244,31 @@ export default function DashboardOverview({ profile, stats, recentArticles }: Da
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Business Profile</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">
-                  {hasBusinessProfile ? 'Active' : 'Not Created'}
-                </p>
+                {loadingBusinesses ? (
+                  <p className="text-2xl font-bold text-gray-900 mt-1">Loading...</p>
+                ) : (
+                  <p className="text-2xl font-bold text-gray-900 mt-1">
+                    {hasBusinessProfile 
+                      ? userBusinesses[0]?.name || 'Active'
+                      : 'Not Created'
+                    }
+                  </p>
+                )}
+                {hasBusinessProfile && userBusinesses.length > 0 && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    {userBusinesses[0]?.is_verified ? 'Verified Business' : 'Pending Verification'}
+                  </p>
+                )}
               </div>
               <div className={`p-3 rounded-full ${hasBusinessProfile ? 'bg-green-100' : 'bg-orange-100'}`}>
                 <Building2 className={`w-6 h-6 ${hasBusinessProfile ? 'text-green-600' : 'text-orange-600'}`} />
               </div>
             </div>
             <Link
-              href={hasBusinessProfile ? "/businesses" : "/businesses/create"}
+              href={hasBusinessProfile ? "/businesses/my" : "/businesses/create"}
               className={`text-sm mt-4 inline-flex items-center ${hasBusinessProfile ? 'text-green-600 hover:text-green-700' : 'text-orange-600 hover:text-orange-700'}`}
             >
-              {hasBusinessProfile ? 'View profile' : 'Create now'} <ArrowRight className="w-4 h-4 ml-1" />
+              {hasBusinessProfile ? 'Manage business' : 'Create now'} <ArrowRight className="w-4 h-4 ml-1" />
             </Link>
           </div>
 

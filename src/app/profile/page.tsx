@@ -72,14 +72,80 @@ export default async function Profile() {
       }
     }
 
-    // Get user's businesses if they own any
-    const businessesData: any = await serverNewsApi.businesses.list({
-      owner: profile.user
-    })
+    // Get user's businesses with enhanced detection
+    let ownedBusinesses: any[] = []
+    
+    try {
+      // Method 1: Direct ownership query
+      const businessesData: any = await serverNewsApi.businesses.list({
+        owner: profile.user
+      })
+      ownedBusinesses = businessesData?.results || businessesData || []
+      
+      // Debug logging for business ownership detection
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔍 Business Ownership Debug:', {
+          profileUser: profile.user,
+          profileEmail: profile.email,
+          profileRole: profile.role,
+          businessesFound: ownedBusinesses.length,
+          businessNames: ownedBusinesses.map(b => b.name)
+        })
+      }
+      
+      // Method 2: If no businesses found but user has business_owner role, try email-based lookup
+      if (ownedBusinesses.length === 0 && profile.role === 'business_owner' && profile.email) {
+        try {
+          const emailBasedData: any = await serverNewsApi.businesses.list({
+            search: profile.email // Search by email in business records
+          })
+          const emailBusinesses = emailBasedData?.results || emailBasedData || []
+          
+          if (emailBusinesses.length > 0) {
+            ownedBusinesses = emailBusinesses
+            console.log('📧 Found businesses via email search:', emailBusinesses.length)
+          }
+        } catch (emailError) {
+          console.log('Email-based business search failed:', emailError)
+        }
+      }
+      
+      // Method 3: If still no businesses, get all businesses and filter client-side for debugging
+      if (ownedBusinesses.length === 0 && profile.role === 'business_owner') {
+        try {
+          const allBusinessesData: any = await serverNewsApi.businesses.list({ skipTenant: true })
+          const allBusinesses = allBusinessesData?.results || allBusinessesData || []
+          
+          console.log('🔍 All businesses check:', {
+            totalBusinesses: allBusinesses.length,
+            businessOwnersIds: allBusinesses.map((b: any) => ({ name: b.name, owner_id: b.owner_id, email: b.email })),
+            lookingForOwnerId: profile.user,
+            lookingForEmail: profile.email
+          })
+          
+          // Look for businesses with matching owner fields
+          const possibleMatches = allBusinesses.filter((business: any) => 
+            business.owner_id === profile.user || 
+            business.email === profile.email ||
+            (business.owner && business.owner === profile.user)
+          )
+          
+          if (possibleMatches.length > 0) {
+            console.log('🎯 Found potential business matches:', possibleMatches.map((b: any) => b.name))
+          }
+        } catch (allBusinessError) {
+          console.log('All businesses debug check failed:', allBusinessError)
+        }
+      }
+      
+    } catch (error) {
+      console.error('Error fetching businesses:', error)
+      ownedBusinesses = []
+    }
     
     additionalData = { 
       ...additionalData, 
-      ownedBusinesses: businessesData?.results || businessesData || [] 
+      ownedBusinesses 
     }
 
     // Construct user object from profile

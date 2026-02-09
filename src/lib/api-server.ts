@@ -262,6 +262,41 @@ export const serverNewsApi = {
   businesses: {
     list: (params?: { industry?: string; is_verified?: boolean; search?: string; owner?: string; skipTenant?: boolean }) =>
       serverApi.get('/news/businesses/', params),
+    listEnhanced: async (params?: { industry?: string; is_verified?: boolean; search?: string; owner?: string; skipTenant?: boolean; includeProducts?: boolean }) => {
+      try {
+        const businesses = await serverApi.get<any>('/news/businesses/', params)
+        const businessesArray = Array.isArray(businesses) ? businesses : (businesses?.results || [])
+        
+        // If includeProducts is true, fetch products for each business
+        if (params?.includeProducts) {
+          const enhancedBusinesses = await Promise.all(
+            businessesArray.map(async (business: any) => {
+              try {
+                // Try to fetch products for this business using direct API call
+                const products = await serverApi.get(`/v1/public/${business.slug}/products/`, { skipTenant: true })
+                return {
+                  ...business,
+                  products: Array.isArray(products) ? products.slice(0, 4) : (products?.results || []).slice(0, 4) // Limit to 4 products for homepage
+                }
+              } catch (error) {
+                // If products fetch fails, continue without products
+                console.warn(`Failed to fetch products for ${business.slug}:`, error)
+                return {
+                  ...business,
+                  products: []
+                }
+              }
+            })
+          )
+          return Array.isArray(businesses) ? enhancedBusinesses : { ...businesses, results: enhancedBusinesses }
+        }
+        
+        return businesses
+      } catch (error) {
+        console.error('Error fetching enhanced businesses:', error)
+        throw error
+      }
+    },
     getBySlug: async (slug: string) => {
       try {
         const results = await serverApi.get<any>('/news/businesses/', { slug, skipTenant: true })

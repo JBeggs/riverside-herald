@@ -664,6 +664,7 @@ export const newsApi = {
       apiClient.get('/news/businesses/', params),
     get: (id: string) => apiClient.get(`/news/businesses/${id}/`),
     getBySlug: (slug: string) => apiClient.get(`/news/businesses/?slug=${slug}`),
+    myBusinesses: () => apiClient.get('/news/businesses/my_businesses/'),
     create: (data: any) => apiClient.post('/news/businesses/', data),
     update: (id: string, data: any) => apiClient.put(`/news/businesses/${id}/`, data),
     delete: (id: string) => apiClient.delete(`/news/businesses/${id}/`),
