@@ -4,7 +4,14 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
-import { Building2, Edit3, Plus, Eye, Loader2 } from 'lucide-react'
+import { Building2, Edit3, Eye, Loader2 } from 'lucide-react'
+
+// Custom Plus icon
+const Plus = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+  </svg>
+)
 import { newsApi } from '@/lib/api'
 
 export default function MyBusinessPage() {
