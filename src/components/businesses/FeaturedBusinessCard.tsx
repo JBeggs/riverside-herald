@@ -3,7 +3,14 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ExternalLink, MapPin, Star, ShoppingBag, Phone, Mail, Globe, CheckCircle } from 'lucide-react'
+import { MapPin, Star, Phone, Mail, Globe, CheckCircle } from 'lucide-react'
+
+// Custom ShoppingBag icon to avoid lucide-react version issues
+const ShoppingBag = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l-1 12H6L5 9z" />
+  </svg>
+)
 
 interface Product {
   id: string
@@ -224,7 +231,7 @@ export default function FeaturedBusinessCard({
             >
               <Globe className="w-4 h-4" />
               <span>Visit Website</span>
-              <ExternalLink className="w-3 h-3" />
+              <Globe className="w-3 h-3" />
             </a>
           )}
           

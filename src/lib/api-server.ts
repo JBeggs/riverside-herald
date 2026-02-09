@@ -276,7 +276,7 @@ export const serverNewsApi = {
                 const products = await serverApi.get(`/v1/public/${business.slug}/products/`, { skipTenant: true })
                 return {
                   ...business,
-                  products: Array.isArray(products) ? products.slice(0, 4) : (products?.results || []).slice(0, 4) // Limit to 4 products for homepage
+                  products: Array.isArray(products) ? products.slice(0, 4) : ((products as any)?.results || []).slice(0, 4) // Limit to 4 products for homepage
                 }
               } catch (error) {
                 // If products fetch fails, continue without products
