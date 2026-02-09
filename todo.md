@@ -5,7 +5,7 @@ Avatar uploads are failing with `403 Unauthorized` and `new row violates row-lev
 
 **Root Cause:** Supabase Storage RLS policies are not configured for the `avatars` bucket.
 
----
+--- 
 
 ## ✅ What's Already Done
 
