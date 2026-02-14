@@ -7,7 +7,17 @@ interface PageProps {
   }>
 }
 
-async function getPageData(_slug: string) {
+interface PageData {
+  slug: string
+  title: string
+  content: string
+  meta_title?: string
+  meta_description?: string
+  meta_keywords?: string[]
+  updated_at?: string
+}
+
+async function getPageData(_slug: string): Promise<PageData | null> {
   // Pages API not implemented in Django backend yet
   return null
 }
@@ -138,7 +148,7 @@ export default async function DynamicPage({ params }: PageProps) {
         {/* Page metadata */}
         <footer className="mt-12 pt-8 border-t border-gray-200">
           <div className="text-sm text-gray-500">
-            <p>Last updated: {new Date(page.updated_at || page.updated_at).toLocaleDateString()}</p>
+            <p>Last updated: {page.updated_at ? new Date(page.updated_at).toLocaleDateString() : new Date().toLocaleDateString()}</p>
           </div>
         </footer>
       </article>
