@@ -1,5 +1,6 @@
 import { serverNewsApi } from '@/lib/api-server'
 import Link from 'next/link'
+import Image from 'next/image'
 import { MobileNav } from './MobileNav'
 import ClientHeader from './ClientHeader'
 
@@ -81,12 +82,15 @@ export async function Header() {
         <div className="flex items-center justify-between py-4">
           {/* Logo */}
           <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-2">
-              <img src="/logo.png" alt={siteName} className="h-10 w-auto" />
-              <div>
-                <h1 className="text-xl font-bold text-neutral-900">{siteName}</h1>
-                <p className="text-sm text-neutral-600">{tagline}</p>
-              </div>
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/logo.png"
+                alt={siteName}
+                width={200}
+                height={48}
+                className="h-12 w-auto object-contain"
+                priority
+              />
             </Link>
           </div>
 

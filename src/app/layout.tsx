@@ -51,6 +51,11 @@ async function generateMetadata(): Promise<Metadata> {
     return {
       title: `${siteName} | ${tagline}`,
       description,
+      icons: {
+        icon: '/favicon.png',
+        shortcut: '/favicon.png',
+        apple: '/favicon.png',
+      },
       openGraph: {
         title: `${siteName} | ${tagline}`,
         description,
@@ -62,6 +67,11 @@ async function generateMetadata(): Promise<Metadata> {
     return {
       title: 'The Riverside Herald | Your Local News Source',
       description: 'Stay informed with local news and community updates',
+      icons: {
+        icon: '/favicon.png',
+        shortcut: '/favicon.png',
+        apple: '/favicon.png',
+      },
     }
   }
 }
@@ -76,7 +86,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`} data-scroll-behavior="smooth">
       <head>
-        <link rel="icon" href="/favicon.png" type="image/png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
