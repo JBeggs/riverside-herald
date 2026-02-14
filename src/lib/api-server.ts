@@ -14,7 +14,11 @@ class ServerApiClient {
     this.baseURL = baseURL.endsWith('/') ? baseURL.slice(0, -1) : baseURL
   }
 
-  private async getHeaders(customHeaders?: HeadersInit, skipTenant: boolean = false): Promise<Record<string, string>> {
+  private async getHeaders(
+    customHeaders?: HeadersInit,
+    options: { skipTenant?: boolean; skipAuth?: boolean } = {}
+  ): Promise<Record<string, string>> {
+    const { skipTenant = false, skipAuth = false } = options
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     }
@@ -45,10 +49,12 @@ class ServerApiClient {
     // Always include company slug for tenant context
     headers['X-Company-Slug'] = DEFAULT_COMPANY_SLUG
     
-    // Add auth token from cookie if available and not already in headers
-    const authToken = cookieStore.get('auth_token')?.value
-    if (authToken && !headers['Authorization']) {
-      headers['Authorization'] = `Bearer ${authToken}`
+    // Add auth token from cookie if available (skip for public endpoints - invalid token causes 401)
+    if (!skipAuth) {
+      const authToken = cookieStore.get('auth_token')?.value
+      if (authToken && !headers['Authorization']) {
+        headers['Authorization'] = `Bearer ${authToken}`
+      }
     }
 
     return headers
@@ -78,12 +84,12 @@ class ServerApiClient {
   private async request<T>(
     endpoint: string,
     options: RequestInit = {},
-    skipTenant: boolean = false
+    requestOptions: { skipTenant?: boolean; skipAuth?: boolean } = {}
   ): Promise<T> {
     const url = this.buildUrl(endpoint)
     
     // Get headers
-    const headers = await this.getHeaders(options.headers as HeadersInit, skipTenant)
+    const headers = await this.getHeaders(options.headers as HeadersInit, requestOptions)
 
     // Debug logging (remove in production)
     if (process.env.NODE_ENV === 'development') {
@@ -143,12 +149,13 @@ class ServerApiClient {
     return await response.text() as unknown as T
   }
 
-  async get<T>(endpoint: string, params?: Record<string, any> | { headers?: HeadersInit; skipTenant?: boolean }): Promise<T> {
+  async get<T>(endpoint: string, params?: Record<string, any> | { headers?: HeadersInit; skipTenant?: boolean; skipAuth?: boolean }): Promise<T> {
     let url = this.buildUrl(endpoint)
     let customHeaders: HeadersInit | undefined
     let skipTenant = false
+    let skipAuth = false
     
-    // Check if params contains headers or skipTenant
+    // Check if params contains headers, skipTenant, or skipAuth
     if (params) {
       if ('headers' in params) {
         customHeaders = (params as any).headers
@@ -156,9 +163,12 @@ class ServerApiClient {
       if ('skipTenant' in params) {
         skipTenant = !!(params as any).skipTenant
       }
+      if ('skipAuth' in params) {
+        skipAuth = !!(params as any).skipAuth
+      }
       
       // Remove internal options from params for URL search params
-      const { headers: _, skipTenant: __, ...urlParams } = params as any
+      const { headers: _, skipTenant: __, skipAuth: ___, ...urlParams } = params as any
       params = urlParams
     }
     
@@ -166,7 +176,7 @@ class ServerApiClient {
     if (params && Object.keys(params).length > 0) {
       const urlObj = new URL(url)
       Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && key !== 'headers' && key !== 'skipTenant') {
+        if (value !== undefined && value !== null && key !== 'headers' && key !== 'skipTenant' && key !== 'skipAuth') {
           urlObj.searchParams.append(key, String(value))
         }
       })
@@ -176,16 +186,22 @@ class ServerApiClient {
     return this.request<T>(url, {
       method: 'GET',
       headers: customHeaders,
-    }, skipTenant)
+    }, { skipTenant, skipAuth })
   }
 
-  async post<T>(endpoint: string, data?: any, customHeaders?: HeadersInit, skipTenant: boolean = false): Promise<T> {
+  async post<T>(
+    endpoint: string,
+    data?: any,
+    customHeaders?: HeadersInit,
+    requestOptions: boolean | { skipTenant?: boolean; skipAuth?: boolean } = false
+  ): Promise<T> {
     const url = this.buildUrl(endpoint)
+    const opts = typeof requestOptions === 'boolean' ? { skipTenant: requestOptions } : requestOptions
     return this.request<T>(url, {
       method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
       headers: customHeaders,
-    }, skipTenant)
+    }, opts)
   }
 }
 
@@ -194,21 +210,21 @@ export const serverApi = new ServerApiClient()
 
 // Server-side API methods
 export const serverNewsApi = {
-  // Articles
+  // Articles (skipAuth for public read - invalid token in cookie causes 401)
   articles: {
     list: (params?: { status?: string; category?: string; search?: string; page?: number; author?: string; limit?: number; ordering?: string; slug?: string; skipTenant?: boolean }) =>
-      serverApi.get('/news/articles/', params),
+      serverApi.get('/news/articles/', { ...params, skipAuth: true }),
     getBySlug: async (slug: string) => {
       try {
         // Get by slug using filter - this returns list view, need detail view for full data
         // Don't filter by status for authenticated users - they should see all articles
-        const results = await serverApi.get<any>('/news/articles/', { slug, skipTenant: true })
+        const results = await serverApi.get<any>('/news/articles/', { slug, skipTenant: true, skipAuth: true })
         // Handle paginated response
         const articles = Array.isArray(results) ? results : (results?.results || [])
         const article = articles?.[0] || null
         if (!article) {
           // Try without status filter in case article is not published
-          const allResults = await serverApi.get<any>('/news/articles/', { slug, skipTenant: true })
+          const allResults = await serverApi.get<any>('/news/articles/', { slug, skipTenant: true, skipAuth: true })
           const allArticles = Array.isArray(allResults) ? allResults : (allResults?.results || [])
           const foundArticle = allArticles?.[0] || null
           if (!foundArticle) {
@@ -217,7 +233,7 @@ export const serverNewsApi = {
           // Fetch full detail
           if (foundArticle.id) {
             try {
-              const fullArticle = await serverApi.get<any>(`/news/articles/${foundArticle.id}/`, { skipTenant: true })
+              const fullArticle = await serverApi.get<any>(`/news/articles/${foundArticle.id}/`, { skipTenant: true, skipAuth: true })
               return fullArticle
             } catch (error) {
               console.warn('Failed to fetch article detail, using list item:', error)
@@ -229,7 +245,7 @@ export const serverNewsApi = {
         // If we got a list item, fetch the full detail to get article_media and all fields
         if (article.id) {
           try {
-            const fullArticle = await serverApi.get<any>(`/news/articles/${article.id}/`, { skipTenant: true })
+            const fullArticle = await serverApi.get<any>(`/news/articles/${article.id}/`, { skipTenant: true, skipAuth: true })
             return fullArticle
           } catch (error) {
             // If detail fetch fails, return the list item
@@ -250,21 +266,21 @@ export const serverNewsApi = {
 
   // Categories
   categories: {
-    list: (params?: { skipTenant?: boolean }) => serverApi.get('/news/categories/', params),
+    list: (params?: { skipTenant?: boolean }) => serverApi.get('/news/categories/', { ...params, skipAuth: true }),
   },
 
   // Tags
   tags: {
-    list: (params?: { skipTenant?: boolean }) => serverApi.get('/news/tags/', params),
+    list: (params?: { skipTenant?: boolean }) => serverApi.get('/news/tags/', { ...params, skipAuth: true }),
   },
 
   // Businesses
   businesses: {
     list: (params?: { industry?: string; is_verified?: boolean; search?: string; owner?: string; skipTenant?: boolean }) =>
-      serverApi.get('/news/businesses/', params),
+      serverApi.get('/news/businesses/', { ...params, skipAuth: true }),
     listEnhanced: async (params?: { industry?: string; is_verified?: boolean; search?: string; owner?: string; skipTenant?: boolean; includeProducts?: boolean }) => {
       try {
-        const businesses = await serverApi.get<any>('/news/businesses/', params)
+        const businesses = await serverApi.get<any>('/news/businesses/', { ...params, skipAuth: true })
         const businessesArray = Array.isArray(businesses) ? businesses : (businesses?.results || [])
         
         // If includeProducts is true, fetch products for each business
@@ -273,7 +289,7 @@ export const serverNewsApi = {
             businessesArray.map(async (business: any) => {
               try {
                 // Try to fetch products for this business using direct API call
-                const products = await serverApi.get(`/v1/public/${business.slug}/products/`, { skipTenant: true })
+                const products = await serverApi.get(`/v1/public/${business.slug}/products/`, { skipTenant: true, skipAuth: true })
                 return {
                   ...business,
                   products: Array.isArray(products) ? products.slice(0, 4) : ((products as any)?.results || []).slice(0, 4) // Limit to 4 products for homepage
@@ -299,7 +315,7 @@ export const serverNewsApi = {
     },
     getBySlug: async (slug: string) => {
       try {
-        const results = await serverApi.get<any>('/news/businesses/', { slug, skipTenant: true })
+        const results = await serverApi.get<any>('/news/businesses/', { slug, skipTenant: true, skipAuth: true })
         const businesses = Array.isArray(results) ? results : (results?.results || [])
         
         // Find the exact match by slug in the results
@@ -308,7 +324,7 @@ export const serverNewsApi = {
         if (business && business.id) {
           try {
             // Fetch full detail to get all fields
-            return await serverApi.get<any>(`/news/businesses/${business.id}/`, { skipTenant: true })
+            return await serverApi.get<any>(`/news/businesses/${business.id}/`, { skipTenant: true, skipAuth: true })
           } catch (error) {
             console.warn('Failed to fetch business detail, using list item:', error)
             return business
@@ -325,24 +341,24 @@ export const serverNewsApi = {
   // Business Reviews
   businessReviews: {
     list: (params?: { business?: string; is_approved?: boolean; skipTenant?: boolean }) =>
-      serverApi.get('/news/business-reviews/', params),
+      serverApi.get('/news/business-reviews/', { ...params, skipAuth: true }),
   },
 
   // Products
   products: {
     list: (params?: { business?: string; category?: string; search?: string; is_active?: boolean; skipTenant?: boolean }) =>
-      serverApi.get('/v1/public/products/', params),
+      serverApi.get('/v1/public/products/', { ...params, skipAuth: true }),
     getByBusiness: (businessSlug: string) =>
-      serverApi.get(`/v1/public/${businessSlug}/products/`, { skipTenant: true }),
+      serverApi.get(`/v1/public/${businessSlug}/products/`, { skipTenant: true, skipAuth: true }),
     getBySlug: (businessSlug: string, slug: string) =>
-      serverApi.get(`/v1/public/${businessSlug}/products/slug/${slug}/`, { skipTenant: true }),
+      serverApi.get(`/v1/public/${businessSlug}/products/slug/${slug}/`, { skipTenant: true, skipAuth: true }),
   },
 
   // Site Settings
   siteSettings: {
-    list: (params?: { skipTenant?: boolean }) => serverApi.get('/news/site-settings/', params),
+    list: (params?: { skipTenant?: boolean }) => serverApi.get('/news/site-settings/', { ...params, skipAuth: true }),
     getByKey: async (key: string) => {
-      const settings: any = await serverApi.get<any[]>('/news/site-settings/', { skipTenant: true })
+      const settings: any = await serverApi.get<any[]>('/news/site-settings/', { skipTenant: true, skipAuth: true })
       const settingsArray = Array.isArray(settings) ? settings : (settings?.results || [])
       return settingsArray.find((s: any) => s.key === key) || null
     },
@@ -357,19 +373,6 @@ export const serverNewsApi = {
   // Stats (requires auth) - reads token from cookies automatically
   stats: {
     dashboard: (customHeaders?: HeadersInit) => serverApi.get('/news/stats/dashboard/', { headers: customHeaders }),
-  },
-
-  // Pages (for dynamic page content)
-  pages: {
-    list: async (params?: { slug?: string; is_published?: boolean }): Promise<any> => {
-      const result = await serverApi.get<any>('/news/pages/', params)
-      return result as any
-    },
-    getBySlug: async (slug: string) => {
-      const results: any = await serverApi.get<any[]>('/news/pages/', { slug, is_published: true })
-      const resultsArray = Array.isArray(results) ? results : (results?.results || [])
-      return resultsArray[0] || null
-    },
   },
 }
 

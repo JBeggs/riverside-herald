@@ -1,4 +1,3 @@
-import { serverNewsApi } from '@/lib/api-server'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 
@@ -8,14 +7,9 @@ interface PageProps {
   }>
 }
 
-async function getPageData(slug: string) {
-  try {
-    const page = await serverNewsApi.pages.getBySlug(slug)
-    return page
-  } catch (error) {
-    console.error('Error fetching page:', error)
-    return null
-  }
+async function getPageData(_slug: string) {
+  // Pages API not implemented in Django backend yet
+  return null
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -152,24 +146,7 @@ export default async function DynamicPage({ params }: PageProps) {
   )
 }
 
-// Generate static params for known pages
+// Generate static params - Pages API not implemented in Django backend yet
 export async function generateStaticParams() {
-  try {
-    const pagesResponse: any = await serverNewsApi.pages.list({ is_published: true })
-    let pagesArray: any[] = []
-    if (Array.isArray(pagesResponse)) {
-      pagesArray = pagesResponse
-    } else if (pagesResponse && typeof pagesResponse === 'object' && 'results' in pagesResponse) {
-      pagesArray = pagesResponse.results || []
-    }
-    
-    return pagesArray
-      .filter((page: any) => page.slug !== 'home')
-      .map((page: any) => ({
-        slug: page.slug,
-      }))
-  } catch (error) {
-    // Return empty array if pages endpoint doesn't exist yet
-    return []
-  }
+  return []
 }
