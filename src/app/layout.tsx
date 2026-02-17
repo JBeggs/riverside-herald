@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Playfair_Display } from 'next/font/google'
 import { Suspense } from 'react'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import './globals.css'
 import '../styles/pages.css'
 import { serverNewsApi } from '@/lib/api-server'
@@ -104,6 +105,7 @@ export default function RootLayout({
             </Suspense>
           </AuthProvider>
         </ToastProvider>
+        <SpeedInsights />
       </body>
     </html>
   )
