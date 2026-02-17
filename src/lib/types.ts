@@ -238,13 +238,20 @@ export interface Business {
   description?: string
   long_description?: string
   industry?: string
-  website_url?: string
+  website?: string
+  website_url?: string  // legacy
   phone?: string
   email?: string
-  address?: string
-  city?: string
-  state?: string
-  zip_code?: string
+  address_street?: string
+  address_city?: string
+  address_province?: string
+  address_postal_code?: string
+  address_country?: string
+  address?: string  // legacy
+  city?: string  // legacy
+  state?: string  // legacy
+  zip_code?: string  // legacy
+  logo_url?: string
   coordinates?: [number, number]
   logo_id?: string
   cover_image_id?: string

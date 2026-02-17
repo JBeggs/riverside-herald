@@ -72,6 +72,7 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
       const matchesSearch = !searchTerm || 
         business.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         business.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (business as any).address_city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         business.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         business.industry?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         business.services?.some(service => 

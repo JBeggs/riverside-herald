@@ -42,11 +42,13 @@ export function getBusinessImageUrl(
   business?: { 
     logo?: { file_url?: string | null } | null
     cover_image?: { file_url?: string | null } | null
+    logo_url?: string | null
   },
   type: 'logo' | 'cover' = 'cover'
 ): string {
-  if (type === 'logo' && business?.logo?.file_url) {
-    return getAbsoluteImageUrl(business.logo.file_url)
+  if (type === 'logo') {
+    if (business?.logo?.file_url) return getAbsoluteImageUrl(business.logo.file_url)
+    if ((business as any)?.logo_url) return getAbsoluteImageUrl((business as any).logo_url)
   }
   if (type === 'cover' && business?.cover_image?.file_url) {
     return getAbsoluteImageUrl(business.cover_image.file_url)

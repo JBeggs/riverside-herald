@@ -122,13 +122,19 @@ async function getBusiness(slug: string) {
       description: business.description || '',
       long_description: business.long_description || '',
       industry: business.industry || '',
-      website_url: business.website_url || '',
+      website_url: business.website || business.website_url || '',
+      website: business.website || '',
       phone: business.phone || '',
       email: business.email || '',
-      address: business.address || '',
-      city: business.city || '',
-      state: business.state || '',
-      zip_code: business.zip_code || '',
+      address: business.address_street || business.address || '',
+      address_street: business.address_street || '',
+      address_city: business.address_city || '',
+      city: business.address_city || business.city || '',
+      address_province: business.address_province || '',
+      state: business.address_province || business.state || '',
+      address_postal_code: business.address_postal_code || '',
+      zip_code: business.address_postal_code || business.zip_code || '',
+      address_country: business.address_country || '',
       services: business.services || [],
       is_verified: business.is_verified || false,
       rating: parseFloat(business.rating) || 0,
@@ -141,7 +147,7 @@ async function getBusiness(slug: string) {
       logo: business.logo ? {
         file_url: business.logo.file_url,
         alt_text: `${business.name} logo`
-      } : null,
+      } : business.logo_url ? { file_url: business.logo_url, alt_text: `${business.name} logo` } : null,
       cover_image: business.cover_image ? {
         file_url: business.cover_image.file_url,
         alt_text: `${business.name} cover`

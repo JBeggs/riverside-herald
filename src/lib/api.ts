@@ -660,7 +660,7 @@ export const newsApi = {
 
   // Businesses
   businesses: {
-    list: (params?: { industry?: string; is_verified?: boolean; search?: string; owner?: string }) =>
+    list: (params?: { industry?: string; is_verified?: boolean; search?: string; owner?: string; slug?: string }) =>
       apiClient.get('/news/businesses/', params),
     get: (id: string) => apiClient.get(`/news/businesses/${id}/`),
     getBySlug: (slug: string) => apiClient.get(`/news/businesses/?slug=${slug}`),

@@ -29,10 +29,13 @@ interface Business {
   slug: string
   description?: string
   industry?: string
-  city?: string
+  address_city?: string
+  city?: string  // legacy alias
   rating?: number
   review_count?: number
-  website_url?: string
+  website?: string
+  website_url?: string  // legacy alias
+  logo_url?: string
   phone?: string
   email?: string
   is_verified?: boolean
@@ -85,7 +88,7 @@ export default function FeaturedBusinessCard({
     return `$${price.toFixed(2)}`
   }
 
-  const logoUrl = getImageUrl(business.logo?.file_url)
+  const logoUrl = getImageUrl(business.logo?.file_url || (business as any).logo_url)
   const coverUrl = getImageUrl(business.cover_image?.file_url)
   const hasProducts = business.products && business.products.length > 0
 
@@ -158,10 +161,10 @@ export default function FeaturedBusinessCard({
         )}
 
         {/* Location */}
-        {business.city && (
+        {(business.address_city || business.city) && (
           <div className="flex items-center space-x-2 mb-3 text-gray-600">
             <MapPin className="w-4 h-4" />
-            <span className="text-sm">{business.city}</span>
+            <span className="text-sm">{business.address_city || business.city}</span>
           </div>
         )}
 
@@ -222,9 +225,9 @@ export default function FeaturedBusinessCard({
           </Link>
 
           {/* Website Link */}
-          {showWebsiteLink && business.website_url && (
+          {showWebsiteLink && (business.website || business.website_url) && (
             <a
-              href={business.website_url}
+              href={business.website || business.website_url}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full py-2 px-4 text-center bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center justify-center space-x-2"

@@ -152,16 +152,16 @@ async function getHomepageData() {
       slug: business.slug,
       description: business.description || '',
       industry: business.industry || '',
-      city: business.city || '',
+      city: business.address_city || business.city || '',
       rating: parseFloat(business.rating) || 0,
       review_count: business.review_count || 0,
-      website_url: business.website_url,
+      website_url: business.website || business.website_url,
       phone: business.phone,
       email: business.email,
       is_verified: business.is_verified,
       logo: business.logo ? {
         file_url: business.logo.file_url
-      } : undefined,
+      } : business.logo_url ? { file_url: business.logo_url } : undefined,
       cover_image: business.cover_image ? {
         file_url: business.cover_image.file_url
       } : undefined,

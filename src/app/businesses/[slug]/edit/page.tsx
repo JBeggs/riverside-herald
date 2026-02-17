@@ -7,8 +7,20 @@ import { BusinessEditModal } from '@/components/businesses/BusinessEditModal'
 export default function EditBusinessPage() {
   const router = useRouter()
   const params = useParams()
-  const businessId = params.id as string
-  const { user, profile } = useAuth()
+  const slugOrId = (params.slug as string) ?? ''
+  const { user, profile, loading } = useAuth()
+
+  // Show loading while auth is resolving
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
 
   // Check if user is authenticated and is admin or business owner
   if (!user || !profile || !['admin', 'business_owner'].includes(profile.role)) {
@@ -50,7 +62,7 @@ export default function EditBusinessPage() {
           </div>
           
           <BusinessEditModal
-            businessId={businessId}
+            businessId={slugOrId}
             onClose={handleCancel}
             onSuccess={handleSuccess}
             isFullPage={true}

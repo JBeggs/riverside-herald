@@ -298,7 +298,7 @@ export default function BusinessOwnerSection({ businesses, profile }: BusinessOw
                   <div className="space-y-2 text-sm text-gray-600 flex-1">
                     <div className="flex items-center space-x-2">
                       <MapPin className="w-4 h-4 flex-shrink-0" />
-                      <span className="truncate">{business.city || 'Location not specified'}</span>
+                      <span className="truncate">{(business as any).address_city || business.city || 'Location not specified'}</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Building2 className="w-4 h-4 flex-shrink-0" />

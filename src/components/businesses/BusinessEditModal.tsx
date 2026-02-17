@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { X, Save } from 'lucide-react'
 import { newsApi } from '@/lib/api'
 import { useToast } from '@/contexts/ToastContext'
+import MediaPicker from '@/components/media/MediaPicker'
 
 interface BusinessEditModalProps {
   businessId: string
@@ -18,13 +19,14 @@ interface BusinessData {
   description: string
   long_description: string
   industry: string
-  website_url: string
+  website: string
   phone: string
   email: string
-  address: string
-  city: string
-  state: string
-  zip_code: string
+  address_street: string
+  address_city: string
+  address_province: string
+  address_postal_code: string
+  address_country: string
   services: string[]
   business_hours: Record<string, string>
   social_links: Record<string, string>
@@ -53,6 +55,12 @@ const socialPlatforms = [
   'tiktok'
 ]
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+function isUuid(value: string): boolean {
+  return !!value && UUID_REGEX.test(value)
+}
+
 export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage = false }: BusinessEditModalProps) {
   const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
@@ -62,9 +70,7 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
   const [coverMedia, setCoverMedia] = useState<any>(null)
   const [uploadingLogo, setUploadingLogo] = useState(false)
   const [uploadingCover, setUploadingCover] = useState(false)
-  const [availableMedia, setAvailableMedia] = useState<any[]>([])
-  const [loadingMedia, setLoadingMedia] = useState(false)
-  const [showMediaBrowser, setShowMediaBrowser] = useState(false)
+  const [mediaPickerFor, setMediaPickerFor] = useState<'logo' | 'cover' | null>(null)
   
   const [businessData, setBusinessData] = useState<BusinessData>({
     name: '',
@@ -72,13 +78,14 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
     description: '',
     long_description: '',
     industry: '',
-    website_url: '',
+    website: '',
     phone: '',
     email: '',
-    address: '',
-    city: '',
-    state: '',
-    zip_code: '',
+    address_street: '',
+    address_city: '',
+    address_province: '',
+    address_postal_code: '',
+    address_country: 'ZA',
     services: [],
     business_hours: {},
     social_links: {},
@@ -91,19 +98,8 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
   const [newService, setNewService] = useState('')
   const [newSocialPlatform, setNewSocialPlatform] = useState('')
   const [newSocialUrl, setNewSocialUrl] = useState('')
-
-  const loadAvailableMedia = async () => {
-    setLoadingMedia(true)
-    try {
-      const mediaList: any = await newsApi.media.list({ media_type: 'image' })
-      setAvailableMedia(Array.isArray(mediaList) ? mediaList : (mediaList?.results || []))
-    } catch (error: any) {
-      console.error('Error loading media:', error)
-      // Don't show error toast - media loading is optional
-    } finally {
-      setLoadingMedia(false)
-    }
-  }
+  const [resolvedBusinessId, setResolvedBusinessId] = useState<string | null>(null)
+  const [fetchErrorShown, setFetchErrorShown] = useState(false)
 
   const handleImageUpload = async (file: File, type: 'logo' | 'cover') => {
     if (type === 'logo') {
@@ -141,8 +137,6 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
         showSuccess('Cover image uploaded successfully!')
       }
 
-      // Reload available media
-      await loadAvailableMedia()
     } catch (error: any) {
       const errorMessage = error?.message || error?.details?.message || 'Error uploading image'
       showError(errorMessage)
@@ -158,12 +152,6 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
   useEffect(() => {
     fetchBusinessData()
   }, [businessId])
-
-  useEffect(() => {
-    if (activeTab === 'images') {
-      loadAvailableMedia()
-    }
-  }, [activeTab])
 
   // Helper functions to convert business hours
   const formatHoursForDisplay = (hours: any): Record<string, string> => {
@@ -206,13 +194,29 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
 
   const fetchBusinessData = async () => {
     // If creating new business, skip fetch
-    if (businessId === 'new') {
+    if (businessId === 'new' || !businessId) {
       setLoading(false)
       return
     }
 
+    setFetchErrorShown(false)
     try {
-      const business = await newsApi.businesses.get(businessId) as any
+      let business: any
+
+      if (isUuid(businessId)) {
+        business = await newsApi.businesses.get(businessId) as any
+      } else {
+        // Resolve slug to business: list with slug filter, then get full detail
+        const listData: any = await newsApi.businesses.list({ slug: businessId })
+        const list = Array.isArray(listData) ? listData : (listData?.results || [])
+        const match = list.find((b: any) => b.slug === businessId)
+        if (!match) {
+          throw new Error(`Business "${businessId}" not found`)
+        }
+        business = await newsApi.businesses.get(match.id) as any
+      }
+
+      setResolvedBusinessId(business.id)
 
       setBusinessData({
         name: business.name || '',
@@ -220,13 +224,14 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
         description: business.description || '',
         long_description: business.long_description || '',
         industry: business.industry || '',
-        website_url: business.website_url || '',
+        website: business.website || '',
         phone: business.phone || '',
         email: business.email || '',
-        address: business.address || '',
-        city: business.city || '',
-        state: business.state || '',
-        zip_code: business.zip_code || '',
+        address_street: business.address_street || '',
+        address_city: business.address_city || '',
+        address_province: business.address_province || '',
+        address_postal_code: business.address_postal_code || '',
+        address_country: business.address_country || 'ZA',
         services: business.services || [],
         business_hours: formatHoursForDisplay(business.business_hours),
         social_links: business.social_links || {},
@@ -240,8 +245,11 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
       setLogoMedia(business.logo || null)
       setCoverMedia(business.cover_image || null)
     } catch (error: any) {
-      const errorMessage = error?.message || error?.details?.message || 'Error fetching business data'
-      showError(errorMessage)
+      if (!fetchErrorShown) {
+        setFetchErrorShown(true)
+        const errorMessage = error?.message || error?.details?.message || 'Error fetching business data'
+        showError(errorMessage)
+      }
     } finally {
       setLoading(false)
     }
@@ -334,13 +342,14 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
         description: businessData.description || '',
         long_description: businessData.long_description || '',
         industry: businessData.industry || '',
-        website_url: businessData.website_url || '',
+        website: businessData.website || '',
         phone: businessData.phone || '',
         email: businessData.email || '',
-        address: businessData.address || '',
-        city: businessData.city || '',
-        state: businessData.state || '',
-        zip_code: businessData.zip_code || '',
+        address_street: businessData.address_street || '',
+        address_city: businessData.address_city || '',
+        address_province: businessData.address_province || '',
+        address_postal_code: businessData.address_postal_code || '',
+        address_country: businessData.address_country || 'ZA',
         services: businessData.services || [],
         business_hours: parseHoursForSaving(businessData.business_hours),
         social_links: businessData.social_links || {},
@@ -365,8 +374,13 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
         await newsApi.businesses.create(businessPayload)
         showSuccess('Business created successfully!')
       } else {
-        // Update existing business
-        await newsApi.businesses.update(businessId, businessPayload)
+        // Update existing business - use resolved UUID (from slug or id)
+        const updateId = resolvedBusinessId || businessId
+        if (!updateId) {
+          showError('Unable to save: business not loaded')
+          return
+        }
+        await newsApi.businesses.update(updateId, businessPayload)
         showSuccess('Business updated successfully!')
       }
 
@@ -409,8 +423,8 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
         )}
       </div>
 
-      {/* Tabs */}
-      <div className="border-b border-gray-200 overflow-x-auto">
+      {/* Tabs - sticky on scroll */}
+      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 overflow-x-auto shadow-sm">
         <nav className="flex space-x-8 px-6 min-w-max">
           {[
             { id: 'basic', label: 'Basic Info' },
@@ -451,7 +465,7 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
                       type="text"
                       value={businessData.name}
                       onChange={(e) => handleInputChange('name', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
                       required
                     />
                   </div>
@@ -548,8 +562,8 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
                   </label>
                   <input
                     type="url"
-                    value={businessData.website_url}
-                    onChange={(e) => handleInputChange('website_url', e.target.value)}
+                    value={businessData.website}
+                    onChange={(e) => handleInputChange('website', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="https://www.yourbusiness.com"
                   />
@@ -561,8 +575,8 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
                   </label>
                   <input
                     type="text"
-                    value={businessData.address}
-                    onChange={(e) => handleInputChange('address', e.target.value)}
+                    value={businessData.address_street}
+                    onChange={(e) => handleInputChange('address_street', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="123 Main Street"
                   />
@@ -575,8 +589,8 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
                     </label>
                     <input
                       type="text"
-                      value={businessData.city}
-                      onChange={(e) => handleInputChange('city', e.target.value)}
+                      value={businessData.address_city}
+                      onChange={(e) => handleInputChange('address_city', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -587,8 +601,8 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
                     </label>
                     <input
                       type="text"
-                      value={businessData.state}
-                      onChange={(e) => handleInputChange('state', e.target.value)}
+                      value={businessData.address_province}
+                      onChange={(e) => handleInputChange('address_province', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="CA"
                     />
@@ -600,10 +614,23 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
                     </label>
                     <input
                       type="text"
-                      value={businessData.zip_code}
-                      onChange={(e) => handleInputChange('zip_code', e.target.value)}
+                      value={businessData.address_postal_code}
+                      onChange={(e) => handleInputChange('address_postal_code', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="12345"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Country
+                    </label>
+                    <input
+                      type="text"
+                      value={businessData.address_country}
+                      onChange={(e) => handleInputChange('address_country', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="ZA"
                     />
                   </div>
                 </div>
@@ -913,87 +940,46 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
                   </div>
                 </div>
 
-                {/* Select from Existing Media */}
+                {/* Select from Media Library */}
                 <div className="border-t pt-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-medium text-gray-900">
-                      Select from Existing Media
-                    </h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">
+                    Or choose from Media Library
+                  </h3>
+                  <div className="flex flex-wrap gap-3">
                     <button
                       type="button"
-                      onClick={() => {
-                        setShowMediaBrowser(!showMediaBrowser)
-                        if (!showMediaBrowser && availableMedia.length === 0) {
-                          loadAvailableMedia()
-                        }
-                      }}
-                      className="text-sm text-blue-600 hover:text-blue-800"
+                      onClick={() => setMediaPickerFor('logo')}
+                      className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
                     >
-                      {showMediaBrowser ? 'Hide' : 'Browse Media Library'}
+                      Choose Logo from Library
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMediaPickerFor('cover')}
+                      className="px-4 py-2 text-sm font-medium text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+                    >
+                      Choose Cover from Library
                     </button>
                   </div>
-                  
-                  {showMediaBrowser && (
-                    <div className="mt-4">
-                      {loadingMedia ? (
-                        <div className="text-center py-8">
-                          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                          <p className="text-sm text-gray-600">Loading media...</p>
-                        </div>
-                      ) : availableMedia.length === 0 ? (
-                        <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
-                          <p className="text-sm text-gray-600">No media found. Upload images above to get started.</p>
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 max-h-96 overflow-y-auto">
-                          {availableMedia.map((media: any) => (
-                            <div
-                              key={media.id}
-                              className="relative group cursor-pointer border-2 border-transparent hover:border-blue-300 rounded-lg overflow-hidden"
-                            >
-                              <img
-                                src={media.file_url}
-                                alt={media.alt_text || media.filename}
-                                className="w-full h-24 object-cover"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).style.display = 'none'
-                                }}
-                              />
-                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all flex items-center justify-center">
-                                <div className="opacity-0 group-hover:opacity-100 space-x-2 transition-opacity">
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      handleInputChange('logo', media.id)
-                                      setLogoMedia(media)
-                                      showSuccess('Logo selected!')
-                                    }}
-                                    className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
-                                  >
-                                    Use as Logo
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      handleInputChange('cover_image', media.id)
-                                      setCoverMedia(media)
-                                      showSuccess('Cover image selected!')
-                                    }}
-                                    className="px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
-                                  >
-                                    Use as Cover
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
+
+                <MediaPicker
+                  isOpen={mediaPickerFor !== null}
+                  onClose={() => setMediaPickerFor(null)}
+                  onSelect={(item) => {
+                    if (mediaPickerFor === 'logo') {
+                      handleInputChange('logo', item.id)
+                      setLogoMedia(item)
+                      showSuccess('Logo selected!')
+                    } else if (mediaPickerFor === 'cover') {
+                      handleInputChange('cover_image', item.id)
+                      setCoverMedia(item)
+                      showSuccess('Cover image selected!')
+                    }
+                    setMediaPickerFor(null)
+                  }}
+                  title={mediaPickerFor === 'logo' ? 'Choose logo image' : 'Choose cover image'}
+                />
               </div>
             )}
 
@@ -1005,14 +991,14 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
         <button
           type="button"
           onClick={onClose}
-          className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+          className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
         >
           Cancel
         </button>
         <button
           onClick={handleSubmit}
           disabled={saving}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
         >
           {saving ? (
             <>
