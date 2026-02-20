@@ -166,7 +166,7 @@ export default async function BusinessesPage() {
               </div>
             </div>
             
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8" data-cy="businesses-list">
               {featuredBusinesses.map((business: any) => (
                 <article
                   key={business.id}

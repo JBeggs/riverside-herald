@@ -236,7 +236,7 @@ export default async function HomePage() {
       )}
 
       {/* Hero Section */}
-      <section className="py-12 bg-gradient-to-b from-neutral-50 to-white">
+      <section className="py-12 bg-gradient-to-b from-neutral-50 to-white" data-cy="home-featured">
         <div className="container-wide">
           <div className="text-center mb-12">
             <h1 className="heading-xl mb-4">{siteName}</h1>
@@ -245,7 +245,7 @@ export default async function HomePage() {
 
           {/* Featured Articles Grid */}
           {featuredArticles.length > 0 && (
-            <div className="news-grid news-grid-main mb-16">
+            <div className="news-grid news-grid-main mb-16" data-cy="article-list">
               {/* Main Featured Article */}
               <div className="md:col-span-1 lg:col-span-2 xl:col-span-2">
                 <article className="card-elevated p-4 md:p-6">
@@ -414,7 +414,7 @@ export default async function HomePage() {
 
               {/* Featured Businesses with Products */}
               {businesses.length > 0 && (
-                <div>
+                <div data-cy="business-list">
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="heading-sm">Featured Businesses</h3>
                     <Link 

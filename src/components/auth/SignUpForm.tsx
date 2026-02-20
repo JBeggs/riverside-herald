@@ -216,6 +216,7 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
                   type="text"
                   value={formData.firstName}
                   onChange={(e) => handleInputChange('firstName', e.target.value)}
+                  data-cy="register-first-name"
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                   placeholder="First name"
                   required
@@ -237,6 +238,7 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
                   type="text"
                   value={formData.lastName}
                   onChange={(e) => handleInputChange('lastName', e.target.value)}
+                  data-cy="register-last-name"
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                   placeholder="Last name"
                   required
@@ -285,6 +287,7 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
+                data-cy="register-email"
                 className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                 placeholder="Enter your email"
                 required
@@ -306,6 +309,7 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
                 type={showPassword ? 'text' : 'password'}
                 value={formData.password}
                 onChange={(e) => handleInputChange('password', e.target.value)}
+                data-cy="register-password"
                 className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                 placeholder="Create a password"
                 required
@@ -339,6 +343,7 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
                 type={showConfirmPassword ? 'text' : 'password'}
                 value={formData.confirmPassword}
                 onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                data-cy="register-password-confirm"
                 className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                 placeholder="Confirm your password"
                 required
@@ -361,6 +366,7 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
           <button
             type="submit"
             disabled={isLoading}
+            data-cy="register-submit"
             className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
           >
             {isLoading ? (

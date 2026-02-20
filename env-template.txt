@@ -62,6 +62,13 @@ NODE_ENV=production
 #    - service_role key → SUPABASE_SERVICE_ROLE_KEY
 
 # ==============================================
+# OPTIONAL - Git scripts (new_branch, commit_push, merge_to_main)
+# ==============================================
+
+# Add to .env to avoid interactive SSH passphrase prompts when pushing/pulling
+# SSH_KEY_PASSPHRASE=your_passphrase
+
+# ==============================================
 # TESTING LOCALLY
 # ==============================================
 

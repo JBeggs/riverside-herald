@@ -486,7 +486,7 @@ export const authApi = {
       refresh: string
       user: any
       company?: { id: string; name: string }
-    }>('/auth/login/', { username, password }, false)
+    }>('/auth/login/', { username, password, company_slug: DEFAULT_COMPANY_SLUG }, false)
 
     if (response.access) {
       apiClient.setToken(response.access)
@@ -574,6 +574,9 @@ export const authApi = {
 
     if (response.tokens?.access) {
       apiClient.setToken(response.tokens.access)
+      if (response.tokens?.refresh) {
+        apiClient.setRefreshToken(response.tokens.refresh)
+      }
       if (response.company?.id) {
         apiClient.setCompanyId(response.company.id)
       }
@@ -604,6 +607,7 @@ export const authApi = {
    */
   logout() {
     apiClient.setToken(null)
+    apiClient.setRefreshToken(null)
     apiClient.setCompanyId(null)
   },
 }

@@ -101,6 +101,7 @@ export function RegistrationButtons() {
         <button 
           onClick={handleSignUpAsUser}
           className="btn btn-primary w-full"
+          data-cy="signup-user-button"
         >
           Sign Up as User
           <ArrowRight className="w-4 h-4 ml-2" />

@@ -97,6 +97,7 @@ export default function LoginForm({ onSuccess, onSwitchToSignup, className = '' 
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                data-cy="login-username"
                 className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 placeholder="Enter your username"
                 required
@@ -120,6 +121,7 @@ export default function LoginForm({ onSuccess, onSwitchToSignup, className = '' 
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                data-cy="login-password"
                 className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 placeholder="Enter your password"
                 required
@@ -142,6 +144,7 @@ export default function LoginForm({ onSuccess, onSwitchToSignup, className = '' 
           <button
             type="submit"
             disabled={isLoading}
+            data-cy="login-submit"
             className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
           >
             {isLoading ? (

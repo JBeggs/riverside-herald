@@ -239,7 +239,7 @@ export default async function ArticlesPage() {
         {otherArticles.length > 0 && (
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-8">Recent Articles</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8" data-cy="articles-list">
               {otherArticles.map((article: any) => {
                 const readingTime = article.read_time_minutes || calculateReadingTime(article.content)
                 const publishedDate = formatDate(article.published_at)

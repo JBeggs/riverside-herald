@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:e2e": "NEXT_PUBLIC_API_URL=http://localhost:8000/api next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "import-data": "tsx scripts/import-data.ts",
     "import-enhanced": "tsx scripts/enhanced-import-data.ts",
     "clear-db": "tsx scripts/clear-database.ts",
@@ -17,7 +18,15 @@
     "rss-setup": "tsx scripts/setup-rss-for-categories.ts",
     "rss-status": "tsx scripts/setup-rss-for-categories.ts --status",
     "add-newsletter": "tsx scripts/add-newsletter-page.ts",
-    "add-articles": "tsx scripts/add-sample-articles.ts"
+    "add-articles": "tsx scripts/add-sample-articles.ts",
+    "test": "NODE_ENV=development vitest run",
+    "test:watch": "NODE_ENV=development vitest",
+    "test:coverage": "NODE_ENV=development vitest run --coverage",
+    "test:e2e": "node scripts/check-e2e-backend.js && cypress run",
+    "test:e2e:open": "cypress open",
+    "git:new-branch": "node scripts/new_branch.js",
+    "git:commit-push": "node scripts/commit_push.js",
+    "git:merge-main": "node scripts/merge_to_main.js"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.6",
@@ -32,7 +41,6 @@
     "dompurify": "^3.2.6",
     "dotenv": "^17.2.1",
     "framer-motion": "^12.23.11",
-    "jsdom": "^26.1.0",
     "lucide-react": "^0.532.0",
     "next": "^16.0.7",
     "node-cron": "^4.2.1",
@@ -49,17 +57,24 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/typography": "^0.5.16",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^5.1.4",
+    "@vitest/coverage-v8": "^4.0.18",
     "autoprefixer": "^10.4.21",
+    "cypress": "^15.10.0",
     "eslint": "^9",
     "eslint-config-next": "^16.0.7",
+    "jsdom": "^28.1.0",
     "postcss": "^8.5.6",
     "puppeteer": "^24.15.0",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.20.3",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.0.18"
   },
   "main": "html-to-pdf.js",
   "repository": {

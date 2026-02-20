@@ -159,7 +159,7 @@ export default function ProfilePage({ user: initialUser, profile: initialProfile
   ]
 
   return (
-    <div className="container-wide py-8">
+    <div className="container-wide py-8" data-cy="profile-content">
       {/* Profile Header */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
         <div className="px-4 py-6 sm:px-6 sm:py-8">

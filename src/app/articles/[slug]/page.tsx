@@ -173,7 +173,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             </Link>
           )}
           
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4" data-cy="article-title">
             {article.title}
           </h1>
           
@@ -267,6 +267,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           {article.content && (
             <div
               className="prose prose-sm sm:prose-base md:prose-lg max-w-none mb-12"
+              data-cy="article-content"
               dangerouslySetInnerHTML={{ __html: article.content }}
             />
           )}
