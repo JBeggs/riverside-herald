@@ -18,15 +18,16 @@ export default async function MediaPage() {
 
   try {
     // Get user profile to check role
-    let profile: any
+    let profile: Awaited<ReturnType<typeof serverNewsApi.profile.get>>
     try {
       profile = await serverNewsApi.profile.get()
-    } catch (profileError: any) {
+    } catch (profileError: unknown) {
       console.error('Profile fetch error:', profileError)
-      if (profileError.code === 'HTTP_401' || profileError.code === 'HTTP_403') {
+      const err = profileError as { code?: string }
+      if (err.code === 'HTTP_401' || err.code === 'HTTP_403') {
         redirect('/login')
       }
-      throw profileError
+      throw err
     }
     
     if (!profile || !profile.user) {
@@ -45,10 +46,10 @@ export default async function MediaPage() {
         </div>
       </DashboardLayout>
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error loading media page:', error)
-    
-    if (error.code === 'HTTP_401' || error.code === 'HTTP_403') {
+    const err = error as { code?: string }
+    if (err.code === 'HTTP_401' || err.code === 'HTTP_403') {
       redirect('/login')
     }
     

@@ -75,8 +75,8 @@ export default function AdminSettingsPage() {
     setLoading(true)
     setError(null)
     try {
-      const data: any = await newsApi.siteSettings.list()
-      const arr = Array.isArray(data) ? data : (data?.results || [])
+      const data = await newsApi.siteSettings.list() as unknown
+      const arr = Array.isArray(data) ? data : ((data as { results?: unknown[] })?.results || [])
       const byKey: Record<string, SiteSetting> = {}
       const vals: Record<string, string> = {}
       arr.forEach((s: SiteSetting) => {
@@ -85,9 +85,9 @@ export default function AdminSettingsPage() {
       })
       setSettings(byKey)
       setValues(vals)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error loading settings:', err)
-      setError(err?.message || 'Failed to load settings')
+      setError((err as { message?: string })?.message || 'Failed to load settings')
     } finally {
       setLoading(false)
     }
@@ -127,9 +127,9 @@ export default function AdminSettingsPage() {
         }
       }
       await loadSettings()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error saving settings:', err)
-      setError(err?.message || 'Failed to save settings')
+      setError((err as { message?: string })?.message || 'Failed to save settings')
     } finally {
       setSaving(false)
     }

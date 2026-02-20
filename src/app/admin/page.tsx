@@ -18,20 +18,19 @@ export default async function AdminPage() {
 
   try {
     // Get user profile to check role
-    let profile: any
+    let profile: Awaited<ReturnType<typeof serverNewsApi.profile.get>>
     try {
       profile = await serverNewsApi.profile.get()
-    } catch (profileError: any) {
+    } catch (profileError: unknown) {
       console.error('Profile fetch error:', profileError)
-      // If 401/403, not authenticated - redirect to login
-      if (profileError.code === 'HTTP_401' || profileError.code === 'HTTP_403') {
+      const err = profileError as { code?: string }
+      if (err.code === 'HTTP_401' || err.code === 'HTTP_403') {
         redirect('/login')
       }
-      // If 404, profile might not exist
-      if (profileError.code === 'HTTP_404') {
+      if (err.code === 'HTTP_404') {
         redirect('/profile')
       }
-      throw profileError
+      throw err
     }
     
     if (!profile || !profile.user) {
@@ -44,16 +43,16 @@ export default async function AdminPage() {
     }
 
     // Get system stats for admin panel
-    let systemStats: any = null
+    let systemStats: { totalArticles: number; totalUsers: number; totalBusinesses: number } | null = null
     if (['admin', 'editor', 'business_owner'].includes(profile.role)) {
       try {
-        const stats: any = await serverNewsApi.stats.dashboard()
+        const stats = await serverNewsApi.stats.dashboard() as Record<string, unknown>
         systemStats = {
           totalArticles: stats?.total_articles || 0,
           totalUsers: stats?.total_users || 0,
           totalBusinesses: stats?.total_businesses || 0,
         }
-      } catch (statsError: any) {
+      } catch {
         console.error('Error fetching stats:', statsError)
         // Continue without stats if unavailable
         systemStats = {
@@ -74,11 +73,10 @@ export default async function AdminPage() {
         </div>
       </DashboardLayout>
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error loading admin page:', error)
-    
-    // Only redirect to login for authentication errors
-    if (error.code === 'HTTP_401' || error.code === 'HTTP_403') {
+    const err = error as { code?: string }
+    if (err.code === 'HTTP_401' || err.code === 'HTTP_403') {
       redirect('/login')
     }
     

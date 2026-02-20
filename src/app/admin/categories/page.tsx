@@ -15,27 +15,27 @@ export default async function AdminCategoriesPage() {
     redirect('/login')
   }
 
+  let profile: Profile | null = null
   try {
-    const profile = await serverNewsApi.profile.get() as Profile
-    
-    if (!profile) {
-      redirect('/login')
-    }
-
-    // Admins, Editors, and Business Owners can access the page
-    if (!['admin', 'editor', 'business_owner'].includes(profile.role)) {
-      redirect('/dashboard')
-    }
-
-    return (
-      <DashboardLayout profile={profile}>
-        <div className="p-4 md:p-6">
-          <CategoryManager profile={profile} />
-        </div>
-      </DashboardLayout>
-    )
+    profile = await serverNewsApi.profile.get() as Profile
   } catch (error) {
     console.error('Error loading admin categories page:', error)
     redirect('/dashboard')
   }
+
+  if (!profile) {
+    redirect('/login')
+  }
+
+  if (!['admin', 'editor', 'business_owner'].includes(profile.role)) {
+    redirect('/dashboard')
+  }
+
+  return (
+    <DashboardLayout profile={profile}>
+      <div className="p-4 md:p-6">
+        <CategoryManager profile={profile} />
+      </div>
+    </DashboardLayout>
+  )
 }

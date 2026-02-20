@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import type { Metadata } from 'next'
-import { Calendar, Clock, User, Tag, Share2, Edit3 } from 'lucide-react'
+import { Calendar, Clock, User, Tag } from 'lucide-react'
 import EnhancedArticleEditor from '@/components/articles/EnhancedArticleEditor'
 import ShareButtons from '@/components/articles/ShareButtons'
 import RelatedArticles from '@/components/articles/RelatedArticles'
@@ -110,7 +110,7 @@ async function getArticleDataBuildTime(slug: string) {
         name: article.category.name
       } : null,
     }
-  } catch (error) {
+  } catch {
     return null
   }
 }
@@ -140,7 +140,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
 
 import { getArticleImageUrl, getAbsoluteImageUrl } from '@/lib/image-utils'
 
-function getImageUrl(article: any) {
+function getImageUrl(article: { featured_media?: { file_url?: string }; id?: string }) {
   return getArticleImageUrl(article)
 }
 
@@ -226,7 +226,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         <div className="container-wide py-4 md:py-8">
           <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Gallery</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-            {article.article_media.map((item: any) => {
+            {article.article_media.map((item: { id?: string; media?: { file_url?: string; alt_text?: string }; caption?: string }) => {
               const imageUrl = item.media?.file_url
               if (!imageUrl) {
                 console.warn('Gallery item missing file_url:', item)

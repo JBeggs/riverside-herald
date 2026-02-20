@@ -17,7 +17,7 @@ export default function ArticleNotFound() {
 
         {/* Description */}
         <p className="text-lg text-gray-600 mb-8">
-          The article you're looking for doesn't exist or may have been removed. 
+          The article you&apos;re looking for doesn&apos;t exist or may have been removed.
           It might have been moved or the URL might be incorrect.
         </p>
 

@@ -3,6 +3,7 @@
  * Replaces Supabase client calls
  */
 
+const isTestEnv = typeof import.meta !== 'undefined' && (import.meta as { env?: { VITEST?: boolean } }).env?.VITEST === true
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
 const DEFAULT_COMPANY_SLUG = process.env.NEXT_PUBLIC_COMPANY_SLUG || 'riverside-herald'
 
@@ -241,8 +242,8 @@ export class ApiClient {
           data = { message: `HTTP ${response.status}: ${response.statusText}` }
         }
         
-        // Only log if there's meaningful error data
-        if (Object.keys(data).length > 0 && (data.error || data.message || data.detail)) {
+        // Only log if there's meaningful error data (skip in tests to reduce noise)
+        if (!isTestEnv && Object.keys(data).length > 0 && (data.error || data.message || data.detail)) {
           console.error('[API ERROR RESPONSE]', {
             status: response.status,
             url: response.url,
@@ -341,8 +342,8 @@ export class ApiClient {
    * POST request
    */
   async post<T>(endpoint: string, data?: any, includeAuth: boolean = true): Promise<T> {
-    // Log request details for registration endpoint
-    if (endpoint.includes('/auth/register/')) {
+    // Log request details for registration endpoint (skip in tests)
+    if (!isTestEnv && endpoint.includes('/auth/register/')) {
       console.log('[REGISTER REQUEST]', {
         endpoint: `${this.baseURL}${endpoint}`,
         data,
@@ -358,8 +359,8 @@ export class ApiClient {
 
     const response = await makeRequest()
     
-    // Log response details for registration endpoint
-    if (endpoint.includes('/auth/register/')) {
+    // Log response details for registration endpoint (skip in tests)
+    if (!isTestEnv && endpoint.includes('/auth/register/')) {
       console.log('[REGISTER RESPONSE]', {
         status: response.status,
         statusText: response.statusText,
