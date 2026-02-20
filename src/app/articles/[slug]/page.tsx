@@ -226,7 +226,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         <div className="container-wide py-4 md:py-8">
           <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Gallery</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-            {article.article_media.map((item: { id?: string; media?: { file_url?: string; alt_text?: string }; caption?: string }) => {
+            {article.article_media.map((item: { id?: string; media?: { id?: string; file_url?: string; alt_text?: string }; caption?: string }) => {
               const imageUrl = item.media?.file_url
               if (!imageUrl) {
                 console.warn('Gallery item missing file_url:', item)

@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { serverNewsApi } from '@/lib/api-server'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
 import MediaLibrary from '@/components/admin/MediaLibrary'
+import type { Profile } from '@/lib/types'
 
 // Force dynamic rendering since we use cookies
 export const dynamic = 'force-dynamic'
@@ -18,9 +19,9 @@ export default async function MediaPage() {
 
   try {
     // Get user profile to check role
-    let profile: Awaited<ReturnType<typeof serverNewsApi.profile.get>>
+    let profile: Profile | null = null
     try {
-      profile = await serverNewsApi.profile.get()
+      profile = (await serverNewsApi.profile.get()) as Profile
     } catch (profileError: unknown) {
       console.error('Profile fetch error:', profileError)
       const err = profileError as { code?: string }

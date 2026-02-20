@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { serverNewsApi } from '@/lib/api-server'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
 import AdminSection from '@/components/profile/AdminSection'
+import type { Profile } from '@/lib/types'
 
 // Force dynamic rendering since we use cookies
 export const dynamic = 'force-dynamic'
@@ -18,9 +19,9 @@ export default async function AdminPage() {
 
   try {
     // Get user profile to check role
-    let profile: Awaited<ReturnType<typeof serverNewsApi.profile.get>>
+    let profile: Profile | null = null
     try {
-      profile = await serverNewsApi.profile.get()
+      profile = (await serverNewsApi.profile.get()) as Profile
     } catch (profileError: unknown) {
       console.error('Profile fetch error:', profileError)
       const err = profileError as { code?: string }
@@ -48,12 +49,12 @@ export default async function AdminPage() {
       try {
         const stats = await serverNewsApi.stats.dashboard() as Record<string, unknown>
         systemStats = {
-          totalArticles: stats?.total_articles || 0,
-          totalUsers: stats?.total_users || 0,
-          totalBusinesses: stats?.total_businesses || 0,
+          totalArticles: Number(stats?.total_articles) || 0,
+          totalUsers: Number(stats?.total_users) || 0,
+          totalBusinesses: Number(stats?.total_businesses) || 0,
         }
-      } catch {
-        console.error('Error fetching stats:', statsError)
+      } catch (err) {
+        console.error('Error fetching stats:', err)
         // Continue without stats if unavailable
         systemStats = {
           totalArticles: 0,
@@ -68,7 +69,7 @@ export default async function AdminPage() {
         <div className="p-4 md:p-6">
           <AdminSection 
             profile={profile}
-            systemStats={systemStats}
+            systemStats={systemStats ?? undefined}
           />
         </div>
       </DashboardLayout>
