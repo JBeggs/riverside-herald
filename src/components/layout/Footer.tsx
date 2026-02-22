@@ -22,6 +22,7 @@ async function getFooterData() {
     const menuItems = [
       { title: 'Articles', href: '/articles' },
       { title: 'Businesses', href: '/businesses' },
+      { title: 'Testing', href: '/testing' },
     ]
 
     return {
@@ -57,6 +58,7 @@ async function getFooterData() {
       menuItems: [
         { title: 'Articles', href: '/articles' },
         { title: 'Businesses', href: '/businesses' },
+        { title: 'Testing', href: '/testing' },
       ]
     }
   }

@@ -78,10 +78,12 @@ async function main() {
   console.log('\nStaging changes...');
   spawnSync('git', ['add', '-A'], { cwd: PROJECT_ROOT, stdio: 'inherit' });
 
-  const commitMsg = await question('Enter commit message: ');
+  let commitMsg = process.argv[2];
   if (!commitMsg) {
-    console.error('Commit message required.');
-    process.exit(1);
+    commitMsg = await question('Enter commit message (or leave blank for default): ');
+  }
+  if (!commitMsg) {
+    commitMsg = 'chore: update';
   }
 
   console.log('Committing...');
