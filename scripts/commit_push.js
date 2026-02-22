@@ -80,10 +80,15 @@ async function main() {
 
   let commitMsg = process.argv[2];
   if (!commitMsg) {
-    commitMsg = await question('Enter commit message (or leave blank for default): ');
+    if (!process.stdin.isTTY) {
+      console.error('No terminal for input. Pass message: npm run git:commit-push -- "your message"');
+      process.exit(1);
+    }
+    commitMsg = (await question('Enter commit message: ')).trim();
   }
   if (!commitMsg) {
-    commitMsg = 'chore: update';
+    console.error('Commit message required.');
+    process.exit(1);
   }
 
   console.log('Committing...');
