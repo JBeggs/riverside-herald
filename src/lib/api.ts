@@ -633,6 +633,11 @@ export const newsApi = {
       apiClient.post(`/news/articles/${id}/media/`, { media_id: mediaId, caption: caption || '' }),
     removeMedia: (id: string, mediaId: string) => 
       apiClient.delete(`/news/articles/${id}/media/`, { media_id: mediaId }),
+    /** Cursor AI research (Riverside owner / news admin only) */
+    researchStart: (id: string, data?: { context?: string }) =>
+      apiClient.post(`/news/articles/${id}/research-start/`, data || {}),
+    researchStatus: (id: string) => apiClient.get(`/news/articles/${id}/research/`),
+    researchStop: (id: string) => apiClient.post(`/news/articles/${id}/research-stop/`, {}),
   },
 
   // Categories

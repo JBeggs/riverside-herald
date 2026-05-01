@@ -136,10 +136,10 @@ interface ArticleEditorProps {
   inModal?: boolean // If true, don't render the fixed overlay
 }
 
-type EditorStep = 'basic' | 'content' | 'media' | 'settings' | 'seo' | 'publish'
+type EditorStep = 'basic' | 'content' | 'media' | 'settings' | 'seo' | 'research' | 'publish'
 
 export default function EnhancedArticleEditor({ article, onSave, onCancel, inModal = false }: ArticleEditorProps) {
-  const { user, profile } = useAuth()
+  const { user, profile, isCompanyOwner } = useAuth()
   const { showError, showSuccess } = useToast()
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -153,7 +153,14 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
   const [isDeleting, setIsDeleting] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
+
+  const [researchBrief, setResearchBrief] = useState('')
+  const [researchInfo, setResearchInfo] = useState<Record<string, unknown> | null>(null)
+  const [researchPoll, setResearchPoll] = useState(false)
+  const [isStartingResearch, setIsStartingResearch] = useState(false)
+  const [isStoppingResearch, setIsStoppingResearch] = useState(false)
   
+  const canManageArticleResearch = Boolean(profile?.role === 'admin' || isCompanyOwner)
   // Data states
   const [categories, setCategories] = useState<Category[]>([])
   const [availableTags, setAvailableTags] = useState<Tag[]>([])
@@ -298,12 +305,72 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
     { id: 'media', label: 'Media', icon: ImageIcon },
     { id: 'settings', label: 'Settings', icon: Settings },
     { id: 'seo', label: 'SEO', icon: Search },
+    { id: 'research', label: 'Research', icon: Zap },
     { id: 'publish', label: 'Publish', icon: Calendar }
   ]
 
   const currentStepIndex = steps.findIndex(step => step.id === currentStep)
   const canGoNext = currentStepIndex < steps.length - 1
   const canGoPrev = currentStepIndex > 0
+
+  useEffect(() => {
+    if (currentStep !== 'research' || article.id === 'new' || !canManageArticleResearch) return
+    let cancelled = false
+    ;(async () => {
+      try {
+        const data: any = await newsApi.articles.researchStatus(article.id)
+        if (cancelled) return
+        setResearchInfo(data.research ?? null)
+        if (data.article) {
+          setEditData(prev => ({
+            ...prev,
+            subtitle: data.article.subtitle ?? prev.subtitle,
+            excerpt: data.article.excerpt ?? prev.excerpt,
+            content: data.article.content ?? prev.content,
+          }))
+        }
+        const st = data.research?.status as string | undefined
+        if (st === 'queued' || st === 'running') setResearchPoll(true)
+        else setResearchPoll(false)
+      } catch (e: any) {
+        if (cancelled) return
+        if (e?.status === 404) {
+          setResearchInfo(null)
+          setResearchPoll(false)
+        }
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [currentStep, article.id, canManageArticleResearch])
+
+  useEffect(() => {
+    if (!researchPoll || article.id === 'new') return
+    const tick = async () => {
+      try {
+        const data: any = await newsApi.articles.researchStatus(article.id)
+        setResearchInfo(data.research ?? null)
+        if (data.article) {
+          setEditData(prev => ({
+            ...prev,
+            subtitle: data.article.subtitle ?? prev.subtitle,
+            excerpt: data.article.excerpt ?? prev.excerpt,
+            content: data.article.content ?? prev.content,
+          }))
+        }
+        const st = data.research?.status as string | undefined
+        if (st === 'finished' || st === 'failed' || st === 'cancelled') {
+          setResearchPoll(false)
+          if (st === 'finished') showSuccess('Research finished. Review excerpt and body below.')
+        }
+      } catch {
+        /* ignore transient poll errors */
+      }
+    }
+    const id = setInterval(tick, 4000)
+    return () => clearInterval(id)
+  }, [researchPoll, article.id, showSuccess])
 
   if (!canEdit) {
     return null
@@ -339,6 +406,74 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
     }
 
     return { valid: true }
+  }
+
+  const handleRefreshResearch = async () => {
+    if (article.id === 'new' || !canManageArticleResearch) return
+    try {
+      const data: any = await newsApi.articles.researchStatus(article.id)
+      setResearchInfo(data.research ?? null)
+      if (data.article) {
+        setEditData(prev => ({
+          ...prev,
+          subtitle: data.article.subtitle ?? prev.subtitle,
+          excerpt: data.article.excerpt ?? prev.excerpt,
+          content: data.article.content ?? prev.content,
+        }))
+      }
+      const st = data.research?.status as string | undefined
+      if (st === 'queued' || st === 'running') setResearchPoll(true)
+      else setResearchPoll(false)
+    } catch (e: any) {
+      if (e?.status === 404) {
+        setResearchInfo(null)
+        setResearchPoll(false)
+      } else {
+        showError(e?.message || 'Could not load research status')
+      }
+    }
+  }
+
+  const handleStartResearch = async () => {
+    if (article.id === 'new' || !canManageArticleResearch) return
+    setIsStartingResearch(true)
+    try {
+      const data: any = await newsApi.articles.researchStart(article.id, {
+        context: researchBrief.trim(),
+      })
+      setResearchInfo(data.research ?? null)
+      if (data.article) {
+        setEditData(prev => ({
+          ...prev,
+          subtitle: data.article.subtitle ?? prev.subtitle,
+          excerpt: data.article.excerpt ?? prev.excerpt,
+          content: data.article.content ?? prev.content,
+        }))
+      }
+      showSuccess('Research started. This may take a few minutes.')
+      setResearchPoll(true)
+    } catch (e: any) {
+      const msg =
+        e?.details?.detail || e?.message || 'Could not start research'
+      showError(typeof msg === 'string' ? msg : 'Could not start research')
+    } finally {
+      setIsStartingResearch(false)
+    }
+  }
+
+  const handleStopResearch = async () => {
+    if (article.id === 'new' || !canManageArticleResearch) return
+    setIsStoppingResearch(true)
+    try {
+      const data: any = await newsApi.articles.researchStop(article.id)
+      setResearchInfo(data.research ?? null)
+      setResearchPoll(false)
+      showSuccess('Research stopped.')
+    } catch (e: any) {
+      showError(e?.message || 'Could not stop research')
+    } finally {
+      setIsStoppingResearch(false)
+    }
   }
 
   const handleSave = async () => {
@@ -1333,6 +1468,130 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
             </div>
           </div>
         )
+
+      case 'research':
+        if (!canManageArticleResearch) {
+          return (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+              Only the Riverside Herald company owner or a news admin can run AI research.
+            </div>
+          )
+        }
+        if (article.id === 'new') {
+          return (
+            <div className="space-y-4">
+              <p className="text-gray-700">
+                Save the article first, then open this tab to run Cursor-backed research on the headline and subtitle.
+              </p>
+            </div>
+          )
+        }
+        {
+          const st = (researchInfo?.status as string) || ''
+          const busy = st === 'running' || st === 'queued'
+          const agentUrl = researchInfo?.agent_url as string | undefined
+          return (
+            <div className="space-y-6">
+              <div className="rounded-lg border border-blue-100 bg-blue-50/80 p-4 text-sm text-blue-900">
+                <p className="font-medium mb-1">AI research (Cursor Cloud Agent)</p>
+                <p className="text-blue-800/90">
+                  Uses the article title and subtitle from Basic Info. Add an optional editor brief below. Status refreshes every few seconds while the run is active.
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Editor brief for the researcher (optional)
+                </label>
+                <textarea
+                  value={researchBrief}
+                  onChange={(e) => setResearchBrief(e.target.value)}
+                  rows={4}
+                  disabled={busy}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y text-sm"
+                  placeholder="Angles, sources to check, local context, spellings, etc."
+                />
+              </div>
+              <div className="flex flex-wrap gap-3 items-center">
+                <button
+                  type="button"
+                  onClick={handleStartResearch}
+                  disabled={isStartingResearch || busy}
+                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {isStartingResearch ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      Starting…
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="w-4 h-4 mr-2" />
+                      Start research
+                    </>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleStopResearch}
+                  disabled={isStoppingResearch || !busy}
+                  className="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 disabled:opacity-50"
+                >
+                  {isStoppingResearch ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      Stopping…
+                    </>
+                  ) : (
+                    'Stop research'
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRefreshResearch}
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                >
+                  Refresh status
+                </button>
+              </div>
+              <div className="rounded-lg border border-gray-200 p-4 bg-gray-50 text-sm space-y-2">
+                <p>
+                  <span className="font-medium text-gray-700">Status:</span>{' '}
+                  <span className="capitalize">{st || 'none'}</span>
+                  {researchPoll && busy && (
+                    <span className="ml-2 text-gray-500">(polling…)</span>
+                  )}
+                </p>
+                {researchInfo?.error ? (
+                  <p className="text-red-700">
+                    <span className="font-medium">Error:</span> {String(researchInfo.error)}
+                  </p>
+                ) : null}
+                {agentUrl ? (
+                  <p>
+                    <a
+                      href={agentUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 underline font-medium"
+                    >
+                      Open Cursor agent
+                    </a>
+                  </p>
+                ) : null}
+                {researchInfo?.artifact_path ? (
+                  <p className="text-gray-600">
+                    <span className="font-medium">Artifact:</span> {String(researchInfo.artifact_path)}
+                  </p>
+                ) : null}
+                {researchInfo?.applied_at ? (
+                  <p className="text-gray-600">
+                    <span className="font-medium">Applied:</span> {String(researchInfo.applied_at)}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          )
+        }
 
       case 'publish':
         return (

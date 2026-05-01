@@ -16,6 +16,8 @@ interface AuthContextType {
   user: User | null
   profile: Profile | null
   companyId: string | null
+  /** True when logged-in user is owner of the active company (e.g. Riverside Herald on login). */
+  isCompanyOwner: boolean
   loading: boolean
   signIn: (username: string, password: string) => Promise<{ error: any }>
   signUp: (email: string, password: string, firstName: string, lastName: string, companyName?: string, userType?: 'author' | 'business_owner') => Promise<{ error: any }>
@@ -25,10 +27,13 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+const RH_OWNER_STORAGE = 'rh_is_company_owner'
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [companyId, setCompanyId] = useState<string | null>(null)
+  const [isCompanyOwner, setIsCompanyOwner] = useState(false)
   const [loading, setLoading] = useState(true)
 
   // Initialize from localStorage
@@ -40,6 +45,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       apiClient.setToken(token)
       apiClient.setCompanyId(storedCompanyId)
       setCompanyId(storedCompanyId)
+      if (typeof window !== 'undefined') {
+        setIsCompanyOwner(localStorage.getItem(RH_OWNER_STORAGE) === '1')
+      }
       
       // Fetch user profile
       fetchProfile()
@@ -91,6 +99,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       setUser(response.user)
       setCompanyId(response.company?.id || null)
+      const owns = Boolean((response.user as any)?.is_owner)
+      setIsCompanyOwner(owns)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(RH_OWNER_STORAGE, owns ? '1' : '0')
+      }
       
       // Fetch profile after login
       await fetchProfile()
@@ -224,6 +237,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null)
       setProfile(null)
       setCompanyId(null)
+      setIsCompanyOwner(false)
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(RH_OWNER_STORAGE)
+      }
     } catch (error) {
       console.error('Logout error:', error)
     } finally {
@@ -235,6 +252,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     profile,
     companyId,
+    isCompanyOwner,
     loading,
     signIn,
     signUp,

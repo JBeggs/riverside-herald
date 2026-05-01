@@ -1,0 +1,688 @@
+
+> local-news-platform@0.1.0 lint
+> eslint .
+
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/cypress.config.js
+  6:21  warning  'on' is defined but never used. Allowed unused args must match /^_/u      @typescript-eslint/no-unused-vars
+  6:25  warning  'config' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/scripts/add-daily-maverick-article.ts
+  126:16  warning  'e' is defined but never used                                                @typescript-eslint/no-unused-vars
+  271:20  warning  'index' is defined but never used. Allowed unused args must match /^_/u      @typescript-eslint/no-unused-vars
+  360:75  warning  'sourceUrl' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/scripts/add-fambri-farms.ts
+  66:9  warning  'foundImages' is never reassigned. Use 'const' instead  prefer-const
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/scripts/add-news24-article.ts
+  238:13  warning  'data' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/scripts/add-paddle-power.ts
+  66:9  warning  'foundImages' is never reassigned. Use 'const' instead  prefer-const
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/scripts/add-rusty-feather.ts
+  67:9  warning  'foundImages' is never reassigned. Use 'const' instead  prefer-const
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/scripts/add-test-users.ts
+  202:7  warning  'totalCount' is never reassigned. Use 'const' instead  prefer-const
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/scripts/clear-articles-businesses.ts
+  68:16  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+  90:16  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/scripts/clear-articles.ts
+  59:16  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/scripts/clear-businesses.ts
+  66:16  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/scripts/commit_push.js
+  21:12  warning  '_' is defined but never used  @typescript-eslint/no-unused-vars
+  34:52  warning  '_' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/scripts/disable-storage-rls.ts
+  10:10  warning  'createClient' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/scripts/fix-signup.ts
+  26:7  warning  'supabase' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/scripts/merge_to_main.js
+  21:12  warning  '_' is defined but never used  @typescript-eslint/no-unused-vars
+  34:52  warning  '_' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/scripts/new_branch.js
+  21:12  warning  '_' is defined but never used  @typescript-eslint/no-unused-vars
+  34:52  warning  '_' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/scripts/reset-database-live.ts
+  135:18  warning  'authError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/scripts/reset-database.ts
+   66:16  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+   83:16  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+   98:16  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+  113:16  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+  134:16  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+  164:16  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+  179:16  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+  200:16  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/scripts/setup-avatar-storage.ts
+  51:21  warning  'bucket' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/scripts/setup-storage-policies-admin.ts
+  49:19  warning  'updateBucket' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  64:11  warning  'policies' is assigned a value but never used. Allowed unused vars must match /^_/u      @typescript-eslint/no-unused-vars
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/app/[slug]/not-found.tsx
+  11:29  warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  11:49  warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/app/admin/articles/[slug]/page.tsx
+  18:42  warning  Unexpected any. Specify a different type                                                                        @typescript-eslint/no-explicit-any
+  25:6   warning  React Hook useEffect has a missing dependency: 'loadArticle'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  32:17  warning  Unexpected any. Specify a different type                                                                        @typescript-eslint/no-explicit-any
+  34:67  warning  Unexpected any. Specify a different type                                                                        @typescript-eslint/no-explicit-any
+  38:16  warning  'e' is defined but never used                                                                                   @typescript-eslint/no-unused-vars
+  46:28  warning  Unexpected any. Specify a different type                                                                        @typescript-eslint/no-explicit-any
+  50:97  warning  Unexpected any. Specify a different type                                                                        @typescript-eslint/no-explicit-any
+  56:21  warning  Unexpected any. Specify a different type                                                                        @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/app/admin/articles/page.tsx
+    4:21  warning  'useSearchParams' is defined but never used. Allowed unused vars must match /^_/u                                @typescript-eslint/no-unused-vars
+   27:44  warning  Unexpected any. Specify a different type                                                                         @typescript-eslint/no-explicit-any
+   43:6   warning  React Hook useEffect has a missing dependency: 'loadArticles'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+   48:21  warning  Unexpected any. Specify a different type                                                                         @typescript-eslint/no-explicit-any
+   66:19  warning  Unexpected any. Specify a different type                                                                         @typescript-eslint/no-explicit-any
+   68:21  warning  Unexpected any. Specify a different type                                                                         @typescript-eslint/no-explicit-any
+   87:21  warning  Unexpected any. Specify a different type                                                                         @typescript-eslint/no-explicit-any
+  106:47  warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`                                                  react/no-unescaped-entities
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/app/admin/businesses/page.tsx
+  11:3   warning  'Building2' is defined but never used. Allowed unused vars must match /^_/u                                        @typescript-eslint/no-unused-vars
+  40:48  warning  Unexpected any. Specify a different type                                                                           @typescript-eslint/no-explicit-any
+  43:26  warning  'setStatusFilter' is assigned a value but never used. Allowed unused vars must match /^_/u                         @typescript-eslint/no-unused-vars
+  55:6   warning  React Hook useEffect has a missing dependency: 'loadBusinesses'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  60:21  warning  Unexpected any. Specify a different type                                                                           @typescript-eslint/no-explicit-any
+  64:19  warning  Unexpected any. Specify a different type                                                                           @typescript-eslint/no-explicit-any
+  66:21  warning  Unexpected any. Specify a different type                                                                           @typescript-eslint/no-explicit-any
+  83:14  warning  'error' is defined but never used                                                                                  @typescript-eslint/no-unused-vars
+  83:21  warning  Unexpected any. Specify a different type                                                                           @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/app/articles/[slug]/page.tsx
+  263:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  282:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/app/articles/page.tsx
+   36:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   42:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   72:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   73:72  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   85:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   92:12  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+   99:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  153:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  243:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/app/businesses/[slug]/not-found.tsx
+  12:29  warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  12:50  warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/app/businesses/[slug]/page.tsx
+    2:8   warning  'Link' is defined but never used. Allowed unused vars must match /^_/u               @typescript-eslint/no-unused-vars
+    5:44  warning  'Clock' is defined but never used. Allowed unused vars must match /^_/u              @typescript-eslint/no-unused-vars
+    5:51  warning  'Edit3' is defined but never used. Allowed unused vars must match /^_/u              @typescript-eslint/no-unused-vars
+    9:10  warning  'BUSINESS_PRODUCTS' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+   20:38  warning  Unexpected any. Specify a different type                                             @typescript-eslint/no-explicit-any
+  112:24  warning  Unexpected any. Specify a different type                                             @typescript-eslint/no-explicit-any
+  174:25  warning  Unexpected any. Specify a different type                                             @typescript-eslint/no-explicit-any
+  175:31  warning  Unexpected any. Specify a different type                                             @typescript-eslint/no-explicit-any
+  186:40  warning  Unexpected any. Specify a different type                                             @typescript-eslint/no-explicit-any
+  201:17  warning  Unexpected any. Specify a different type                                             @typescript-eslint/no-explicit-any
+  204:27  warning  Unexpected any. Specify a different type                                             @typescript-eslint/no-explicit-any
+  364:50  warning  Unexpected any. Specify a different type                                             @typescript-eslint/no-explicit-any
+  414:89  warning  Unexpected any. Specify a different type                                             @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/app/businesses/create/page.tsx
+  10:17  warning  'profile' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  30:37  warning  Unexpected any. Specify a different type                                            @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/app/businesses/my/page.tsx
+  20:48  warning  Unexpected any. Specify a different type                                                                               @typescript-eslint/no-explicit-any
+  31:6   warning  React Hook useEffect has a missing dependency: 'loadUserBusinesses'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  36:29  warning  Unexpected any. Specify a different type                                                                               @typescript-eslint/no-explicit-any
+  39:61  warning  Unexpected any. Specify a different type                                                                               @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/app/businesses/page.tsx
+    5:10  warning  'Search' is defined but never used. Allowed unused vars must match /^_/u       @typescript-eslint/no-unused-vars
+    5:33  warning  'Mail' is defined but never used. Allowed unused vars must match /^_/u         @typescript-eslint/no-unused-vars
+    5:52  warning  'Clock' is defined but never used. Allowed unused vars must match /^_/u        @typescript-eslint/no-unused-vars
+    5:70  warning  'Filter' is defined but never used. Allowed unused vars must match /^_/u       @typescript-eslint/no-unused-vars
+   13:10  warning  'formatPhone' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+   58:27  warning  Unexpected any. Specify a different type                                       @typescript-eslint/no-explicit-any
+   61:38  warning  Unexpected any. Specify a different type                                       @typescript-eslint/no-explicit-any
+  106:27  warning  Unexpected any. Specify a different type                                       @typescript-eslint/no-explicit-any
+  108:55  warning  Unexpected any. Specify a different type                                       @typescript-eslint/no-explicit-any
+  110:19  warning  Unexpected any. Specify a different type                                       @typescript-eslint/no-explicit-any
+  125:40  warning  Unexpected any. Specify a different type                                       @typescript-eslint/no-explicit-any
+  135:52  warning  Unexpected any. Specify a different type                                       @typescript-eslint/no-explicit-any
+  136:49  warning  Unexpected any. Specify a different type                                       @typescript-eslint/no-explicit-any
+  136:87  warning  Unexpected any. Specify a different type                                       @typescript-eslint/no-explicit-any
+  155:58  warning  Unexpected any. Specify a different type                                       @typescript-eslint/no-explicit-any
+  170:50  warning  Unexpected any. Specify a different type                                       @typescript-eslint/no-explicit-any
+  300:47  warning  Unexpected any. Specify a different type                                       @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/app/dashboard/page.tsx
+  18:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  21:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  53:16  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  56:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  63:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  70:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  72:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  82:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  84:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  98:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/app/features/page.tsx
+    7:3    warning  'Star' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  170:42   warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`         react/no-unescaped-entities
+  228:42   warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`         react/no-unescaped-entities
+  232:58   warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`         react/no-unescaped-entities
+  252:59   warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`         react/no-unescaped-entities
+  267:104  warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`         react/no-unescaped-entities
+  456:69   warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`         react/no-unescaped-entities
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/app/layout.tsx
+  33:65  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  44:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  44:82  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  75:12  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/app/page.tsx
+    4:17  warning  'MapPin' is defined but never used. Allowed unused vars must match /^_/u               @typescript-eslint/no-unused-vars
+   61:11  warning  'SiteSettings' is defined but never used. Allowed unused vars must match /^_/u         @typescript-eslint/no-unused-vars
+   70:25  warning  Unexpected any. Specify a different type                                               @typescript-eslint/no-explicit-any
+   72:39  warning  Unexpected any. Specify a different type                                               @typescript-eslint/no-explicit-any
+   74:37  warning  Unexpected any. Specify a different type                                               @typescript-eslint/no-explicit-any
+   85:25  warning  Unexpected any. Specify a different type                                               @typescript-eslint/no-explicit-any
+   92:93  warning  Unexpected any. Specify a different type                                               @typescript-eslint/no-explicit-any
+  118:25  warning  Unexpected any. Specify a different type                                               @typescript-eslint/no-explicit-any
+  144:67  warning  Unexpected any. Specify a different type                                               @typescript-eslint/no-explicit-any
+  207:10  warning  'getBusinessImageUrl' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/app/profile/page.tsx
+   19:18  warning  Unexpected any. Specify a different type                                                                                                               @typescript-eslint/no-explicit-any
+   22:17  warning  Unexpected any. Specify a different type                                                                                                               @typescript-eslint/no-explicit-any
+   27:22  warning  Unexpected any. Specify a different type                                                                                                               @typescript-eslint/no-explicit-any
+   42:25  warning  Unexpected any. Specify a different type                                                                                                               @typescript-eslint/no-explicit-any
+   46:27  warning  Unexpected any. Specify a different type                                                                                                               @typescript-eslint/no-explicit-any
+   60:22  warning  Unexpected any. Specify a different type                                                                                                               @typescript-eslint/no-explicit-any
+   77:26  warning  Unexpected any. Specify a different type                                                                                                               @typescript-eslint/no-explicit-any
+   81:29  warning  Unexpected any. Specify a different type                                                                                                               @typescript-eslint/no-explicit-any
+  100:33  warning  Unexpected any. Specify a different type                                                                                                               @typescript-eslint/no-explicit-any
+  117:36  warning  Unexpected any. Specify a different type                                                                                                               @typescript-eslint/no-explicit-any
+  122:54  warning  Unexpected any. Specify a different type                                                                                                               @typescript-eslint/no-explicit-any
+  128:67  warning  Unexpected any. Specify a different type                                                                                                               @typescript-eslint/no-explicit-any
+  135:89  warning  Unexpected any. Specify a different type                                                                                                               @typescript-eslint/no-explicit-any
+  170:19  warning  Unexpected any. Specify a different type                                                                                                               @typescript-eslint/no-explicit-any
+  194:36  warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`                                                                                        react/no-unescaped-entities
+  196:24  warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`                                                                                        react/no-unescaped-entities
+  203:13  warning  Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/app/testing/page.tsx
+  115:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/app/testing/page.tsx:115:5
+  113 |
+  114 |   useEffect(() => {
+> 115 |     setCoverageLoading(true)
+      |     ^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  116 |     fetch('/coverage-summary.json', { cache: 'no-store' })
+  117 |       .then((r) => (r.ok ? r.json() : null))
+  118 |       .then((data) => {  react-hooks/set-state-in-effect
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/admin/MediaLibrary.tsx
+   22:12  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   35:35  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   47:40  warning  'profile' is defined but never used. Allowed unused args must match /^_/u                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+   60:23  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   63:21  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   74:6   warning  React Hook useEffect has a missing dependency: 'loadMedia'. Either include it or remove the dependency array                                                                                                                                                                             react-hooks/exhaustive-deps
+  101:17  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  104:23  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  139:21  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  273:21  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/articles/ArticleEditor.tsx
+    3:20  warning  'useEffect' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+    7:26  warning  'Eye' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+   22:7   warning  'ImageIcon' is assigned a value but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
+   71:17  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   72:17  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   94:21  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  122:21  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  162:21  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  205:51  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                          react/no-unescaped-entities
+  205:67  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                          react/no-unescaped-entities
+  316:23  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/articles/ArticleEditorModal.tsx
+   14:26  warning  Unexpected any. Specify a different type                                                                        @typescript-eslint/no-explicit-any
+   21:50  warning  Unexpected any. Specify a different type                                                                        @typescript-eslint/no-explicit-any
+   92:6   warning  React Hook useEffect has a missing dependency: 'loadArticle'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+   97:19  warning  Unexpected any. Specify a different type                                                                        @typescript-eslint/no-explicit-any
+  127:21  warning  Unexpected any. Specify a different type                                                                        @typescript-eslint/no-explicit-any
+  145:36  warning  Unexpected any. Specify a different type                                                                        @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/articles/BusinessLinkedArticleCreator.tsx
+    4:21  warning  'FileText' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+    4:31  warning  'Star' is defined but never used. Allowed unused vars must match /^_/u      @typescript-eslint/no-unused-vars
+  219:21  warning  Unexpected any. Specify a different type                                    @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/articles/EnhancedArticleEditor.tsx
+     7:19  warning  'Eye' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+    54:7   warning  'MapPin' is assigned a value but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+    61:7   warning  'Users' is assigned a value but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+   134:26  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   144:9   warning  'router' is assigned a value but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+   169:54  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   170:28  warning  'setIsLoadingGallery' is assigned a value but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+   222:60  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   222:91  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   245:6   warning  React Hook useEffect has a missing dependency: 'loadCategoriesAndTags'. Either include it or remove the dependency array                                                                                                                                                                 react-hooks/exhaustive-deps
+   250:29  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   252:46  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   260:23  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   262:43  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   271:28  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   273:54  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   284:25  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   296:21  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   302:55  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   321:21  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   335:19  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   352:21  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   414:19  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   427:17  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   441:19  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   455:17  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   468:19  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   472:17  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   508:25  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   560:27  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   589:21  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   605:73  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   648:94  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   723:21  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   758:13  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   769:21  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   844:17  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   849:25  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   869:21  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   913:21  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   965:51  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                          react/no-unescaped-entities
+   965:67  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                          react/no-unescaped-entities
+  1143:21  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  1255:45  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  1259:27  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  1270:76  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  1274:47  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/articles/RelatedArticles.tsx
+   29:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   38:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   43:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   48:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   53:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   55:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   62:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   86:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  111:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/auth/AuthMessage.tsx
+  20:7  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/auth/AuthMessage.tsx:20:7
+  18 |
+  19 |     if (authRequired === 'required') {
+> 20 |       setMessage({
+     |       ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  21 |         type: 'info',
+  22 |         text: 'Please sign in to access this page'
+  23 |       })  react-hooks/set-state-in-effect
+  43:6  warning  React Hook useEffect has a missing dependency: 'message'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         react-hooks/exhaustive-deps
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/auth/AuthModal.tsx
+  21:7  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/auth/AuthModal.tsx:21:7
+  19 |   useEffect(() => {
+  20 |     if (isOpen) {
+> 21 |       setMode(defaultMode)
+     |       ^^^^^^^ Avoid calling setState() directly within an effect
+  22 |     }
+  23 |   }, [isOpen, defaultMode])
+  24 |  react-hooks/set-state-in-effect
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/auth/LoginForm.tsx
+   56:19  warning  Unexpected any. Specify a different type                         @typescript-eslint/no-explicit-any
+  164:16  warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/auth/SignUpForm.tsx
+  120:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/businesses/BusinessAuthModal.tsx
+  49:17  warning  'business' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  57:18  warning  'businessError' is defined but never used                                            @typescript-eslint/no-unused-vars
+  57:33  warning  Unexpected any. Specify a different type                                             @typescript-eslint/no-explicit-any
+  70:70  warning  Unexpected any. Specify a different type                                             @typescript-eslint/no-explicit-any
+  97:19  warning  Unexpected any. Specify a different type                                             @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/businesses/BusinessCreationWizard.tsx
+   11:7   warning  'Camera' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+   98:27  warning  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+  147:52  warning  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+  207:23  warning  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+  215:21  warning  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/businesses/BusinessEditButton.tsx
+  26:6   warning  React Hook useEffect has a missing dependency: 'checkBusinessOwnership'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  37:23  warning  Unexpected any. Specify a different type                                                                                   @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/businesses/BusinessEditModal.tsx
+   70:46  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   71:48  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  129:13  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  142:21  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  156:6   warning  React Hook useEffect has a missing dependency: 'fetchBusinessData'. Either include it or remove the dependency array                                                                                                                                                                     react-hooks/exhaustive-deps
+  159:41  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  182:79  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  183:34  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  206:21  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  209:64  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  212:25  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  214:37  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  218:62  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  250:21  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  270:64  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  342:30  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  392:21  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  785:27  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  824:27  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/businesses/BusinessSearchAndFilter.tsx
+   75:22  warning  Unexpected any. Specify a different type                         @typescript-eslint/no-explicit-any
+  205:27  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  205:40  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/businesses/FeaturedBusinessCard.tsx
+  91:71  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/businesses/ProductPreview.tsx
+  5:8  warning  'Link' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/dashboard/ArticlesList.tsx
+   18:13  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   20:21  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   22:12  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   54:29  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  130:23  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/dashboard/CategoryManager.tsx
+   34:7   warning  'X' is assigned a value but never used. Allowed unused vars must match /^_/u                                        @typescript-eslint/no-unused-vars
+   79:6   warning  React Hook useEffect has a missing dependency: 'fetchCategories'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+   84:19  warning  Unexpected any. Specify a different type                                                                            @typescript-eslint/no-explicit-any
+   86:14  warning  'error' is defined but never used                                                                                   @typescript-eslint/no-unused-vars
+   86:21  warning  Unexpected any. Specify a different type                                                                            @typescript-eslint/no-explicit-any
+  145:21  warning  Unexpected any. Specify a different type                                                                            @typescript-eslint/no-explicit-any
+  163:14  warning  'error' is defined but never used                                                                                   @typescript-eslint/no-unused-vars
+  163:21  warning  Unexpected any. Specify a different type                                                                            @typescript-eslint/no-explicit-any
+  342:46  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                     react/no-unescaped-entities
+  342:59  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                     react/no-unescaped-entities
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/dashboard/DashboardLayout.tsx
+  57:12  warning  Unexpected any. Specify a different type                                                    @typescript-eslint/no-explicit-any
+  65:9   warning  'isAdmin' is assigned a value but never used. Allowed unused vars must match /^_/u          @typescript-eslint/no-unused-vars
+  66:9   warning  'isEditor' is assigned a value but never used. Allowed unused vars must match /^_/u         @typescript-eslint/no-unused-vars
+  67:9   warning  'isAuthor' is assigned a value but never used. Allowed unused vars must match /^_/u         @typescript-eslint/no-unused-vars
+  68:9   warning  'isBusinessOwner' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/dashboard/DashboardOverview.tsx
+    8:3   warning  'TrendingUp' is defined but never used. Allowed unused vars must match /^_/u                                           @typescript-eslint/no-unused-vars
+   10:3   warning  'Clock' is defined but never used. Allowed unused vars must match /^_/u                                                @typescript-eslint/no-unused-vars
+   13:3   warning  'AlertCircle' is defined but never used. Allowed unused vars must match /^_/u                                          @typescript-eslint/no-unused-vars
+   45:12  warning  Unexpected any. Specify a different type                                                                               @typescript-eslint/no-explicit-any
+   46:11  warning  Unexpected any. Specify a different type                                                                               @typescript-eslint/no-explicit-any
+   47:19  warning  Unexpected any. Specify a different type                                                                               @typescript-eslint/no-explicit-any
+   53:56  warning  Unexpected any. Specify a different type                                                                               @typescript-eslint/no-explicit-any
+   60:9   warning  'isSubscriber' is assigned a value but never used. Allowed unused vars must match /^_/u                                @typescript-eslint/no-unused-vars
+   67:6   warning  React Hook useEffect has a missing dependency: 'loadUserBusinesses'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+   74:84  warning  Unexpected any. Specify a different type                                                                               @typescript-eslint/no-explicit-any
+   76:63  warning  Unexpected any. Specify a different type                                                                               @typescript-eslint/no-explicit-any
+   92:39  warning  Unexpected any. Specify a different type                                                                               @typescript-eslint/no-explicit-any
+   95:9   warning  'formatDate' is assigned a value but never used. Allowed unused vars must match /^_/u                                  @typescript-eslint/no-unused-vars
+  103:9   warning  'getStatusColor' is assigned a value but never used. Allowed unused vars must match /^_/u                              @typescript-eslint/no-unused-vars
+  285:67  warning  Unexpected any. Specify a different type                                                                               @typescript-eslint/no-explicit-any
+  393:48  warning  Unexpected any. Specify a different type                                                                               @typescript-eslint/no-explicit-any
+  407:67  warning  Unexpected any. Specify a different type                                                                               @typescript-eslint/no-explicit-any
+  502:57  warning  Unexpected any. Specify a different type                                                                               @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/features/RegistrationButtons.tsx
+    4:10  warning  'Building2' is defined but never used. Allowed unused vars must match /^_/u   @typescript-eslint/no-unused-vars
+   13:8   warning  'SignUpForm' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+   97:56  warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`               react/no-unescaped-entities
+  166:20  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`               react/no-unescaped-entities
+  166:27  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`               react/no-unescaped-entities
+  166:54  warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`               react/no-unescaped-entities
+  236:50  warning  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`               react/no-unescaped-entities
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/layout/Footer.tsx
+   7:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   9:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  11:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/layout/Header.tsx
+  10:25  warning  Unexpected any. Specify a different type                                            @typescript-eslint/no-explicit-any
+  12:39  warning  Unexpected any. Specify a different type                                            @typescript-eslint/no-explicit-any
+  14:37  warning  Unexpected any. Specify a different type                                            @typescript-eslint/no-explicit-any
+  52:21  warning  'tagline' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/media/MediaPicker.tsx
+  35:23  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  37:29  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  94:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/profile/AdminSection.tsx
+   9:3  warning  'Globe' is defined but never used. Allowed unused vars must match /^_/u                   @typescript-eslint/no-unused-vars
+  66:7  warning  'AlertTriangle' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  72:7  warning  'Crown' is assigned a value but never used. Allowed unused vars must match /^_/u          @typescript-eslint/no-unused-vars
+  86:7  warning  'Megaphone' is assigned a value but never used. Allowed unused vars must match /^_/u      @typescript-eslint/no-unused-vars
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/profile/AuthorDashboard.tsx
+    9:3   warning  'Share2' is defined but never used. Allowed unused vars must match /^_/u        @typescript-eslint/no-unused-vars
+   13:3   warning  'Clock' is defined but never used. Allowed unused vars must match /^_/u         @typescript-eslint/no-unused-vars
+   38:13  warning  Unexpected any. Specify a different type                                        @typescript-eslint/no-explicit-any
+   43:53  warning  'profile' is defined but never used. Allowed unused args must match /^_/u       @typescript-eslint/no-unused-vars
+   43:62  warning  'onNewArticle' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  197:60  warning  Unexpected any. Specify a different type                                        @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/profile/BusinessOwnerSection.tsx
+    5:8   warning  'Image' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+   13:3   warning  'Phone' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+   14:3   warning  'Mail' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+   15:3   warning  'Globe' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+   18:3   warning  'User' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+   42:15  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   46:60  warning  'profile' is defined but never used. Allowed unused args must match /^_/u                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+  219:23  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  235:25  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  301:64  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/profile/NotificationSettings.tsx
+   16:3   warning  'User' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  122:21  warning  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  417:21  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`         react/no-unescaped-entities
+  417:36  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`         react/no-unescaped-entities
+  418:73  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`         react/no-unescaped-entities
+  418:86  warning  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`         react/no-unescaped-entities
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/profile/PersonalInfoSection.tsx
+   22:3   warning  'MapPin' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+   87:21  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  141:21  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  210:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/profile/ProfilePage.tsx
+    3:20  warning  'useEffect' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+   21:3   warning  'Mail' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+   22:3   warning  'Phone' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+   23:3   warning  'MapPin' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+   24:3   warning  'Globe' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+   25:3   warning  'TrendingUp' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                             @typescript-eslint/no-unused-vars
+   30:7   warning  'Settings' is assigned a value but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+   49:7   warning  'Users' is assigned a value but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+   72:16  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   73:23  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  170:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/profile/SubscriberSection.tsx
+   7:3  warning  'Calendar' is defined but never used. Allowed unused vars must match /^_/u             @typescript-eslint/no-unused-vars
+  11:3  warning  'Bell' is defined but never used. Allowed unused vars must match /^_/u                 @typescript-eslint/no-unused-vars
+  22:7  warning  'CreditCard' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  28:7  warning  'Gift' is assigned a value but never used. Allowed unused vars must match /^_/u        @typescript-eslint/no-unused-vars
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/components/ui/ArticleCard.tsx
+   40:12  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   41:12  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   42:22  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   44:27  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   45:25  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  139:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  210:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/contexts/AuthContext.tsx
+   22:68   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   23:164  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   61:26   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   79:21   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  102:46   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  112:21   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  153:21   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  162:16   warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  188:95   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  213:44   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/lib/api-server.ts
+  111:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  152:58  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  161:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  164:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  167:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  171:85  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  194:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  221:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  227:50  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  236:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  248:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  257:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  283:48  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  289:50  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  295:92  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  318:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  322:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  327:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  361:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  361:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  363:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/lib/api.test.ts
+  11:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/lib/api.ts
+   13:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  227:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  233:20  warning  'parseError' is defined but never used    @typescript-eslint/no-unused-vars
+  270:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  281:93  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  300:16  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  322:58  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  344:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  388:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  402:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  416:59  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  441:85  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  488:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  522:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  570:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  624:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  625:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  626:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  647:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  648:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  656:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  657:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  666:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  667:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  678:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  679:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  688:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  689:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  698:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  699:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  707:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  708:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  715:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  716:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/lib/enhanced-types.ts
+   25:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  152:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  254:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  369:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  399:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  434:10  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  453:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/lib/image-utils.test.ts
+  88:59  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/lib/image-utils.ts
+  70:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  70:78  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/lib/types.ts
+   25:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  152:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  261:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  300:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  404:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  434:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  469:10  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  488:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jodybeggs/Documents/new-crm/river-side-herald/src/lib/validation.ts
+  7:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 479 problems (0 errors, 479 warnings)
+  0 errors and 4 warnings potentially fixable with the `--fix` option.
+
