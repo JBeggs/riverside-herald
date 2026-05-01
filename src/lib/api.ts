@@ -638,6 +638,16 @@ export const newsApi = {
       apiClient.post(`/news/articles/${id}/research-start/`, data || {}),
     researchStatus: (id: string) => apiClient.get(`/news/articles/${id}/research/`),
     researchStop: (id: string) => apiClient.post(`/news/articles/${id}/research-stop/`, {}),
+    /** Replace hero: stock / DALL-E / programmatic image, or attach existing gallery media (Riverside owner/admin). */
+    researchFeaturedImage: (
+      id: string,
+      data: {
+        mode: 'generate' | 'gallery'
+        source?: 'pexels' | 'openai' | 'pillow'
+        prompt?: string
+        media_id?: string
+      }
+    ) => apiClient.post(`/news/articles/${id}/research-featured-image/`, data),
   },
 
   // Categories

@@ -144,6 +144,11 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
   const [researchPoll, setResearchPoll] = useState(false)
   const [isStartingResearch, setIsStartingResearch] = useState(false)
   const [isStoppingResearch, setIsStoppingResearch] = useState(false)
+  const [heroImageMode, setHeroImageMode] = useState<'generate' | 'gallery'>('generate')
+  const [heroImageSource, setHeroImageSource] = useState<'pexels' | 'openai' | 'pillow'>('pexels')
+  const [heroImagePrompt, setHeroImagePrompt] = useState('')
+  const [heroGalleryMediaId, setHeroGalleryMediaId] = useState('')
+  const [isUpdatingHeroImage, setIsUpdatingHeroImage] = useState(false)
   
   const canManageArticleResearch = Boolean(profile?.role === 'admin' || isCompanyOwner)
   // Data states
@@ -312,6 +317,14 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
             subtitle: data.article.subtitle ?? prev.subtitle,
             excerpt: data.article.excerpt ?? prev.excerpt,
             content: data.article.content ?? prev.content,
+            ...(data.article.featured_media
+              ? {
+                  featured_image_url:
+                    data.article.featured_media.file_url ?? prev.featured_image_url,
+                  featured_media_id:
+                    data.article.featured_media.id ?? prev.featured_media_id,
+                }
+              : {}),
           }))
         }
         const st = data.research?.status as string | undefined
@@ -342,6 +355,14 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
             subtitle: data.article.subtitle ?? prev.subtitle,
             excerpt: data.article.excerpt ?? prev.excerpt,
             content: data.article.content ?? prev.content,
+            ...(data.article.featured_media
+              ? {
+                  featured_image_url:
+                    data.article.featured_media.file_url ?? prev.featured_image_url,
+                  featured_media_id:
+                    data.article.featured_media.id ?? prev.featured_media_id,
+                }
+              : {}),
           }))
         }
         const st = data.research?.status as string | undefined
@@ -404,6 +425,14 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
           subtitle: data.article.subtitle ?? prev.subtitle,
           excerpt: data.article.excerpt ?? prev.excerpt,
           content: data.article.content ?? prev.content,
+          ...(data.article.featured_media
+            ? {
+                featured_image_url:
+                  data.article.featured_media.file_url ?? prev.featured_image_url,
+                featured_media_id:
+                  data.article.featured_media.id ?? prev.featured_media_id,
+              }
+            : {}),
         }))
       }
       const st = data.research?.status as string | undefined
@@ -433,6 +462,14 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
           subtitle: data.article.subtitle ?? prev.subtitle,
           excerpt: data.article.excerpt ?? prev.excerpt,
           content: data.article.content ?? prev.content,
+          ...(data.article.featured_media
+            ? {
+                featured_image_url:
+                  data.article.featured_media.file_url ?? prev.featured_image_url,
+                featured_media_id:
+                  data.article.featured_media.id ?? prev.featured_media_id,
+              }
+            : {}),
         }))
       }
       showSuccess('Research started. This may take a few minutes.')
@@ -458,6 +495,51 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
       showError(e?.message || 'Could not stop research')
     } finally {
       setIsStoppingResearch(false)
+    }
+  }
+
+  const handleUpdateFeaturedHero = async () => {
+    if (article.id === 'new' || !canManageArticleResearch) return
+    if (heroImageMode === 'gallery' && !heroGalleryMediaId.trim()) {
+      showError('Choose an image from the article gallery.')
+      return
+    }
+    setIsUpdatingHeroImage(true)
+    try {
+      const payload =
+        heroImageMode === 'gallery'
+          ? { mode: 'gallery' as const, media_id: heroGalleryMediaId.trim() }
+          : {
+              mode: 'generate' as const,
+              source: heroImageSource,
+              prompt: heroImagePrompt.trim(),
+            }
+      const updated: any = await newsApi.articles.researchFeaturedImage(article.id, payload)
+      const fm = updated?.featured_media
+      if (fm) {
+        setEditData(prev => ({
+          ...prev,
+          featured_image_url: fm.file_url || prev.featured_image_url,
+          featured_media_id: fm.id || prev.featured_media_id,
+        }))
+      }
+      showSuccess('Featured image updated.')
+    } catch (e: any) {
+      const d = e?.details
+      let msg = 'Could not update featured image.'
+      if (typeof d?.detail === 'string') {
+        msg = d.detail
+      } else if (Array.isArray(d?.detail) && d.detail.length) {
+        const x = d.detail[0] as { string?: string; message?: string } | string
+        msg = typeof x === 'string' ? x : x?.string || x?.message || msg
+      } else if (d?.media_id?.[0]) {
+        msg = String(d.media_id[0])
+      } else if (e?.message) {
+        msg = e.message
+      }
+      showError(msg)
+    } finally {
+      setIsUpdatingHeroImage(false)
     }
   }
 
@@ -1573,6 +1655,117 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
                     <span className="font-medium">Applied:</span> {String(researchInfo.applied_at)}
                   </p>
                 ) : null}
+              </div>
+              <div className="rounded-lg border border-gray-200 p-4 bg-white text-sm space-y-4">
+                <p className="font-medium text-gray-800">Featured / hero image</p>
+                <p className="text-gray-600">
+                  Regenerate the lead image (Pexels, DALL·E, or a simple branded graphic) or set it from an
+                  image already in this article&apos;s gallery.
+                </p>
+                {editData.featured_image_url ? (
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={editData.featured_image_url}
+                      alt=""
+                      className="h-16 w-28 object-cover rounded border border-gray-200"
+                    />
+                    <span className="text-xs text-gray-500">Current featured image</span>
+                  </div>
+                ) : null}
+                <div className="flex flex-wrap gap-6">
+                  <label className="flex items-center gap-2 cursor-pointer text-gray-800">
+                    <input
+                      type="radio"
+                      name="heroImageMode"
+                      checked={heroImageMode === 'generate'}
+                      onChange={() => setHeroImageMode('generate')}
+                      className="rounded-full border-gray-300"
+                    />
+                    Generate new image
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer text-gray-800">
+                    <input
+                      type="radio"
+                      name="heroImageMode"
+                      checked={heroImageMode === 'gallery'}
+                      onChange={() => setHeroImageMode('gallery')}
+                      className="rounded-full border-gray-300"
+                    />
+                    Use gallery image
+                  </label>
+                </div>
+                {heroImageMode === 'generate' ? (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Source</label>
+                      <select
+                        value={heroImageSource}
+                        onChange={(e) =>
+                          setHeroImageSource(e.target.value as 'pexels' | 'openai' | 'pillow')
+                        }
+                        className="w-full max-w-md px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      >
+                        <option value="pexels">Pexels (stock photo)</option>
+                        <option value="openai">OpenAI DALL·E</option>
+                        <option value="pillow">Programmatic graphic (no external API)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Extra search terms or prompt (optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={heroImagePrompt}
+                        onChange={(e) => setHeroImagePrompt(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        placeholder="e.g. flood rescue boats, golden hour"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Image from article gallery
+                    </label>
+                    <select
+                      value={heroGalleryMediaId}
+                      onChange={(e) => setHeroGalleryMediaId(e.target.value)}
+                      className="w-full max-w-md px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    >
+                      <option value="">— Select an image —</option>
+                      {galleryImages.map((item: any) => {
+                        const id = item.media?.id as string | undefined
+                        if (!id) return null
+                        return (
+                          <option key={id} value={id}>
+                            {item.media?.alt_text || item.caption || id.slice(0, 8)}
+                          </option>
+                        )
+                      })}
+                    </select>
+                    {galleryImages.length === 0 ? (
+                      <p className="mt-2 text-xs text-amber-800 bg-amber-50 border border-amber-100 rounded px-2 py-1">
+                        No gallery images yet. Add some on the Media tab first.
+                      </p>
+                    ) : null}
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={handleUpdateFeaturedHero}
+                  disabled={isUpdatingHeroImage}
+                  className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                >
+                  {isUpdatingHeroImage ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      Updating…
+                    </>
+                  ) : (
+                    'Apply featured image'
+                  )}
+                </button>
               </div>
             </div>
           )
