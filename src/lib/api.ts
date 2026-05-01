@@ -634,8 +634,10 @@ export const newsApi = {
     removeMedia: (id: string, mediaId: string) => 
       apiClient.delete(`/news/articles/${id}/media/`, { media_id: mediaId }),
     /** Cursor AI research (Riverside owner / news admin only) */
-    researchStart: (id: string, data?: { context?: string }) =>
-      apiClient.post(`/news/articles/${id}/research-start/`, data || {}),
+    researchStart: (
+      id: string,
+      data?: { context?: string; apply_text_only?: boolean }
+    ) => apiClient.post(`/news/articles/${id}/research-start/`, data || {}),
     researchStatus: (id: string) => apiClient.get(`/news/articles/${id}/research/`),
     researchStop: (id: string) => apiClient.post(`/news/articles/${id}/research-stop/`, {}),
     /** Hero image from Cursor agent/GitHub only, or attach existing gallery media (Riverside owner/admin). */

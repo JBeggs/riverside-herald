@@ -140,6 +140,7 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
   const [isUploading, setIsUploading] = useState(false)
 
   const [researchBrief, setResearchBrief] = useState('')
+  const [researchTextOnly, setResearchTextOnly] = useState(false)
   const [researchInfo, setResearchInfo] = useState<Record<string, unknown> | null>(null)
   const [researchPoll, setResearchPoll] = useState(false)
   const [isStartingResearch, setIsStartingResearch] = useState(false)
@@ -314,6 +315,9 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
         const data: any = await newsApi.articles.researchStatus(article.id)
         if (cancelled) return
         setResearchInfo(data.research ?? null)
+        if (data.research != null && 'apply_text_only' in data.research) {
+          setResearchTextOnly(Boolean(data.research.apply_text_only))
+        }
         if (data.article) {
           setEditData(prev => ({
             ...prev,
@@ -359,6 +363,9 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
       try {
         const data: any = await newsApi.articles.researchStatus(article.id)
         setResearchInfo(data.research ?? null)
+        if (data.research != null && 'apply_text_only' in data.research) {
+          setResearchTextOnly(Boolean(data.research.apply_text_only))
+        }
         if (data.article) {
           setEditData(prev => ({
             ...prev,
@@ -463,6 +470,9 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
     try {
       const data: any = await newsApi.articles.researchStatus(article.id)
       setResearchInfo(data.research ?? null)
+      if (data.research != null && 'apply_text_only' in data.research) {
+        setResearchTextOnly(Boolean(data.research.apply_text_only))
+      }
       if (data.article) {
         setEditData(prev => ({
           ...prev,
@@ -505,8 +515,12 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
     try {
       const data: any = await newsApi.articles.researchStart(article.id, {
         context: researchBrief.trim(),
+        apply_text_only: researchTextOnly,
       })
       setResearchInfo(data.research ?? null)
+      if (data.research != null && 'apply_text_only' in data.research) {
+        setResearchTextOnly(Boolean(data.research.apply_text_only))
+      }
       if (data.article) {
         setEditData(prev => ({
           ...prev,
@@ -523,7 +537,11 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
             : {}),
         }))
       }
-      showSuccess('Research started. This may take a few minutes.')
+      showSuccess(
+        researchTextOnly
+          ? 'Text update started. Hero and gallery will stay as they are when this finishes.'
+          : 'Research started. This may take a few minutes.'
+      )
       setResearchPoll(true)
     } catch (e: any) {
       const msg =
@@ -1728,6 +1746,20 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
                   placeholder="Angles, sources to check, local context, spellings, etc."
                 />
               </div>
+              <label className="flex items-start gap-2 cursor-pointer text-gray-800 max-w-xl">
+                <input
+                  type="checkbox"
+                  checked={researchTextOnly}
+                  onChange={(e) => setResearchTextOnly(e.target.checked)}
+                  disabled={busy}
+                  className="mt-1 rounded border-gray-300"
+                />
+                <span className="text-sm">
+                  <span className="font-medium">Text only</span> — when the run finishes, update subtitle, excerpt,
+                  and body from the new <code className="text-xs bg-gray-100 px-1 rounded">research/&lt;slug&gt;.md</code>
+                  only. Leave the featured hero image unchanged (gallery is never touched by research apply).
+                </span>
+              </label>
               <div className="flex flex-wrap gap-3 items-center">
                 <button
                   type="button"
@@ -1743,7 +1775,7 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
                   ) : (
                     <>
                       <Zap className="w-4 h-4 mr-2" />
-                      Start research
+                      {researchTextOnly ? 'Update text' : 'Start research'}
                     </>
                   )}
                 </button>
