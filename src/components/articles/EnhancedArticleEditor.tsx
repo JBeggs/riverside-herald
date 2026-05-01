@@ -147,7 +147,11 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
   const [heroImageMode, setHeroImageMode] = useState<'generate' | 'gallery'>('generate')
   const [heroGalleryMediaId, setHeroGalleryMediaId] = useState('')
   const [isUpdatingHeroImage, setIsUpdatingHeroImage] = useState(false)
+  const [isRegeneratingHero, setIsRegeneratingHero] = useState(false)
+  const [isGeneratingGallery, setIsGeneratingGallery] = useState(false)
   const [isSyncingCursorGallery, setIsSyncingCursorGallery] = useState(false)
+  const prevHeroJobRef = useRef(false)
+  const prevGalleryJobRef = useRef(false)
   
   const canManageArticleResearch = Boolean(profile?.role === 'admin' || isCompanyOwner)
   // Data states
@@ -326,8 +330,15 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
               : {}),
           }))
         }
+        const heroJob =
+          !!(data.research?.hero_regen_agent_id && data.research?.hero_regen_run_id)
+        const galleryJob =
+          !!(data.research?.gallery_gen_agent_id && data.research?.gallery_gen_run_id)
+        prevHeroJobRef.current = heroJob
+        prevGalleryJobRef.current = galleryJob
         const st = data.research?.status as string | undefined
-        if (st === 'queued' || st === 'running') setResearchPoll(true)
+        if (st === 'queued' || st === 'running' || heroJob || galleryJob)
+          setResearchPoll(true)
         else setResearchPoll(false)
       } catch (e: any) {
         if (cancelled) return
@@ -364,10 +375,44 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
               : {}),
           }))
         }
+        const heroJob =
+          !!(data.research?.hero_regen_agent_id && data.research?.hero_regen_run_id)
+        const galleryJob =
+          !!(data.research?.gallery_gen_agent_id && data.research?.gallery_gen_run_id)
+        let closedHeroJob = false
+        if (prevHeroJobRef.current && !heroJob) {
+          closedHeroJob = true
+          const err = data.research?.hero_regen_error as string | undefined
+          if (err) showError(err)
+          else showSuccess('New hero image applied from Cursor.')
+        }
+        let closedGalleryJob = false
+        if (prevGalleryJobRef.current && !galleryJob) {
+          closedGalleryJob = true
+          const err = data.research?.gallery_gen_error as string | undefined
+          if (err) showError(err)
+          else {
+            showSuccess('Gallery updated from Cursor.')
+            try {
+              const galleryData = await newsApi.articles.getMedia(article.id)
+              setGalleryImages(Array.isArray(galleryData) ? galleryData : [])
+            } catch {
+              /* ignore */
+            }
+          }
+        }
+        prevHeroJobRef.current = heroJob
+        prevGalleryJobRef.current = galleryJob
         const st = data.research?.status as string | undefined
-        if (st === 'finished' || st === 'failed' || st === 'cancelled') {
+        if (
+          (st === 'finished' || st === 'failed' || st === 'cancelled') &&
+          !heroJob &&
+          !galleryJob
+        ) {
           setResearchPoll(false)
-          if (st === 'finished') showSuccess('Research finished. Review excerpt and body below.')
+          if (st === 'finished' && !closedHeroJob && !closedGalleryJob) {
+            showSuccess('Research finished. Review excerpt and body below.')
+          }
         }
       } catch {
         /* ignore transient poll errors */
@@ -434,8 +479,15 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
             : {}),
         }))
       }
+      const heroJob =
+        !!(data.research?.hero_regen_agent_id && data.research?.hero_regen_run_id)
+      const galleryJob =
+        !!(data.research?.gallery_gen_agent_id && data.research?.gallery_gen_run_id)
+      prevHeroJobRef.current = heroJob
+      prevGalleryJobRef.current = galleryJob
       const st = data.research?.status as string | undefined
-      if (st === 'queued' || st === 'running') setResearchPoll(true)
+      if (st === 'queued' || st === 'running' || heroJob || galleryJob)
+        setResearchPoll(true)
       else setResearchPoll(false)
     } catch (e: any) {
       if (e?.status === 404) {
@@ -535,6 +587,73 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
       showError(msg)
     } finally {
       setIsUpdatingHeroImage(false)
+    }
+  }
+
+  const handleRegenerateHero = async () => {
+    if (article.id === 'new' || !canManageArticleResearch) return
+    setIsRegeneratingHero(true)
+    try {
+      const data: any = await newsApi.articles.researchRegenerateHero(article.id)
+      setResearchInfo(data.research ?? null)
+      if (data.article) {
+        setEditData(prev => ({
+          ...prev,
+          ...(data.article.featured_media
+            ? {
+                featured_image_url:
+                  data.article.featured_media.file_url ?? prev.featured_image_url,
+                featured_media_id:
+                  data.article.featured_media.id ?? prev.featured_media_id,
+              }
+            : {}),
+        }))
+      }
+      const heroJob =
+        !!(data.research?.hero_regen_agent_id && data.research?.hero_regen_run_id)
+      prevHeroJobRef.current = heroJob
+      setResearchPoll(true)
+      showSuccess(
+        'Cursor is generating a new hero image. This usually takes a few minutes; we will update the preview when it is ready.'
+      )
+    } catch (e: any) {
+      const d = e?.details
+      let msg = 'Could not start hero regeneration.'
+      if (typeof d?.detail === 'string') {
+        msg = d.detail
+      } else if (e?.message) {
+        msg = e.message
+      }
+      showError(msg)
+    } finally {
+      setIsRegeneratingHero(false)
+    }
+  }
+
+  const handleGenerateGalleryCursor = async () => {
+    if (article.id === 'new' || !canManageArticleResearch) return
+    setIsGeneratingGallery(true)
+    try {
+      const data: any = await newsApi.articles.researchGenerateGallery(article.id)
+      setResearchInfo(data.research ?? null)
+      const galleryJob =
+        !!(data.research?.gallery_gen_agent_id && data.research?.gallery_gen_run_id)
+      prevGalleryJobRef.current = galleryJob
+      setResearchPoll(true)
+      showSuccess(
+        'Cursor run started: one new gallery image. We will attach it when the run finishes (this tab polls automatically).'
+      )
+    } catch (e: any) {
+      const d = e?.details
+      let msg = 'Could not start gallery image generation.'
+      if (typeof d?.detail === 'string') {
+        msg = d.detail
+      } else if (e?.message) {
+        msg = e.message
+      }
+      showError(msg)
+    } finally {
+      setIsGeneratingGallery(false)
     }
   }
 
@@ -1580,7 +1699,13 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
         }
         {
           const st = (researchInfo?.status as string) || ''
-          const busy = st === 'running' || st === 'queued'
+          const heroRegenBusy = !!(
+            researchInfo?.hero_regen_agent_id && researchInfo?.hero_regen_run_id
+          )
+          const galleryGenBusy = !!(
+            researchInfo?.gallery_gen_agent_id && researchInfo?.gallery_gen_run_id
+          )
+          const busy = st === 'running' || st === 'queued' || heroRegenBusy || galleryGenBusy
           const agentUrl = researchInfo?.agent_url as string | undefined
           return (
             <div className="space-y-6">
@@ -1658,6 +1783,26 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
                     <span className="font-medium">Error:</span> {String(researchInfo.error)}
                   </p>
                 ) : null}
+                {heroRegenBusy ? (
+                  <p className="text-indigo-800 font-medium">Hero regeneration running in Cursor…</p>
+                ) : null}
+                {researchInfo?.hero_regen_error ? (
+                  <p className="text-red-700">
+                    <span className="font-medium">Hero regeneration:</span>{' '}
+                    {String(researchInfo.hero_regen_error)}
+                  </p>
+                ) : null}
+                {galleryGenBusy ? (
+                  <p className="text-teal-900 font-medium">
+                    Gallery image Cursor run in progress (one new file when it finishes)…
+                  </p>
+                ) : null}
+                {researchInfo?.gallery_gen_error ? (
+                  <p className="text-red-700">
+                    <span className="font-medium">Gallery generation:</span>{' '}
+                    {String(researchInfo.gallery_gen_error)}
+                  </p>
+                ) : null}
                 {agentUrl ? (
                   <p>
                     <a
@@ -1684,14 +1829,15 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
               <div className="rounded-lg border border-gray-200 p-4 bg-white text-sm space-y-4">
                 <p className="font-medium text-gray-800">Featured / hero image</p>
                 <p className="text-gray-600">
-                  Lead image comes only from your Cursor research output (file{' '}
-                  <code className="text-xs bg-gray-100 px-1 rounded">
-                    research/&lt;slug&gt;-hero.png
-                  </code>{' '}
-                  or{' '}
-                  <code className="text-xs bg-gray-100 px-1 rounded">.jpg</code> in the agent workspace or
-                  GitHub branch), or pick an existing image from this article&apos;s gallery.
+                  Lead image from <strong className="text-gray-800">research/&lt;slug&gt;-hero.png</strong> or{' '}
+                  <strong className="text-gray-800">.jpg</strong> (GitHub / agent), from the gallery, or start a{' '}
+                  <strong className="text-gray-800">new</strong> Cursor run that replaces the hero file (below).
                 </p>
+                {heroRegenBusy ? (
+                  <p className="text-sm text-indigo-800">
+                    Cursor is generating a new hero — preview will update when the run finishes.
+                  </p>
+                ) : null}
                 {editData.featured_image_url ? (
                   <div className="flex items-center gap-3">
                     <img
@@ -1711,7 +1857,7 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
                       onChange={() => setHeroImageMode('generate')}
                       className="rounded-full border-gray-300"
                     />
-                    Pull hero from Cursor
+                    Pull latest hero file
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer text-gray-800">
                     <input
@@ -1726,8 +1872,9 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
                 </div>
                 {heroImageMode === 'generate' ? (
                   <p className="text-sm text-gray-600">
-                    Uses the Cursor agent id on this article&apos;s research run. Ensure the agent committed
-                    the hero image (or it exists on the integration branch).
+                    Re-downloads <code className="text-xs bg-gray-100 px-1 rounded">research/&lt;slug&gt;-hero.*</code> from
+                    the agent or GitHub. If that file was not changed, the picture will look the same — use{' '}
+                    <strong className="font-medium text-gray-800">New hero image</strong> below for a fresh visual.
                   </p>
                 ) : (
                   <div>
@@ -1760,7 +1907,7 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
                 <button
                   type="button"
                   onClick={handleUpdateFeaturedHero}
-                  disabled={isUpdatingHeroImage}
+                  disabled={isUpdatingHeroImage || heroRegenBusy}
                   className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
                 >
                   {isUpdatingHeroImage ? (
@@ -1772,33 +1919,69 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
                     'Apply featured image'
                   )}
                 </button>
+                <button
+                  type="button"
+                  onClick={handleRegenerateHero}
+                  disabled={isRegeneratingHero || heroRegenBusy || busy}
+                  className="inline-flex items-center px-4 py-2 ml-0 sm:ml-2 mt-2 sm:mt-0 bg-violet-700 text-white rounded-lg hover:bg-violet-800 disabled:opacity-50"
+                >
+                  {isRegeneratingHero ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      Starting…
+                    </>
+                  ) : (
+                    'New hero image (Cursor)'
+                  )}
+                </button>
               </div>
               <div className="rounded-lg border border-gray-200 p-4 bg-white text-sm space-y-3">
                 <p className="font-medium text-gray-800">Article gallery (Cursor)</p>
                 <p className="text-gray-600">
-                  Pull optional images the agent saved as{' '}
-                  <code className="text-xs bg-gray-100 px-1 rounded">
-                    research/&lt;slug&gt;-gallery-1.png
-                  </code>
-                  ,{' '}
-                  <code className="text-xs bg-gray-100 px-1 rounded">-gallery-2</code>, etc., from the
-                  Cursor workspace or GitHub branch into this article&apos;s gallery.
+                  Nothing is added automatically. Use the buttons below only when <strong className="text-gray-800">you</strong>{' '}
+                  choose: <strong className="text-gray-800">Generate one gallery image</strong> starts a Cursor run (one
+                  new <code className="text-xs bg-gray-100 px-1 rounded">research/&lt;slug&gt;-gallery-N.*</code> per
+                  click). When that run finishes, the new file is imported automatically. Or use{' '}
+                  <strong className="text-gray-800">Import from GitHub / agent</strong> to pull every gallery file that
+                  already exists on the branch or in artifacts — still only when you click.
                 </p>
-                <button
-                  type="button"
-                  onClick={handleSyncCursorGallery}
-                  disabled={isSyncingCursorGallery}
-                  className="inline-flex items-center px-4 py-2 bg-teal-700 text-white rounded-lg hover:bg-teal-800 disabled:opacity-50"
-                >
-                  {isSyncingCursorGallery ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                      Syncing…
-                    </>
-                  ) : (
-                    'Add gallery images from Cursor'
-                  )}
-                </button>
+                {galleryGenBusy ? (
+                  <p className="text-sm text-teal-900">
+                    Cursor is creating one gallery image — the list below will refresh when the run completes.
+                  </p>
+                ) : null}
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={handleGenerateGalleryCursor}
+                    disabled={isGeneratingGallery || galleryGenBusy || busy}
+                    className="inline-flex items-center px-4 py-2 bg-teal-800 text-white rounded-lg hover:bg-teal-900 disabled:opacity-50"
+                  >
+                    {isGeneratingGallery ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        Starting…
+                      </>
+                    ) : (
+                      'Generate one gallery image (Cursor)'
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSyncCursorGallery}
+                    disabled={isSyncingCursorGallery || galleryGenBusy}
+                    className="inline-flex items-center px-4 py-2 bg-teal-700 text-white rounded-lg hover:bg-teal-800 disabled:opacity-50"
+                  >
+                    {isSyncingCursorGallery ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        Importing…
+                      </>
+                    ) : (
+                      'Import gallery from GitHub / agent'
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           )

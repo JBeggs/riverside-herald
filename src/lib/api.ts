@@ -646,6 +646,12 @@ export const newsApi = {
         media_id?: string
       }
     ) => apiClient.post(`/news/articles/${id}/research-featured-image/`, data),
+    /** New Cursor run to produce a fresh research/{slug}-hero.* (Riverside owner/admin). Poll GET research. */
+    researchRegenerateHero: (id: string) =>
+      apiClient.post(`/news/articles/${id}/research-regenerate-hero/`, {}),
+    /** Start one Cursor run to add research/{slug}-gallery-N.* (Riverside owner/admin). Poll GET research. */
+    researchGenerateGallery: (id: string) =>
+      apiClient.post(`/news/articles/${id}/research-generate-gallery/`, {}),
     /** Append gallery images from Cursor research/{slug}-gallery-* artifacts (Riverside owner/admin). */
     researchCursorGallery: (id: string) =>
       apiClient.post(`/news/articles/${id}/research-cursor-gallery/`, {}),
