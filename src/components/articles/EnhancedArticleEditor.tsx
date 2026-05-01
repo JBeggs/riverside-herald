@@ -145,10 +145,9 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
   const [isStartingResearch, setIsStartingResearch] = useState(false)
   const [isStoppingResearch, setIsStoppingResearch] = useState(false)
   const [heroImageMode, setHeroImageMode] = useState<'generate' | 'gallery'>('generate')
-  const [heroImageSource, setHeroImageSource] = useState<'pexels' | 'openai' | 'pillow'>('pexels')
-  const [heroImagePrompt, setHeroImagePrompt] = useState('')
   const [heroGalleryMediaId, setHeroGalleryMediaId] = useState('')
   const [isUpdatingHeroImage, setIsUpdatingHeroImage] = useState(false)
+  const [isSyncingCursorGallery, setIsSyncingCursorGallery] = useState(false)
   
   const canManageArticleResearch = Boolean(profile?.role === 'admin' || isCompanyOwner)
   // Data states
@@ -509,11 +508,7 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
       const payload =
         heroImageMode === 'gallery'
           ? { mode: 'gallery' as const, media_id: heroGalleryMediaId.trim() }
-          : {
-              mode: 'generate' as const,
-              source: heroImageSource,
-              prompt: heroImagePrompt.trim(),
-            }
+          : { mode: 'generate' as const }
       const updated: any = await newsApi.articles.researchFeaturedImage(article.id, payload)
       const fm = updated?.featured_media
       if (fm) {
@@ -540,6 +535,36 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
       showError(msg)
     } finally {
       setIsUpdatingHeroImage(false)
+    }
+  }
+
+  const handleSyncCursorGallery = async () => {
+    if (article.id === 'new' || !canManageArticleResearch) return
+    setIsSyncingCursorGallery(true)
+    try {
+      const data: any = await newsApi.articles.researchCursorGallery(article.id)
+      const n = data?.gallery_images_added
+      const galleryData = await newsApi.articles.getMedia(article.id)
+      setGalleryImages(Array.isArray(galleryData) ? galleryData : [])
+      showSuccess(
+        typeof n === 'number'
+          ? `Added ${n} image(s) from Cursor to the article gallery.`
+          : 'Gallery synced from Cursor.'
+      )
+    } catch (e: any) {
+      const d = e?.details
+      let msg = 'Could not sync gallery from Cursor.'
+      if (typeof d?.detail === 'string') {
+        msg = d.detail
+      } else if (Array.isArray(d?.detail) && d.detail.length) {
+        const x = d.detail[0] as { string?: string; message?: string } | string
+        msg = typeof x === 'string' ? x : x?.string || x?.message || msg
+      } else if (e?.message) {
+        msg = e.message
+      }
+      showError(msg)
+    } finally {
+      setIsSyncingCursorGallery(false)
     }
   }
 
@@ -1659,8 +1684,13 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
               <div className="rounded-lg border border-gray-200 p-4 bg-white text-sm space-y-4">
                 <p className="font-medium text-gray-800">Featured / hero image</p>
                 <p className="text-gray-600">
-                  Regenerate the lead image (Pexels, DALL·E, or a simple branded graphic) or set it from an
-                  image already in this article&apos;s gallery.
+                  Lead image comes only from your Cursor research output (file{' '}
+                  <code className="text-xs bg-gray-100 px-1 rounded">
+                    research/&lt;slug&gt;-hero.png
+                  </code>{' '}
+                  or{' '}
+                  <code className="text-xs bg-gray-100 px-1 rounded">.jpg</code> in the agent workspace or
+                  GitHub branch), or pick an existing image from this article&apos;s gallery.
                 </p>
                 {editData.featured_image_url ? (
                   <div className="flex items-center gap-3">
@@ -1681,7 +1711,7 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
                       onChange={() => setHeroImageMode('generate')}
                       className="rounded-full border-gray-300"
                     />
-                    Generate new image
+                    Pull hero from Cursor
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer text-gray-800">
                     <input
@@ -1695,34 +1725,10 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
                   </label>
                 </div>
                 {heroImageMode === 'generate' ? (
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Source</label>
-                      <select
-                        value={heroImageSource}
-                        onChange={(e) =>
-                          setHeroImageSource(e.target.value as 'pexels' | 'openai' | 'pillow')
-                        }
-                        className="w-full max-w-md px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                      >
-                        <option value="pexels">Pexels (stock photo)</option>
-                        <option value="openai">OpenAI DALL·E</option>
-                        <option value="pillow">Programmatic graphic (no external API)</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Extra search terms or prompt (optional)
-                      </label>
-                      <input
-                        type="text"
-                        value={heroImagePrompt}
-                        onChange={(e) => setHeroImagePrompt(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                        placeholder="e.g. flood rescue boats, golden hour"
-                      />
-                    </div>
-                  </div>
+                  <p className="text-sm text-gray-600">
+                    Uses the Cursor agent id on this article&apos;s research run. Ensure the agent committed
+                    the hero image (or it exists on the integration branch).
+                  </p>
                 ) : (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1764,6 +1770,33 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
                     </>
                   ) : (
                     'Apply featured image'
+                  )}
+                </button>
+              </div>
+              <div className="rounded-lg border border-gray-200 p-4 bg-white text-sm space-y-3">
+                <p className="font-medium text-gray-800">Article gallery (Cursor)</p>
+                <p className="text-gray-600">
+                  Pull optional images the agent saved as{' '}
+                  <code className="text-xs bg-gray-100 px-1 rounded">
+                    research/&lt;slug&gt;-gallery-1.png
+                  </code>
+                  ,{' '}
+                  <code className="text-xs bg-gray-100 px-1 rounded">-gallery-2</code>, etc., from the
+                  Cursor workspace or GitHub branch into this article&apos;s gallery.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleSyncCursorGallery}
+                  disabled={isSyncingCursorGallery}
+                  className="inline-flex items-center px-4 py-2 bg-teal-700 text-white rounded-lg hover:bg-teal-800 disabled:opacity-50"
+                >
+                  {isSyncingCursorGallery ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      Syncing…
+                    </>
+                  ) : (
+                    'Add gallery images from Cursor'
                   )}
                 </button>
               </div>
