@@ -754,9 +754,13 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
       // Note: Company is automatically set by backend to Riverside Herald in perform_create
       // No need to send company from frontend
 
-      // Add category if selected
-      if (editData.category_id) {
-        updateData.category = editData.category_id
+      // Category: PATCH always include so we can set or clear FK (create omits when empty)
+      if (article.id === 'new') {
+        if (editData.category_id) {
+          updateData.category = editData.category_id
+        }
+      } else {
+        updateData.category = editData.category_id || null
       }
 
       // Add featured media if provided (must be Media ID, not URL)
@@ -806,8 +810,15 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
         // NO REDIRECT - stay on same page
       } else {
         // Update existing article
-        await newsApi.articles.patch(article.id, updateData)
+        const updated: any = await newsApi.articles.patch(article.id, updateData)
         showSuccess('Article updated successfully!')
+        if (updated && typeof updated === 'object') {
+          setEditData(prev => ({
+            ...prev,
+            category_id: updated.category?.id || '',
+            updated_at: updated.updated_at ?? prev.updated_at,
+          }))
+        }
         // If onSave callback provided, use it
         if (onSave) {
           onSave()
