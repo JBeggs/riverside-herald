@@ -9,6 +9,7 @@ interface Article {
   id: string
   title: string
   slug: string
+  subtitle?: string
   excerpt: string
   content: string
   published_at: string
@@ -94,6 +95,7 @@ async function getHomepageData() {
         id: article.id,
         title: article.title,
         slug: article.slug,
+        subtitle: article.subtitle || '',
         excerpt: article.excerpt || '',
         content: article.content || '',
         published_at: article.published_at,
@@ -222,9 +224,16 @@ export default async function HomePage() {
           <div className="container-wide">
             <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-4">
               <span className="breaking-news-text flex-shrink-0">Breaking News</span>
-              <Link href={`/articles/${breakingNews.slug}`} className="hover:underline line-clamp-1 sm:line-clamp-none">
-                <span className="font-medium text-sm sm:text-base">{breakingNews.title}</span>
-              </Link>
+              <div className="min-w-0 flex-1">
+                <Link href={`/articles/${breakingNews.slug}`} className="hover:underline block">
+                  <span className="font-medium text-sm sm:text-base line-clamp-2">{breakingNews.title}</span>
+                  {breakingNews.subtitle ? (
+                    <span className="block text-xs sm:text-sm text-white/90 mt-1 line-clamp-2 font-normal">
+                      {breakingNews.subtitle}
+                    </span>
+                  ) : null}
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -268,6 +277,11 @@ export default async function HomePage() {
                       {featuredArticles[0]?.title}
                     </Link>
                   </h2>
+                  {featuredArticles[0]?.subtitle ? (
+                    <p className="text-base md:text-lg text-neutral-600 mb-3 line-clamp-2">
+                      {featuredArticles[0].subtitle}
+                    </p>
+                  ) : null}
                   <p className="body-lg mb-4 line-clamp-3 md:line-clamp-none">{featuredArticles[0]?.excerpt}</p>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs md:text-sm text-neutral-500 space-y-2 sm:space-y-0">
                     <div className="flex items-center space-x-3 md:space-x-4">
@@ -312,6 +326,9 @@ export default async function HomePage() {
                             {article.title}
                           </Link>
                         </h3>
+                        {article.subtitle ? (
+                          <p className="text-xs md:text-sm text-neutral-600 mb-1 line-clamp-2">{article.subtitle}</p>
+                        ) : null}
                         <div className="flex items-center text-[10px] md:text-xs text-neutral-500 truncate">
                           <span className="truncate max-w-[80px] md:max-w-none">{article.author_name || 'Staff Writer'}</span>
                           <span className="mx-1 md:mx-2 flex-shrink-0">•</span>
@@ -365,6 +382,9 @@ export default async function HomePage() {
                           {article.title}
                         </Link>
                       </h3>
+                      {article.subtitle ? (
+                        <p className="text-xs md:text-sm text-neutral-600 mb-2 line-clamp-2">{article.subtitle}</p>
+                      ) : null}
                       <p className="text-xs md:text-sm mb-3 text-neutral-600 line-clamp-2">{article.excerpt}</p>
                       <div className="flex items-center justify-between text-[10px] md:text-xs text-neutral-500">
                         <span className="truncate max-w-[100px]">{article.author_name || 'Staff Writer'}</span>
@@ -397,6 +417,9 @@ export default async function HomePage() {
                               {article.title}
                             </Link>
                           </h4>
+                          {article.subtitle ? (
+                            <p className="text-xs text-neutral-600 line-clamp-2 mb-1">{article.subtitle}</p>
+                          ) : null}
                           <div className="text-xs text-neutral-500">
                             {(article.views || 0).toLocaleString()} views • {new Date(article.published_at).toLocaleDateString()}
                           </div>
