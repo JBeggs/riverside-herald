@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useToast } from '@/contexts/ToastContext'
 import { newsApi } from '@/lib/api'
 import { Edit3, Save, X, Eye, Loader2 } from 'lucide-react'
 
@@ -46,6 +47,7 @@ interface ArticleEditorProps {
 
 export default function ArticleEditor({ article }: ArticleEditorProps) {
   const { user, profile } = useAuth()
+  const { showError } = useToast()
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
   
@@ -91,7 +93,7 @@ export default function ArticleEditor({ article }: ArticleEditorProps) {
       
     } catch (error: any) {
       console.error('Error saving article:', error)
-      alert(error.message || 'Error saving article. Please try again.')
+      showError(error.message || 'Error saving article. Please try again.')
     } finally {
       setIsSaving(false)
     }
@@ -119,7 +121,7 @@ export default function ArticleEditor({ article }: ArticleEditorProps) {
       
     } catch (error: any) {
       console.error('Error deleting article:', error)
-      alert(error.message || 'Error deleting article. Please try again.')
+      showError(error.message || 'Error deleting article. Please try again.')
     } finally {
       setIsDeleting(false)
       setShowDeleteConfirm(false)
@@ -132,13 +134,13 @@ export default function ArticleEditor({ article }: ArticleEditorProps) {
 
     // Check file type
     if (!file.type.startsWith('image/')) {
-      alert('Please select an image file')
+      showError('Please select an image file')
       return
     }
 
     // Check file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert('Please select an image smaller than 5MB')
+      showError('Please select an image smaller than 5MB')
       return
     }
 
@@ -159,7 +161,7 @@ export default function ArticleEditor({ article }: ArticleEditorProps) {
 
     } catch (error: any) {
       console.error('Error uploading image:', error)
-      alert(error.message || 'Error uploading image. Please try again.')
+      showError(error.message || 'Error uploading image. Please try again.')
     } finally {
       setIsUploading(false)
     }

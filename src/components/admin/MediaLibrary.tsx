@@ -10,6 +10,7 @@ const ImageIcon = ({ className }: { className?: string }) => (
 )
 import { newsApi } from '@/lib/api'
 import { useToast } from '@/contexts/ToastContext'
+import { useConfirm } from '@/contexts/ConfirmDialogContext'
 
 const Plus = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -45,6 +46,7 @@ function mapApiMediaToFile(media: any): MediaFile {
 
 export default function MediaLibrary({ profile }: MediaLibraryProps) {
   const { showError, showSuccess } = useToast()
+  const { confirm } = useConfirm()
   const [files, setFiles] = useState<MediaFile[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
@@ -123,9 +125,12 @@ export default function MediaLibrary({ profile }: MediaLibraryProps) {
   }
 
   const handleDelete = async (fileId: string) => {
-    if (!confirm('Are you sure you want to delete this file? It may be in use by articles or businesses.')) {
-      return
-    }
+    const ok = await confirm({
+      message: 'Are you sure you want to delete this file? It may be in use by articles or businesses.',
+      confirmLabel: 'Delete',
+      variant: 'danger'
+    })
+    if (!ok) return
 
     try {
       await newsApi.media.delete(fileId)

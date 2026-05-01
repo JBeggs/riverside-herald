@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useAuth } from '@/contexts/AuthContext'
+import { useToast } from '@/contexts/ToastContext'
 import { newsApi } from '@/lib/api'
 import EnhancedArticleEditor from '@/components/articles/EnhancedArticleEditor'
 import { X } from 'lucide-react'
@@ -16,6 +17,7 @@ interface ArticleEditorModalProps {
 
 export default function ArticleEditorModal({ isOpen, onClose, onSave, articleId }: ArticleEditorModalProps) {
   const { profile } = useAuth()
+  const { showError } = useToast()
   const [articleData, setArticleData] = useState<any>(null)
   const [loading, setLoading] = useState(false)
 
@@ -128,7 +130,7 @@ export default function ArticleEditorModal({ isOpen, onClose, onSave, articleId 
       setArticleData(null)
       setLoading(false)
       // Show error message to user
-      alert(`Failed to load article: ${error?.message || 'Unknown error'}`)
+      showError(`Failed to load article: ${error?.message || 'Unknown error'}`)
     } finally {
       setLoading(false)
     }

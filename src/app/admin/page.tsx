@@ -38,14 +38,14 @@ export default async function AdminPage() {
       redirect('/login')
     }
 
-    // Check if user has admin/editor/business_owner role
-    if (!['admin', 'editor', 'business_owner'].includes(profile.role)) {
+    // Check if user has admin/editor role (business_owner has no global admin controls)
+    if (!['admin', 'editor'].includes(profile.role)) {
       redirect('/dashboard')
     }
 
     // Get system stats for admin panel
     let systemStats: { totalArticles: number; totalUsers: number; totalBusinesses: number } | null = null
-    if (['admin', 'editor', 'business_owner'].includes(profile.role)) {
+    if (['admin', 'editor'].includes(profile.role)) {
       try {
         const stats = await serverNewsApi.stats.dashboard() as Record<string, unknown>
         systemStats = {

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Profile } from '@/lib/types'
 import { newsApi } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
+import { useToast } from '@/contexts/ToastContext'
 
 // User type from API
 interface User {
@@ -49,6 +50,7 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
     social_links: profile.social_links || {}
   })
   const { refreshProfile } = useAuth()
+  const { showError } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Update form data when profile prop changes (e.g. after refreshProfile)
@@ -84,7 +86,7 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
       setIsEditing(false)
     } catch (error: any) {
       console.error('Error updating profile:', error)
-      alert(error.message || 'Failed to update profile. Please try again.')
+      showError(error.message || 'Failed to update profile. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -110,14 +112,14 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
     // Validate file type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']
     if (!allowedTypes.includes(file.type)) {
-      alert('Please upload a JPG, PNG, or GIF image.')
+      showError('Please upload a JPG, PNG, or GIF image.')
       return
     }
 
     // Validate file size (5MB max)
     const maxSize = 5 * 1024 * 1024 // 5MB in bytes
     if (file.size > maxSize) {
-      alert('Image size must be less than 5MB.')
+      showError('Image size must be less than 5MB.')
       return
     }
 
@@ -138,7 +140,7 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
 
     } catch (error: any) {
       console.error('Error uploading avatar:', error)
-      alert(error.message || 'Failed to upload image. Please try again.')
+      showError(error.message || 'Failed to upload image. Please try again.')
     } finally {
       setUploading(false)
     }

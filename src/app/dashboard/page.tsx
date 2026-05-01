@@ -53,13 +53,16 @@ export default async function DashboardPage() {
     let stats: any = null
     if (profile.role === 'admin' || profile.role === 'editor') {
       try {
-        stats = await serverNewsApi.stats.dashboard()
+        const raw: any = await serverNewsApi.stats.dashboard()
+        const s = raw || {}
+        stats = {
+          totalArticles: Number(s.total_articles ?? s.totalArticles ?? 0) || 0,
+          totalUsers: Number(s.total_users ?? s.totalUsers ?? 0) || 0,
+          totalBusinesses: Number(s.total_businesses ?? s.totalBusinesses ?? 0) || 0
+        }
       } catch (statsError: any) {
         console.error('Error fetching stats:', statsError)
-        // Stats require company ID - if missing, just continue without stats
-        if (statsError.code === 'HTTP_400' && statsError.message?.includes('Company')) {
-          console.warn('Company ID missing - stats unavailable')
-        }
+        stats = { totalArticles: 0, totalUsers: 0, totalBusinesses: 0 }
       }
     }
 

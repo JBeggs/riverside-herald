@@ -90,11 +90,6 @@ async function getHomepageData() {
     
     // Transform articles to match expected format
     const articles: Article[] = (articlesData?.results || articlesData || []).map((article: any) => {
-      // Debug: log article data
-      console.log('[DEBUG] Article:', article.id, article.title)
-      console.log('[DEBUG] featured_media:', article.featured_media)
-      console.log('[DEBUG] Full article object:', JSON.stringify(article, null, 2))
-      
       return {
         id: article.id,
         title: article.title,

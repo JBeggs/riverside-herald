@@ -27,7 +27,7 @@ export default async function AdminCategoriesPage() {
     redirect('/login')
   }
 
-  if (!['admin', 'editor', 'business_owner'].includes(profile.role)) {
+  if (!['admin', 'editor'].includes(profile.role)) {
     redirect('/dashboard')
   }
 

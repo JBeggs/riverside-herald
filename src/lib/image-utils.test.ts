@@ -3,6 +3,7 @@
  */
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
+  ARTICLE_IMAGE_PLACEHOLDER,
   getAbsoluteImageUrl,
   getArticleImageUrl,
   getBusinessImageUrl,
@@ -51,16 +52,16 @@ describe('image-utils', () => {
   });
 
   describe('getArticleImageUrl', () => {
-    it('returns empty string when article is undefined', () => {
-      expect(getArticleImageUrl(undefined)).toBe('');
+    it('returns placeholder when article is undefined', () => {
+      expect(getArticleImageUrl(undefined)).toBe(ARTICLE_IMAGE_PLACEHOLDER);
     });
 
-    it('returns empty string when featured_media is missing', () => {
-      expect(getArticleImageUrl({})).toBe('');
+    it('returns placeholder when featured_media is missing', () => {
+      expect(getArticleImageUrl({})).toBe(ARTICLE_IMAGE_PLACEHOLDER);
     });
 
-    it('returns empty string when file_url is missing', () => {
-      expect(getArticleImageUrl({ featured_media: {} })).toBe('');
+    it('returns placeholder when file_url is missing', () => {
+      expect(getArticleImageUrl({ featured_media: {} })).toBe(ARTICLE_IMAGE_PLACEHOLDER);
     });
 
     it('returns absolute URL when article has featured_media.file_url', () => {

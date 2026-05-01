@@ -2,6 +2,9 @@
  * Utility functions for handling image URLs
  */
 
+/** Public-site placeholder when an article has no featured image (River Lodge branding). */
+export const ARTICLE_IMAGE_PLACEHOLDER = '/image-placeholder.png'
+
 /**
  * Convert relative image URLs to absolute URLs pointing to the backend
  */
@@ -26,13 +29,29 @@ export function getAbsoluteImageUrl(url: string | undefined | null): string {
 }
 
 /**
- * Get image URL for an article's featured media
+ * Get image URL for an article card or hero (featured media, or site placeholder).
  */
 export function getArticleImageUrl(article?: { featured_media?: { file_url?: string | null } | null }): string {
   if (article?.featured_media?.file_url) {
     return getAbsoluteImageUrl(article.featured_media.file_url)
   }
-  return ''
+  return ARTICLE_IMAGE_PLACEHOLDER
+}
+
+/**
+ * Open Graph image URLs (absolute). Uses placeholder only when NEXT_PUBLIC_SITE_URL is set.
+ */
+export function getArticleOpenGraphImageUrls(
+  article?: { featured_media?: { file_url?: string | null } | null },
+): string[] {
+  if (article?.featured_media?.file_url) {
+    return [getAbsoluteImageUrl(article.featured_media.file_url)]
+  }
+  const site = (process.env.NEXT_PUBLIC_SITE_URL || '').replace(/\/$/, '')
+  if (site) {
+    return [`${site}${ARTICLE_IMAGE_PLACEHOLDER}`]
+  }
+  return []
 }
 
 /**

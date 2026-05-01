@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Profile } from '@/lib/types'
 import { newsApi } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
+import { useToast } from '@/contexts/ToastContext'
 import { 
   Bell, 
   Mail, 
@@ -78,6 +79,7 @@ export default function NotificationSettings({ profile }: NotificationSettingsPr
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
   const { refreshProfile } = useAuth()
+  const { showError } = useToast()
   
   // Initialize with default values or from profile preferences
   const [preferences, setPreferences] = useState<NotificationPreferences>({
@@ -119,7 +121,7 @@ export default function NotificationSettings({ profile }: NotificationSettingsPr
       setTimeout(() => setSaved(false), 3000)
     } catch (error: any) {
       console.error('Error updating notification preferences:', error)
-      alert(error.message || 'Failed to save preferences. Please try again.')
+      showError(error.message || 'Failed to save preferences. Please try again.')
     } finally {
       setLoading(false)
     }

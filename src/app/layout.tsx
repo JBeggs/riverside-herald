@@ -7,6 +7,7 @@ import '../styles/pages.css'
 import { serverNewsApi } from '@/lib/api-server'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ToastProvider } from '@/contexts/ToastContext'
+import { ConfirmDialogProvider } from '@/contexts/ConfirmDialogContext'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import AuthMessage from '@/components/auth/AuthMessage'
@@ -53,9 +54,17 @@ async function generateMetadata(): Promise<Metadata> {
       title: `${siteName} | ${tagline}`,
       description,
       icons: {
-        icon: '/favicon.png',
-        shortcut: '/favicon.png',
-        apple: '/favicon.png',
+        icon: [
+          { url: '/favicon.ico' },
+          { url: '/favicon-16.png', sizes: '16x16', type: 'image/png' },
+          { url: '/favicon-32.png', sizes: '32x32', type: 'image/png' },
+          { url: '/favicon-48.png', sizes: '48x48', type: 'image/png' },
+          { url: '/favicon-64.png', sizes: '64x64', type: 'image/png' },
+          { url: '/favicon-192.png', sizes: '192x192', type: 'image/png' },
+          { url: '/favicon.png', sizes: '512x512', type: 'image/png' },
+        ],
+        shortcut: '/favicon.ico',
+        apple: '/apple-touch-icon.png',
       },
       openGraph: {
         title: `${siteName} | ${tagline}`,
@@ -69,9 +78,17 @@ async function generateMetadata(): Promise<Metadata> {
       title: 'The Riverside Herald | Your Local News Source',
       description: 'Stay informed with local news and community updates',
       icons: {
-        icon: '/favicon.png',
-        shortcut: '/favicon.png',
-        apple: '/favicon.png',
+        icon: [
+          { url: '/favicon.ico' },
+          { url: '/favicon-16.png', sizes: '16x16', type: 'image/png' },
+          { url: '/favicon-32.png', sizes: '32x32', type: 'image/png' },
+          { url: '/favicon-48.png', sizes: '48x48', type: 'image/png' },
+          { url: '/favicon-64.png', sizes: '64x64', type: 'image/png' },
+          { url: '/favicon-192.png', sizes: '192x192', type: 'image/png' },
+          { url: '/favicon.png', sizes: '512x512', type: 'image/png' },
+        ],
+        shortcut: '/favicon.ico',
+        apple: '/apple-touch-icon.png',
       },
     }
   }
@@ -92,6 +109,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} antialiased bg-gray-50`}>
         <ToastProvider>
+          <ConfirmDialogProvider>
           <AuthProvider>
             <div className="min-h-screen flex flex-col">
               <Header />
@@ -104,6 +122,7 @@ export default function RootLayout({
               <AuthMessage />
             </Suspense>
           </AuthProvider>
+          </ConfirmDialogProvider>
         </ToastProvider>
         <SpeedInsights />
       </body>

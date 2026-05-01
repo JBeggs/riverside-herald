@@ -58,17 +58,18 @@ export default async function Profile() {
       // Get system stats for admins/editors (token is automatically read from cookies)
       try {
         const stats: any = await serverNewsApi.stats.dashboard()
-        
+        const s = stats || {}
         additionalData = { 
           ...additionalData, 
-          systemStats: stats || {
-            totalArticles: 0,
-            totalUsers: 0,
-            totalBusinesses: 0
+          systemStats: {
+            totalArticles: Number(s.total_articles ?? s.totalArticles ?? 0) || 0,
+            totalUsers: Number(s.total_users ?? s.totalUsers ?? 0) || 0,
+            totalBusinesses: Number(s.total_businesses ?? s.totalBusinesses ?? 0) || 0
           }
         }
       } catch (e) {
         console.error('Error fetching dashboard stats:', e)
+        additionalData = { ...additionalData, systemStats: { totalArticles: 0, totalUsers: 0, totalBusinesses: 0 } }
       }
     }
 

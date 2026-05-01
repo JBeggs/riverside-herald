@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Edit3, LogIn } from 'lucide-react'
 import { newsApi } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
+import { useToast } from '@/contexts/ToastContext'
 import { useRouter } from 'next/navigation'
 import { BusinessAuthModal } from './BusinessAuthModal'
 
@@ -14,6 +15,7 @@ interface BusinessEditButtonProps {
 
 export function BusinessEditButton({ businessId, ownerId }: BusinessEditButtonProps) {
   const { user } = useAuth()
+  const { showError } = useToast()
   const router = useRouter()
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [isBusinessOwner, setIsBusinessOwner] = useState(false)
@@ -50,7 +52,7 @@ export function BusinessEditButton({ businessId, ownerId }: BusinessEditButtonPr
       router.push(`/businesses/${businessId}/edit`)
     } else {
       // User is logged in but not the owner
-      alert('You can only edit your own business profile.')
+      showError('You can only edit your own business profile.')
     }
   }
 

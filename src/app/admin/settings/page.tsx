@@ -135,7 +135,33 @@ export default function AdminSettingsPage() {
     }
   }
 
-  if (authLoading || !profile) return null
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-gray-600">
+          <Loader2 className="w-8 h-8 animate-spin" />
+          <span>Loading...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user || !profile || profile.role !== 'admin') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <h1 className="text-xl font-bold text-gray-900 mb-2">Access Restricted</h1>
+          <p className="text-gray-600 mb-4">You need admin access to view this page.</p>
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Go to Dashboard
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <DashboardLayout profile={profile}>

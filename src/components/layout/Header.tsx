@@ -1,7 +1,7 @@
 import { serverNewsApi } from '@/lib/api-server'
 import Link from 'next/link'
-import Image from 'next/image'
 import { MobileNav } from './MobileNav'
+import { SiteLogo } from './SiteLogo'
 import ClientHeader from './ClientHeader'
 
 async function getHeaderData() {
@@ -49,7 +49,8 @@ async function getHeaderData() {
 }
 
 export async function Header() {
-  const { siteName, tagline, menuItems } = await getHeaderData()
+  const { siteName, tagline, menuItems, logo } = await getHeaderData()
+  const logoSrc = logo || '/logo.png'
 
   return (
     <header className="bg-white border-b border-neutral-200 sticky top-0 z-[100]">
@@ -83,14 +84,7 @@ export async function Header() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <Image
-                src="/logo.png"
-                alt={siteName}
-                width={200}
-                height={48}
-                className="h-12 w-auto object-contain"
-                priority
-              />
+              <SiteLogo src={logoSrc} alt={siteName} />
             </Link>
           </div>
 

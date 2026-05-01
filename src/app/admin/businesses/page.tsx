@@ -3,16 +3,18 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
+import { useConfirm } from '@/contexts/ConfirmDialogContext'
+import { useToast } from '@/contexts/ToastContext'
 import { newsApi } from '@/lib/api'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
 import { 
   Building2, 
   Search, 
-  Filter, 
   Edit3, 
   Trash2, 
   CheckCircle,
-  XCircle
+  XCircle,
+  Loader2
 } from 'lucide-react'
 
 // Custom ExternalLink icon
@@ -32,6 +34,8 @@ const Plus = ({ className }: { className?: string }) => (
 
 export default function AdminBusinessesPage() {
   const { user, profile, loading: authLoading } = useAuth()
+  const { confirm } = useConfirm()
+  const { showError } = useToast()
   const router = useRouter()
   const [businesses, setBusinesses] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -67,16 +71,47 @@ export default function AdminBusinessesPage() {
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this business?')) return
+    const ok = await confirm({
+      message: 'Are you sure you want to delete this business?',
+      confirmLabel: 'Delete',
+      variant: 'danger'
+    })
+    if (!ok) return
     try {
       await newsApi.businesses.delete(id)
       loadBusinesses()
     } catch (error: any) {
-      alert('Failed to delete business')
+      showError('Failed to delete business')
     }
   }
 
-  if (authLoading || !profile) return null
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-gray-600">
+          <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+          <span>Loading...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user || !profile || !['admin', 'editor'].includes(profile.role)) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <h1 className="text-xl font-bold text-gray-900 mb-2">Access Restricted</h1>
+          <p className="text-gray-600 mb-4">You need admin or editor access to view this page.</p>
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Go to Dashboard
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <DashboardLayout profile={profile}>

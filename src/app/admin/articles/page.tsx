@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
+import { useConfirm } from '@/contexts/ConfirmDialogContext'
 import { newsApi } from '@/lib/api'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
 import ArticlesList from '@/components/dashboard/ArticlesList'
@@ -20,6 +21,7 @@ const Plus = ({ className }: { className?: string }) => (
 function ArticlesPageContent() {
   const { user, profile, loading: authLoading } = useAuth()
   const { showError } = useToast()
+  const { confirm } = useConfirm()
   const router = useRouter()
 
   const [articles, setArticles] = useState<any[]>([])
@@ -72,9 +74,12 @@ function ArticlesPageContent() {
   }
 
   const handleDelete = async (articleId: string) => {
-    if (!confirm('Are you sure you want to delete this article?')) {
-      return
-    }
+    const ok = await confirm({
+      message: 'Are you sure you want to delete this article?',
+      confirmLabel: 'Delete',
+      variant: 'danger'
+    })
+    if (!ok) return
 
     try {
       await newsApi.articles.delete(articleId)

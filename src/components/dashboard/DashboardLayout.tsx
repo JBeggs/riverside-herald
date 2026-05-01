@@ -93,7 +93,7 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
           { name: 'Media Library', href: '/admin/media', icon: Image },
           { name: 'Content Review', href: '/admin/review', icon: Shield }
         ]
-        
+
       case 'admin':
         return [
           { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },

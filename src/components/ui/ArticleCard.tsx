@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useConfirm } from '@/contexts/ConfirmDialogContext'
 import { 
   Edit3, 
   Trash2, 
@@ -58,6 +59,7 @@ export default function ArticleCard({
   compact = false,
   className = '' 
 }: ArticleCardProps) {
+  const { confirm } = useConfirm()
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [showFullActions, setShowFullActions] = useState(false)
 
@@ -104,10 +106,13 @@ export default function ArticleCard({
   }
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this article?')) {
-      return
-    }
-    
+    const ok = await confirm({
+      message: 'Are you sure you want to delete this article?',
+      confirmLabel: 'Delete',
+      variant: 'danger'
+    })
+    if (!ok) return
+
     setDeletingId(article.id)
     try {
       await onDelete?.(article.id)

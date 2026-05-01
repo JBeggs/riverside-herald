@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { newsApi } from '@/lib/api'
 import { useToast } from '@/contexts/ToastContext'
+import { useConfirm } from '@/contexts/ConfirmDialogContext'
 import { Profile } from '@/lib/types'
 
 // Custom SVG icons for missing lucide-react icons
@@ -57,6 +58,7 @@ interface CategoryManagerProps {
 
 export default function CategoryManager({ profile }: CategoryManagerProps) {
   const { showError, showSuccess } = useToast()
+  const { confirm } = useConfirm()
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [isEditing, setIsEditing] = useState<string | null>(null) // ID of category being edited
@@ -70,7 +72,7 @@ export default function CategoryManager({ profile }: CategoryManagerProps) {
     sort_order: 0
   })
 
-  const isAdmin = profile.role === 'admin' || profile.role === 'business_owner'
+  const isAdmin = profile.role === 'admin' || profile.role === 'editor'
 
   useEffect(() => {
     fetchCategories()
@@ -147,7 +149,12 @@ export default function CategoryManager({ profile }: CategoryManagerProps) {
 
   const handleDelete = async (id: string) => {
     if (!isAdmin) return
-    if (!confirm('Are you sure you want to delete this category? This will affect all articles using it.')) return
+    const ok = await confirm({
+      message: 'Are you sure you want to delete this category? This will affect all articles using it.',
+      confirmLabel: 'Delete',
+      variant: 'danger'
+    })
+    if (!ok) return
 
     try {
       await newsApi.categories.delete(id)

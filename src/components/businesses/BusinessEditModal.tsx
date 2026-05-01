@@ -34,6 +34,7 @@ interface BusinessData {
   cover_image: string | null  // UUID of Media object
   seo_title: string
   seo_description: string
+  seo_keywords: string
 }
 
 const daysOfWeek = [
@@ -92,7 +93,8 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
     logo: null,
     cover_image: null,
     seo_title: '',
-    seo_description: ''
+    seo_description: '',
+    seo_keywords: ''
   })
 
   const [newService, setNewService] = useState('')
@@ -238,7 +240,8 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
         logo: business.logo?.id || null,
         cover_image: business.cover_image?.id || null,
         seo_title: business.seo_title || '',
-        seo_description: business.seo_description || ''
+        seo_description: business.seo_description || '',
+        seo_keywords: business.seo_keywords || ''
       })
       
       // Store media objects for display
@@ -354,7 +357,8 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
         business_hours: parseHoursForSaving(businessData.business_hours),
         social_links: businessData.social_links || {},
         seo_title: businessData.seo_title || '',
-        seo_description: businessData.seo_description || ''
+        seo_description: businessData.seo_description || '',
+        seo_keywords: businessData.seo_keywords || ''
       }
 
       // Include logo/cover_image using logo_id and cover_image_id (can be null to clear them)
@@ -980,6 +984,49 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
                   }}
                   title={mediaPickerFor === 'logo' ? 'Choose logo image' : 'Choose cover image'}
                 />
+              </div>
+            )}
+
+            {/* SEO Tab */}
+            {activeTab === 'seo' && (
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    SEO Title
+                  </label>
+                  <input
+                    type="text"
+                    value={businessData.seo_title}
+                    onChange={(e) => handleInputChange('seo_title', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Page title for search engines"
+                    maxLength={200}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    SEO Description
+                  </label>
+                  <textarea
+                    value={businessData.seo_description}
+                    onChange={(e) => handleInputChange('seo_description', e.target.value)}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Meta description for search results"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    SEO Keywords
+                  </label>
+                  <input
+                    type="text"
+                    value={businessData.seo_keywords}
+                    onChange={(e) => handleInputChange('seo_keywords', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="keyword1, keyword2, keyword3"
+                  />
+                </div>
               </div>
             )}
 

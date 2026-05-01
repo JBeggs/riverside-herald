@@ -131,14 +131,14 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
     openGraph: {
       title: article.title,
       description: article.excerpt || '',
-      images: article.featured_media?.file_url ? [article.featured_media.file_url] : [],
+      images: getArticleOpenGraphImageUrls(article),
       publishedTime: article.published_at,
       authors: [article.author?.full_name || 'Staff Writer'],
     },
   }
 }
 
-import { getArticleImageUrl, getAbsoluteImageUrl } from '@/lib/image-utils'
+import { getArticleImageUrl, getArticleOpenGraphImageUrls, getAbsoluteImageUrl } from '@/lib/image-utils'
 
 function getImageUrl(article: { featured_media?: { file_url?: string }; id?: string }) {
   return getArticleImageUrl(article)
@@ -206,20 +206,19 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         </div>
       </div>
 
-      {/* Featured Image */}
-      {article.featured_media && (
-        <div className="container-wide py-4 md:py-8">
-          <div className="relative w-full h-64 sm:h-80 md:h-96 lg:h-[500px] rounded-xl md:rounded-2xl overflow-hidden">
-            <Image
-              src={getImageUrl(article)}
-              alt={article.featured_media.alt_text || article.title}
-              fill
-              className="object-cover"
-              priority
-            />
-          </div>
+      {/* Featured image or River Lodge placeholder */}
+      <div className="container-wide py-4 md:py-8">
+        <div className="relative w-full h-64 sm:h-80 md:h-96 lg:h-[500px] rounded-xl md:rounded-2xl overflow-hidden">
+          <Image
+            src={getImageUrl(article)}
+            alt={article.featured_media?.alt_text || article.title}
+            fill
+            className="object-cover"
+            priority
+            sizes="(max-width: 768px) 100vw, 896px"
+          />
         </div>
-      )}
+      </div>
 
       {/* Article Gallery */}
       {article.article_media && article.article_media.length > 0 && (

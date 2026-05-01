@@ -93,10 +93,20 @@ const Megaphone = ({ className }: { className?: string }) => (
 interface AdminSectionProps {
   profile: Profile
   systemStats?: {
-    totalArticles: number
-    totalUsers: number
-    totalBusinesses: number
+    totalArticles?: number
+    totalUsers?: number
+    totalBusinesses?: number
+    total_articles?: number
+    total_users?: number
+    total_businesses?: number
   }
+}
+
+function safeStat(stats: AdminSectionProps['systemStats'], key: 'totalArticles' | 'totalUsers' | 'totalBusinesses'): number {
+  if (!stats) return 0
+  const camel = stats[key]
+  const snake = stats[key === 'totalArticles' ? 'total_articles' : key === 'totalUsers' ? 'total_users' : 'total_businesses']
+  return Number(camel ?? snake ?? 0) || 0
 }
 
 export default function AdminSection({ profile, systemStats }: AdminSectionProps) {
@@ -187,7 +197,7 @@ export default function AdminSection({ profile, systemStats }: AdminSectionProps
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[10px] sm:text-sm font-medium text-gray-600">Users</p>
-                <p className="text-lg md:text-3xl font-bold text-blue-600">{systemStats.totalUsers.toLocaleString()}</p>
+                <p className="text-lg md:text-3xl font-bold text-blue-600">{safeStat(systemStats, 'totalUsers').toLocaleString()}</p>
               </div>
               <div className="p-2 md:p-3 bg-blue-100 rounded-full">
                 <User className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
@@ -199,7 +209,7 @@ export default function AdminSection({ profile, systemStats }: AdminSectionProps
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[10px] sm:text-sm font-medium text-gray-600">Articles</p>
-                <p className="text-lg md:text-3xl font-bold text-green-600">{systemStats.totalArticles.toLocaleString()}</p>
+                <p className="text-lg md:text-3xl font-bold text-green-600">{safeStat(systemStats, 'totalArticles').toLocaleString()}</p>
               </div>
               <div className="p-2 md:p-3 bg-green-100 rounded-full">
                 <FileText className="w-5 h-5 md:w-6 md:h-6 text-green-600" />
@@ -211,7 +221,7 @@ export default function AdminSection({ profile, systemStats }: AdminSectionProps
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[10px] sm:text-sm font-medium text-gray-600">Businesses</p>
-                <p className="text-lg md:text-3xl font-bold text-purple-600">{systemStats.totalBusinesses.toLocaleString()}</p>
+                <p className="text-lg md:text-3xl font-bold text-purple-600">{safeStat(systemStats, 'totalBusinesses').toLocaleString()}</p>
               </div>
               <div className="p-2 md:p-3 bg-purple-100 rounded-full">
                 <Building2 className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
