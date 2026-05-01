@@ -48,7 +48,7 @@ async function setupAvatarStorage() {
     if (avatarsBucket) {
       console.log('✅ Avatars bucket already exists')
     } else {
-      const { data: bucket, error: createError } = await supabase.storage.createBucket('avatars', {
+      const { error: createError } = await supabase.storage.createBucket('avatars', {
         public: true,
         allowedMimeTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'],
         fileSizeLimit: 5242880 // 5MB

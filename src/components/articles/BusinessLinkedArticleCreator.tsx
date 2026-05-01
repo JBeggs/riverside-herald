@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Building2, FileText, Star } from 'lucide-react'
+import { Building2 } from 'lucide-react'
 
 // Custom ArrowRight icon
 const ArrowRight = ({ className }: { className?: string }) => (

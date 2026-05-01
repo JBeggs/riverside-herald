@@ -6,11 +6,9 @@ import { Profile } from '@/lib/types'
 import { 
   FileText, 
   Eye, 
-  Share2, 
-  Calendar,
   TrendingUp,
   Edit3,
-  Clock
+  Calendar,
 } from 'lucide-react'
 
 // Custom SVG icons for missing lucide-react icons
@@ -40,7 +38,7 @@ interface AuthorDashboardProps {
   onNewArticle?: () => void
 }
 
-export default function AuthorDashboard({ articles, profile, onNewArticle }: AuthorDashboardProps) {
+export default function AuthorDashboard({ articles, profile: _profile, onNewArticle: _onNewArticle }: AuthorDashboardProps) {
   const [sortBy, setSortBy] = useState<'recent' | 'popular' | 'views'>('recent')
 
   const sortedArticles = [...articles].sort((a, b) => {

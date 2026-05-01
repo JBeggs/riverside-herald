@@ -8,27 +8,9 @@
 import dotenv from 'dotenv'
 import path from 'path'
 import fs from 'fs'
-import { createClient } from '@supabase/supabase-js'
 
-// Load environment variables
+// Load environment variables (optional; script only prints SQL paths)
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') })
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-
-if (!supabaseUrl || !supabaseServiceKey) {
-  console.error('❌ Missing required environment variables')
-  console.error('Need: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY')
-  process.exit(1)
-}
-
-// Create admin client with service role key
-const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-})
 
 async function fixSignupPolicies() {
   console.log('🔧 Fixing user signup policies...')

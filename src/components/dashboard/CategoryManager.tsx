@@ -31,12 +31,6 @@ const Save = ({ className }: { className?: string }) => (
   </svg>
 )
 
-const X = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-  </svg>
-)
-
 const Tag = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
@@ -83,7 +77,7 @@ export default function CategoryManager({ profile }: CategoryManagerProps) {
     try {
       const data: any = await newsApi.categories.list()
       setCategories(Array.isArray(data) ? data : (data?.results || []))
-    } catch (error: any) {
+    } catch {
       showError('Failed to load categories')
     } finally {
       setLoading(false)
@@ -160,7 +154,7 @@ export default function CategoryManager({ profile }: CategoryManagerProps) {
       await newsApi.categories.delete(id)
       showSuccess('Category deleted successfully')
       fetchCategories()
-    } catch (error: any) {
+    } catch {
       showError('Failed to delete category')
     }
   }

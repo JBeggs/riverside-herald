@@ -9,7 +9,7 @@ export default function NotFound() {
           <Building2 className="w-24 h-24 text-gray-300 mx-auto mb-6" />
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Business Not Found</h1>
           <p className="text-lg text-gray-600 mb-8">
-            The business you're looking for doesn't exist or may have been removed.
+            The business you&apos;re looking for doesn&apos;t exist or may have been removed.
           </p>
         </div>
         

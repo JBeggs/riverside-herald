@@ -159,7 +159,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error('Registration error - url:', error?.url)
         console.error('Registration error - details:', error?.details)
         console.error('Registration error - full error (stringified):', JSON.stringify(error, null, 2))
-      } catch (e) {
+      } catch {
         console.error('Registration error - could not serialize:', error)
       }
       

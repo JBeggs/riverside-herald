@@ -63,7 +63,7 @@ async function resetDatabaseToEmpty() {
         } else if (!error) {
           console.log(`   ✅ Cleared ${table}`)
         }
-      } catch (e) {
+      } catch {
         // Table doesn't exist, ignore
       }
     }
@@ -80,7 +80,7 @@ async function resetDatabaseToEmpty() {
         } else if (!error) {
           console.log(`   ✅ Cleared ${table}`)
         }
-      } catch (e) {
+      } catch {
         // Table doesn't exist, ignore
       }
     }
@@ -95,7 +95,7 @@ async function resetDatabaseToEmpty() {
         } else if (!error) {
           console.log(`   ✅ Cleared ${table}`)
         }
-      } catch (e) {
+      } catch {
         // Table doesn't exist, ignore
       }
     }
@@ -110,7 +110,7 @@ async function resetDatabaseToEmpty() {
         } else if (!error) {
           console.log(`   ✅ Cleared ${table}`)
         }
-      } catch (e) {
+      } catch {
         // Table doesn't exist, ignore
       }
     }
@@ -131,7 +131,7 @@ async function resetDatabaseToEmpty() {
         } else if (!error) {
           console.log(`   ✅ Cleared ${table}`)
         }
-      } catch (e) {
+      } catch {
         // Table doesn't exist, ignore
       }
     }
@@ -161,7 +161,7 @@ async function resetDatabaseToEmpty() {
         } else if (!error) {
           console.log(`   ✅ Cleared ${table}`)
         }
-      } catch (e) {
+      } catch {
         // Table doesn't exist, ignore
       }
     }
@@ -176,7 +176,7 @@ async function resetDatabaseToEmpty() {
         } else if (!error) {
           console.log(`   ✅ Cleared ${table}`)
         }
-      } catch (e) {
+      } catch {
         // Table doesn't exist, ignore
       }
     }
@@ -197,7 +197,7 @@ async function resetDatabaseToEmpty() {
         } else if (!error) {
           console.log(`   ✅ Cleared ${table}`)
         }
-      } catch (e) {
+      } catch {
         // Table doesn't exist, ignore
       }
     }

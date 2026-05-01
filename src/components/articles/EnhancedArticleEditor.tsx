@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
-import { 
-  Edit3, Save, X, Eye, Loader2, Calendar, Search
+import {
+  Edit3, Save, X, Loader2, Calendar, Search
 } from 'lucide-react'
 
 // Custom icons not available in lucide-react
@@ -51,19 +51,6 @@ const Hash = ({ className }: { className: string }) => (
   </svg>
 )
 
-const MapPin = ({ className }: { className: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-  </svg>
-)
-
-const Users = ({ className }: { className: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m3 5.197v1a6 6 0 01-6-6V9a6 6 0 1112 0v6a6 6 0 01-6 6v-1z" />
-  </svg>
-)
-
 const Plus = ({ className }: { className: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -82,7 +69,6 @@ const ChevronRight = ({ className }: { className: string }) => (
   </svg>
 )
 import { newsApi, apiClient } from '@/lib/api'
-import { useRouter } from 'next/navigation'
 
 interface Category {
   id: string
@@ -141,7 +127,6 @@ type EditorStep = 'basic' | 'content' | 'media' | 'settings' | 'seo' | 'research
 export default function EnhancedArticleEditor({ article, onSave, onCancel, inModal = false }: ArticleEditorProps) {
   const { user, profile, isCompanyOwner } = useAuth()
   const { showError, showSuccess } = useToast()
-  const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const galleryFileInputRef = useRef<HTMLInputElement>(null)
   
@@ -167,7 +152,7 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
   const [selectedTags, setSelectedTags] = useState<Tag[]>([])
   const [newTagName, setNewTagName] = useState('')
   const [galleryImages, setGalleryImages] = useState<any[]>([])
-  const [isLoadingGallery, setIsLoadingGallery] = useState(false)
+  const [isLoadingGallery] = useState(false)
   
   const [editData, setEditData] = useState({
     title: article.title,

@@ -199,7 +199,7 @@ async function main() {
   console.log('================================================')
   
   let successCount = 0
-  let totalCount = testUsers.length
+  const totalCount = testUsers.length
   
   // Create all users
   for (const user of testUsers) {

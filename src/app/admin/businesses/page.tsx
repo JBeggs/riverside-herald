@@ -7,11 +7,10 @@ import { useConfirm } from '@/contexts/ConfirmDialogContext'
 import { useToast } from '@/contexts/ToastContext'
 import { newsApi } from '@/lib/api'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
-import { 
-  Building2, 
-  Search, 
-  Edit3, 
-  Trash2, 
+import {
+  Search,
+  Edit3,
+  Trash2,
   CheckCircle,
   XCircle,
   Loader2
@@ -40,7 +39,7 @@ export default function AdminBusinessesPage() {
   const [businesses, setBusinesses] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [industryFilter, setStatusFilter] = useState('all')
+  const industryFilter = 'all'
 
   useEffect(() => {
     if (!authLoading && (!user || !profile || !['admin', 'editor'].includes(profile.role))) {
@@ -63,8 +62,8 @@ export default function AdminBusinessesPage() {
 
       const data: any = await newsApi.businesses.list(params)
       setBusinesses(Array.isArray(data) ? data : (data?.results || []))
-    } catch (error: any) {
-      console.error('Error loading businesses:', error)
+    } catch {
+      console.error('Error loading businesses')
     } finally {
       setLoading(false)
     }
@@ -80,7 +79,7 @@ export default function AdminBusinessesPage() {
     try {
       await newsApi.businesses.delete(id)
       loadBusinesses()
-    } catch (error: any) {
+    } catch {
       showError('Failed to delete business')
     }
   }

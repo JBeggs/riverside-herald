@@ -1,12 +1,10 @@
 import { serverNewsApi } from '@/lib/api-server'
-import Link from 'next/link'
 import Image from 'next/image'
 import type { Metadata } from 'next'
-import { MapPin, Phone, Mail, Globe, Star, Clock, Edit3, CheckCircle } from 'lucide-react'
+import { MapPin, Phone, Mail, Globe, Star, CheckCircle } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { BusinessEditButton } from '@/components/businesses/BusinessEditButton'
 import ProductGallery from '@/components/businesses/ProductGallery'
-import { BUSINESS_PRODUCTS } from '@/lib/business-products'
 
 function formatPhone(phone?: string): string {
   if (!phone) return ''

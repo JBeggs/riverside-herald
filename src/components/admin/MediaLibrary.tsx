@@ -44,7 +44,7 @@ function mapApiMediaToFile(media: any): MediaFile {
   }
 }
 
-export default function MediaLibrary({ profile }: MediaLibraryProps) {
+export default function MediaLibrary({ profile: _profile }: MediaLibraryProps) {
   const { showError, showSuccess } = useToast()
   const { confirm } = useConfirm()
   const [files, setFiles] = useState<MediaFile[]>([])

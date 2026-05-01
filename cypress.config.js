@@ -3,7 +3,7 @@ import { defineConfig } from 'cypress';
 export default defineConfig({
   e2e: {
     baseUrl: 'http://localhost:3000',
-    setupNodeEvents(on, config) {},
+    setupNodeEvents(_on, _config) {},
     env: {
       apiUrl: 'http://localhost:8000/api',
       testUser: process.env.CYPRESS_TEST_USER || 'testuser',

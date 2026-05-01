@@ -235,7 +235,7 @@ async function addNews24Article(articleUrl: string) {
       updated_at: new Date().toISOString()
     }
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('articles')
       .insert(article)
       .select()

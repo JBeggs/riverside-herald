@@ -63,8 +63,8 @@ async function resetLiveDatabase() {
         } else if (!error) {
           console.log(`   ✅ Cleared ${table}`)
         }
-      } catch (e) {
-        console.log(`   ⚠️  Error with ${table}:`, e)
+      } catch (err) {
+        console.log(`   ⚠️  Error with ${table}:`, err)
       }
     }
     
@@ -86,8 +86,8 @@ async function resetLiveDatabase() {
         } else if (!error) {
           console.log(`   ✅ Cleared ${table}`)
         }
-      } catch (e) {
-        console.log(`   ⚠️  Error with ${table}:`, e)
+      } catch (err) {
+        console.log(`   ⚠️  Error with ${table}:`, err)
       }
     }
     
@@ -107,8 +107,8 @@ async function resetLiveDatabase() {
         } else if (!error) {
           console.log(`   ✅ Cleared ${table}`)
         }
-      } catch (e) {
-        console.log(`   ⚠️  Error with ${table}:`, e)
+      } catch (err) {
+        console.log(`   ⚠️  Error with ${table}:`, err)
       }
     }
     
@@ -132,7 +132,7 @@ async function resetLiveDatabase() {
       for (const userId of userIds) {
         try {
           await supabase.auth.admin.deleteUser(userId)
-        } catch (authError) {
+        } catch {
           console.log(`   ⚠️  Could not delete auth user ${userId}`)
         }
       }
@@ -156,8 +156,8 @@ async function resetLiveDatabase() {
         } else if (!error) {
           console.log(`   ✅ Cleared ${table}`)
         }
-      } catch (e) {
-        console.log(`   ⚠️  Error with ${table}:`, e)
+      } catch (err) {
+        console.log(`   ⚠️  Error with ${table}:`, err)
       }
     }
     

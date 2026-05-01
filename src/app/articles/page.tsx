@@ -89,7 +89,7 @@ async function getProfile(): Promise<any> {
     if (!authToken) return null
     
     return await serverNewsApi.profile.get()
-  } catch (error) {
+  } catch {
     return null
   }
 }

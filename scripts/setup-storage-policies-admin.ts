@@ -46,7 +46,7 @@ async function setupStoragePolicies() {
     
     // Update bucket to be public with proper settings
     console.log('2️⃣ Configuring bucket settings...')
-    const { data: updateBucket, error: updateError } = await supabase.storage.updateBucket('avatars', {
+    const { error: updateError } = await supabase.storage.updateBucket('avatars', {
       public: true,
       allowedMimeTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'],
       fileSizeLimit: 5242880 // 5MB
@@ -61,7 +61,7 @@ async function setupStoragePolicies() {
     // Try to set up RLS policies using the service role
     console.log('3️⃣ Setting up RLS policies...')
     
-    const policies = [
+    const _policies = [
       {
         name: 'Users can upload own avatar',
         definition: `bucket_id = 'avatars' AND auth.uid()::text = (storage.foldername(name))[1]`,

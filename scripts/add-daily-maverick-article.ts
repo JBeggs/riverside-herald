@@ -123,7 +123,7 @@ async function scrapeDailyMaverickArticle(url: string): Promise<DailyMaverickArt
           publishedDate = parsed.toISOString()
           break
         }
-      } catch (e) {
+      } catch {
         // Continue to next pattern if parsing fails
       }
     }
@@ -268,7 +268,7 @@ async function scrapeDailyMaverickArticle(url: string): Promise<DailyMaverickArt
   console.log(`   📄 Total lines to filter: ${lines.length}`)
   
   const cleanedContent = lines
-    .filter((line, index) => {
+    .filter((line) => {
       const trimmed = line.trim()
       
       // Skip empty or very short lines
@@ -357,7 +357,7 @@ async function scrapeDailyMaverickArticle(url: string): Promise<DailyMaverickArt
   }
 }
 
-async function addDailyMaverickArticle(articleData: DailyMaverickArticle, sourceUrl: string) {
+async function addDailyMaverickArticle(articleData: DailyMaverickArticle, _sourceUrl: string) {
   console.log(`Adding article: ${articleData.title}`)
   
   // Get Mark Gray as the article author (admin who can author articles)

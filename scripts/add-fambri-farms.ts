@@ -63,7 +63,7 @@ async function extractBusinessImages(url: string) {
       /<img[^>]*src=["']([^"']+)["'][^>]*(?:width=["'][0-9]{3,}["']|height=["'][0-9]{3,}["'])/gi,
     ]
     
-    let foundImages = []
+    const foundImages = []
     
     for (const pattern of heroPatterns) {
       let match

@@ -35,7 +35,7 @@ export default function ArticleEditPage() {
         const articles = Array.isArray(results) ? results : (results?.results || [])
         data = articles?.[0] || null
         if (data) console.log('[DEBUG] Found article by slug:', data.title)
-      } catch (e) {
+      } catch {
         console.log('[DEBUG] Slug lookup failed, trying ID lookup')
         data = await newsApi.articles.get(slug)
       }

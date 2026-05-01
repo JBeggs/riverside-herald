@@ -7,7 +7,6 @@
 
 import dotenv from 'dotenv'
 import path from 'path'
-import { createClient } from '@supabase/supabase-js'
 
 // Load environment variables
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') })

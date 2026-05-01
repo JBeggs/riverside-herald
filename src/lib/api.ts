@@ -230,7 +230,7 @@ export class ApiClient {
         if (hasJsonContent && text.trim()) {
           try {
             data = JSON.parse(text)
-          } catch (parseError) {
+          } catch {
             // If JSON parsing fails, use text as message
             data = { message: text || `HTTP ${response.status}: ${response.statusText}` }
           }
@@ -297,7 +297,7 @@ export class ApiClient {
           url: response.url,
           status: response.status,
         }
-      } catch (e) {
+      } catch {
         // Fallback error creation
         error = {
           message: `HTTP ${response.status}: ${response.statusText}`,

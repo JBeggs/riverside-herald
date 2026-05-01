@@ -2,21 +2,12 @@ import { serverNewsApi } from '@/lib/api-server'
 import Link from 'next/link'
 import Image from 'next/image'
 import type { Metadata } from 'next'
-import { Search, MapPin, Phone, Mail, Globe, Star, Clock, Building2, Filter } from 'lucide-react'
+import { MapPin, Phone, Globe, Star, Building2 } from 'lucide-react'
 import { BusinessSearchAndFilter } from '@/components/businesses/BusinessSearchAndFilter'
 
 export const metadata: Metadata = {
   title: 'Local Businesses | The Riverside Herald',
   description: 'Discover and connect with local businesses in your community. Find services, read reviews, and support local entrepreneurs.',
-}
-
-function formatPhone(phone?: string): string {
-  if (!phone) return ''
-  const cleaned = phone.replace(/\D/g, '')
-  if (cleaned.length === 10) {
-    return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`
-  }
-  return phone
 }
 
 function renderStars(rating: number, size: 'sm' | 'md' = 'sm') {

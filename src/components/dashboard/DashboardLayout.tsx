@@ -62,10 +62,10 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
   const pathname = usePathname()
   const { signOut } = useAuth()
 
-  const isAdmin = profile?.role === 'admin'
-  const isEditor = profile?.role === 'editor'
-  const isAuthor = profile?.role === 'author'
-  const isBusinessOwner = profile?.role === 'business_owner'
+  const _isAdmin = profile?.role === 'admin'
+  const _isEditor = profile?.role === 'editor'
+  const _isAuthor = profile?.role === 'author'
+  const _isBusinessOwner = profile?.role === 'business_owner'
 
   // Role-based navigation with different menus for different user types
   const getNavigationForRole = (role: string) => {
