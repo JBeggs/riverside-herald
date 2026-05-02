@@ -1,6 +1,7 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter, Playfair_Display } from 'next/font/google'
 import { Suspense } from 'react'
+import { cookies } from 'next/headers'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import './globals.css'
 import '../styles/pages.css'
@@ -8,48 +9,69 @@ import { serverNewsApi } from '@/lib/api-server'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ToastProvider } from '@/contexts/ToastContext'
 import { ConfirmDialogProvider } from '@/contexts/ConfirmDialogContext'
+import { ThemeProvider } from '@/contexts/ThemeContext'
+import {
+  THEME_BOOTSTRAP_SCRIPT,
+  THEME_COOKIE_KEY,
+  DEFAULT_THEME,
+  isTheme,
+  type Theme,
+} from '@/contexts/theme-config'
+import { parseSiteSettingsRows, defaultThemeFromMap, type SiteSettingsMap } from '@/lib/site-settings'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import AuthMessage from '@/components/auth/AuthMessage'
 
-// Force dynamic rendering since we use cookies in Header/Footer
 export const dynamic = 'force-dynamic'
 
-const inter = Inter({ 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#FAF8F4' },
+    { media: '(prefers-color-scheme: dark)', color: '#09090B' },
+  ],
+}
+
+const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
-  display: 'swap'
+  display: 'swap',
 })
 
-const playfair = Playfair_Display({ 
+const playfair = Playfair_Display({
   subsets: ['latin'],
   variable: '--font-playfair',
-  display: 'swap'
+  display: 'swap',
 })
 
-// Get dynamic metadata from database
+function tryParseJSON(value: string) {
+  try {
+    return JSON.parse(value)
+  } catch {
+    return value
+  }
+}
+
 async function generateMetadata(): Promise<Metadata> {
   try {
-    const settings = await serverNewsApi.siteSettings.list() as any
-    const settingsArray = Array.isArray(settings) ? settings : (settings?.results || [])
-    
-    function tryParseJSON(value: string) {
-      try {
-        return JSON.parse(value)
-      } catch {
-        return value // Return as-is if not valid JSON
-      }
-    }
+    const settings = (await serverNewsApi.siteSettings.list()) as any
+    const settingsArray = Array.isArray(settings) ? settings : settings?.results || []
 
-    const settingsMap = settingsArray.reduce((acc: Record<string, any>, setting: any) => ({
-      ...acc,
-      [setting.key]: tryParseJSON(setting.value)
-    }), {})
-    
-    const siteName = settingsMap.site_name || 'The Riverside Herald'
-    const tagline = settingsMap.site_tagline || 'Your Local News Source'
-    const description = settingsMap.site_description || 'Stay informed with local news and community updates'
-    
+    const settingsMap = settingsArray.reduce((acc: Record<string, any>, setting: any) => {
+      const v =
+        setting.type === 'json' && typeof setting.value === 'string'
+          ? tryParseJSON(setting.value)
+          : setting.value
+      return { ...acc, [setting.key]: v }
+    }, {})
+
+    const siteName = settingsMap.site_name || 'News'
+    const tagline = settingsMap.site_tagline || 'Local news'
+    const description =
+      settingsMap.site_description || 'Stay informed with local news and community updates'
+
     return {
       title: `${siteName} | ${tagline}`,
       description,
@@ -72,10 +94,9 @@ async function generateMetadata(): Promise<Metadata> {
         type: 'website',
       },
     }
-  } catch (error) {
-    // Fallback metadata if database is unavailable
+  } catch {
     return {
-      title: 'The Riverside Herald | Your Local News Source',
+      title: 'News | Local',
       description: 'Stay informed with local news and community updates',
       icons: {
         icon: [
@@ -96,34 +117,62 @@ async function generateMetadata(): Promise<Metadata> {
 
 export const metadata = await generateMetadata()
 
-export default function RootLayout({
+function readInitialTheme(cookieVal: string | undefined, map: SiteSettingsMap): Theme {
+  if (isTheme(cookieVal)) return cookieVal
+  const fromSettings = defaultThemeFromMap(map)
+  if (fromSettings) return fromSettings
+  return DEFAULT_THEME
+}
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const cookieStore = await cookies()
+  const themeCookie = cookieStore.get(THEME_COOKIE_KEY)?.value
+
+  let settingsMap: SiteSettingsMap = {}
+  try {
+    const raw = await serverNewsApi.siteSettings.list()
+    settingsMap = parseSiteSettingsRows(raw)
+  } catch {
+    /* ignore */
+  }
+
+  const initialTheme = readInitialTheme(themeCookie, settingsMap)
+  const fontClassNames = `${inter.variable} ${playfair.variable}`
+
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable}`} data-scroll-behavior="smooth">
+    <html
+      lang="en"
+      data-theme={initialTheme}
+      className={`${fontClassNames} scroll-smooth`}
+      suppressHydrationWarning
+    >
       <head>
+        <meta name="format-detection" content="telephone=no" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP_SCRIPT }} />
       </head>
-      <body className={`${inter.className} antialiased bg-gray-50`}>
-        <ToastProvider>
-          <ConfirmDialogProvider>
-          <AuthProvider>
-            <div className="min-h-screen flex flex-col">
-              <Header />
-              <main className="flex-1">
-                {children}
-              </main>
-              <Footer />
-            </div>
-            <Suspense fallback={null}>
-              <AuthMessage />
-            </Suspense>
-          </AuthProvider>
-          </ConfirmDialogProvider>
-        </ToastProvider>
+      <body className={`${inter.className} antialiased bg-bg text-text`}>
+        <ThemeProvider initialTheme={initialTheme}>
+          <ToastProvider>
+            <ConfirmDialogProvider>
+              <AuthProvider>
+                <div className="min-h-screen flex flex-col">
+                  <Header />
+                  <main className="flex-1">{children}</main>
+                  <Footer />
+                </div>
+                <Suspense fallback={null}>
+                  <AuthMessage />
+                </Suspense>
+              </AuthProvider>
+            </ConfirmDialogProvider>
+          </ToastProvider>
+        </ThemeProvider>
         <SpeedInsights />
       </body>
     </html>

@@ -3,76 +3,76 @@ import Link from 'next/link'
 import { MobileNav } from './MobileNav'
 import { SiteLogo } from './SiteLogo'
 import ClientHeader from './ClientHeader'
+import ThemeSwitcher from '@/components/theme/ThemeSwitcher'
+import { parseSiteSettingsRows, stringFromMap } from '@/lib/site-settings'
 
 async function getHeaderData() {
   try {
-    // Get site settings
-    const settingsData: any = await serverNewsApi.siteSettings.list()
-    const settingsArray = Array.isArray(settingsData) ? settingsData : (settingsData?.results || [])
-    const settingsMap: Record<string, any> = {}
-    
-    settingsArray.forEach((setting: any) => {
-      try {
-        settingsMap[setting.key] = setting.type === 'json' 
-          ? JSON.parse(setting.value) 
-          : setting.value
-      } catch {
-        settingsMap[setting.key] = setting.value
-      }
-    })
+    const settingsData: unknown = await serverNewsApi.siteSettings.list()
+    const settingsMap = parseSiteSettingsRows(settingsData)
 
-    // For now, use hardcoded menu items (menus table not in news app yet)
-    // TODO: Add menus endpoint if needed
+    const siteName = stringFromMap(settingsMap, 'site_name') || 'News'
+    const tagline = stringFromMap(settingsMap, 'site_tagline') || ''
+
     const menuItems = [
       { title: 'Articles', href: '/articles' },
       { title: 'Businesses', href: '/businesses' },
     ]
 
     return {
-      siteName: settingsMap.site_name || 'The Riverside Herald',
-      tagline: settingsMap.site_tagline || 'Your Local News Source',
+      siteName,
+      tagline,
       logo: settingsMap.site_logo,
-      menuItems
+      menuItems,
+      defaultLocale: stringFromMap(settingsMap, 'default_locale') || 'en-ZA',
     }
   } catch (error) {
     console.error('Error fetching header data:', error)
     return {
-      siteName: 'The Riverside Herald',
-      tagline: 'Your Local News Source',
+      siteName: 'News',
+      tagline: '',
       logo: null,
       menuItems: [
         { title: 'Articles', href: '/articles' },
         { title: 'Businesses', href: '/businesses' },
-      ]
+      ],
+      defaultLocale: 'en-ZA',
     }
   }
 }
 
 export async function Header() {
-  const { siteName, tagline, menuItems, logo } = await getHeaderData()
-  const logoSrc = logo || '/logo.png'
+  const { siteName, tagline, menuItems, logo, defaultLocale } = await getHeaderData()
+  const logoSrc = (logo as string) || '/logo.png'
+
+  const longDate = new Date().toLocaleDateString(defaultLocale, {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+  const shortDate = new Date().toLocaleDateString(defaultLocale, {
+    month: 'short',
+    day: 'numeric',
+  })
 
   return (
-    <header className="bg-white border-b border-neutral-200 sticky top-0 z-[100]">
+    <header className="site-header bg-surface border-b border-border-default sticky top-0 z-[100] [--site-header-height:104px] sm:[--site-header-height:112px]">
       {/* Top Bar */}
-      <div className="bg-neutral-900 text-white">
+      <div className="bg-neutral-900 text-neutral-50">
         <div className="container-wide">
-          <div className="flex items-center justify-between py-2 text-xs sm:text-sm">
+          <div className="flex items-center justify-between py-2 text-xs sm:text-sm safe-pt">
             <div className="flex items-center space-x-4">
-              <span className="hidden xs:inline">{new Date().toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}</span>
-              <span className="xs:hidden">{new Date().toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric' 
-              })}</span>
+              <span className="hidden xs:inline">{longDate}</span>
+              <span className="xs:hidden">{shortDate}</span>
             </div>
             <div className="flex items-center space-x-4">
-              <Link href="/newsletter" className="hover:text-blue-400">Newsletter</Link>
-              <Link href="/contact" className="hover:text-blue-400">Contact</Link>
+              <Link href="/newsletter" className="hover:text-primary">
+                Newsletter
+              </Link>
+              <Link href="/contact" className="hover:text-primary">
+                Contact
+              </Link>
             </div>
           </div>
         </div>
@@ -80,34 +80,41 @@ export async function Header() {
 
       {/* Main Header */}
       <div className="container-wide">
-        <div className="flex items-center justify-between py-4">
-          {/* Logo */}
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center">
+        <div className="flex items-center justify-between py-4 gap-2 w-full">
+          <div className="flex items-center min-w-0 flex-1">
+            <Link href="/" className="flex items-center gap-2 min-w-0">
               <SiteLogo src={logoSrc} alt={siteName} />
+              {tagline ? (
+                <span className="hidden lg:inline ml-3 text-sm text-text-muted truncate max-w-[12rem]">
+                  {tagline}
+                </span>
+              ) : null}
             </Link>
           </div>
 
-          {/* Desktop Navigation & Auth */}
-          <div className="flex items-center space-x-8">
+          <div className="flex items-center space-x-2 sm:space-x-4 shrink-0">
             <nav className="hidden md:flex items-center space-x-8">
-              <Link href="/" className="nav-link">Home</Link>
+              <Link href="/" className="nav-link">
+                Home
+              </Link>
               {menuItems.map((item) => (
                 <Link key={item.href} href={item.href} className="nav-link">
                   {item.title}
                 </Link>
               ))}
-              <Link href="/features" className="nav-link">Features</Link>
+              <Link href="/features" className="nav-link">
+                Features
+              </Link>
             </nav>
-            
-            {/* Auth Button */}
+
+            <ThemeSwitcher />
+
             <div className="hidden md:block">
               <ClientHeader />
             </div>
-          </div>
 
-          {/* Mobile Navigation */}
-          <MobileNav menuItems={menuItems} />
+            <MobileNav menuItems={menuItems} />
+          </div>
         </div>
       </div>
     </header>

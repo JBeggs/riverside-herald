@@ -5,13 +5,6 @@ import { Profile } from '@/lib/types'
 import { newsApi } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
-
-// User type from API
-interface User {
-  id: string
-  email?: string
-  username?: string
-}
 import { 
   Edit3, 
   Save, 
@@ -19,9 +12,15 @@ import {
   Mail, 
   User as UserIcon, 
   Globe, 
-  MapPin,
   Calendar
 } from 'lucide-react'
+
+// User type from API
+interface User {
+  id: string
+  email?: string
+  username?: string
+}
 
 // Custom SVG icons for missing lucide-react icons
 const Camera = ({ className }: { className?: string }) => (

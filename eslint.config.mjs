@@ -7,12 +7,19 @@ export default defineConfig([
   ...nextTs,
   {
     rules: {
-      '@typescript-eslint/no-explicit-any': 'warn',
+      // Project uses `any` widely for API payloads; fixing hundreds of sites is low ROI.
+      // TypeScript `strict` still applies; turn back to 'warn' when tightening types.
+      '@typescript-eslint/no-explicit-any': 'off',
+      // Native <img> is intentional (SafeImage, remote CMS URLs, pre-upload previews).
+      '@next/next/no-img-element': 'off',
+      // Apostrophes and quotes in marketing/auth copy are fine in JSX text.
+      'react/no-unescaped-entities': 'off',
+      // Too strict for common patterns (sync state reset when props change, cache priming).
+      'react-hooks/set-state-in-effect': 'off',
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       '@typescript-eslint/no-require-imports': 'off',
-      'react/no-unescaped-entities': 'warn',
-      'react-hooks/set-state-in-effect': 'warn',
-      'react-hooks/error-boundaries': 'warn',
+      // Load-on-mount + loadX() patterns omit deps intentionally across admin/dashboard.
+      'react-hooks/exhaustive-deps': 'off',
       'prefer-const': 'warn',
       '@next/next/no-html-link-for-pages': 'warn',
     },

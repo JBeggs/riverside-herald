@@ -1,12 +1,22 @@
 import { serverNewsApi } from '@/lib/api-server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
 import type { Metadata } from 'next'
 import { Calendar, Clock, User, Tag } from 'lucide-react'
 import EnhancedArticleEditor from '@/components/articles/EnhancedArticleEditor'
 import ShareButtons from '@/components/articles/ShareButtons'
 import RelatedArticles from '@/components/articles/RelatedArticles'
+import { ArticleHero } from '@/components/articles/ArticleHero'
+import { ArticleGallery } from '@/components/articles/ArticleGallery'
+import { formatArticleDate } from '@/lib/date-utils'
+import {
+  getArticleImageUrl,
+  getArticleOpenGraphImageUrls,
+} from '@/lib/image-utils'
+import {
+  parseSiteSettingsRows,
+  stringFromMap,
+} from '@/lib/site-settings'
 
 interface ArticlePageProps {
   params: Promise<{
@@ -14,12 +24,17 @@ interface ArticlePageProps {
   }>
 }
 
-function formatDate(dateString: string) {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
+async function getArticlePageSettings() {
+  try {
+    const raw = await serverNewsApi.siteSettings.list({ skipTenant: true } as Record<string, unknown>)
+    const map = parseSiteSettingsRows(raw)
+    return {
+      siteOrigin: stringFromMap(map, 'site_canonical_url'),
+      defaultLocale: stringFromMap(map, 'default_locale') || 'en-ZA',
+    }
+  } catch {
+    return { siteOrigin: '', defaultLocale: 'en-ZA' }
+  }
 }
 
 function calculateReadingTime(content: string | undefined | null): number {
@@ -118,7 +133,7 @@ async function getArticleDataBuildTime(slug: string) {
 export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
   const { slug } = await params
   const article = await getArticleDataBuildTime(slug)
-  
+
   if (!article) {
     return {
       title: 'Article Not Found',
@@ -138,26 +153,29 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
   }
 }
 
-import { getArticleImageUrl, getArticleOpenGraphImageUrls, getAbsoluteImageUrl } from '@/lib/image-utils'
-
-function getImageUrl(article: { featured_media?: { file_url?: string }; id?: string }) {
-  return getArticleImageUrl(article)
-}
-
 export default async function ArticlePage({ params }: ArticlePageProps) {
   const { slug } = await params
-  const article = await getArticleData(slug)
+  const [article, pageSettings] = await Promise.all([
+    getArticleData(slug),
+    getArticlePageSettings(),
+  ])
 
   if (!article) {
     notFound()
   }
 
   const readingTime = article.read_time_minutes || calculateReadingTime(article.content || '')
+  const heroSrc = getArticleImageUrl(article)
+  const dateLabel = formatArticleDate(article.published_at, {
+    locale: pageSettings.defaultLocale,
+    draftLabel: 'Unpublished',
+    emptyLabel: '—',
+  })
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-bg">
       {/* Article Header */}
-      <div className="bg-gray-50 border-b border-gray-200">
+      <div className="bg-surface-raised border-b border-border-default">
         <div className="container-wide py-8">
           {article.category && (
             <Link
@@ -172,25 +190,23 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               </span>
             </Link>
           )}
-          
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4" data-cy="article-title">
+
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-text mb-4" data-cy="article-title">
             {article.title}
           </h1>
-          
-          {article.subtitle && (
-            <p className="text-lg sm:text-xl text-gray-600 mb-6">{article.subtitle}</p>
-          )}
 
-          <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-xs sm:text-sm text-gray-600">
+          {article.subtitle ? (
+            <p className="text-lg sm:text-xl text-text-muted mb-6">{article.subtitle}</p>
+          ) : null}
+
+          <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-xs sm:text-sm text-text-muted">
             <div className="flex items-center space-x-2">
               <User className="w-4 h-4" />
               <span>{article.author?.full_name || 'Staff Writer'}</span>
             </div>
             <div className="flex items-center space-x-2">
               <Calendar className="w-4 h-4" />
-              <time dateTime={article.published_at}>
-                {formatDate(article.published_at)}
-              </time>
+              <time dateTime={article.published_at || undefined}>{dateLabel}</time>
             </div>
             <div className="flex items-center space-x-2">
               <Clock className="w-4 h-4" />
@@ -206,99 +222,52 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         </div>
       </div>
 
-      {/* Featured image or River Lodge placeholder */}
       <div className="container-wide py-4 md:py-8">
-        <div className="relative w-full h-64 sm:h-80 md:h-96 lg:h-[500px] rounded-xl md:rounded-2xl overflow-hidden">
-          <Image
-            src={getImageUrl(article)}
-            alt={article.featured_media?.alt_text || article.title}
-            fill
-            className="object-cover"
-            priority
-            sizes="(max-width: 768px) 100vw, 896px"
-          />
-        </div>
+        <ArticleHero src={heroSrc} alt={article.featured_media?.alt_text || article.title} />
       </div>
 
-      {/* Article Gallery */}
-      {article.article_media && article.article_media.length > 0 && (
-        <div className="container-wide py-4 md:py-8">
-          <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Gallery</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-            {article.article_media.map((item: { id?: string; media?: { id?: string; file_url?: string; alt_text?: string }; caption?: string }) => {
-              const imageUrl = item.media?.file_url
-              if (!imageUrl) {
-                console.warn('Gallery item missing file_url:', item)
-                return null
-              }
-              
-              // Ensure absolute URL
-              const absoluteUrl = getAbsoluteImageUrl(imageUrl)
-              
-              return (
-                <div key={item.id || item.media?.id} className="relative group">
-                  <div className="relative aspect-square overflow-hidden rounded-lg border border-gray-300">
-                    <Image
-                      src={absoluteUrl}
-                      alt={item.media?.alt_text || item.caption || 'Gallery image'}
-                      fill
-                      className="object-cover"
-                      unoptimized
-                    />
-                  </div>
-                  {item.caption && (
-                    <p className="text-sm text-gray-600 mt-2">{item.caption}</p>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
+      <ArticleGallery items={article.article_media || []} />
 
-      {/* Article Content */}
       <article className="container-wide py-8 md:py-12">
         <div className="max-w-4xl mx-auto">
-          {/* Article Editor (for authors/admins) */}
           <EnhancedArticleEditor article={article as any} />
 
-          {/* Article Body */}
-          {article.content && (
+          {article.content ? (
             <div
-              className="prose prose-sm sm:prose-base md:prose-lg max-w-none mb-12"
+              className="prose prose-sm sm:prose-base md:prose-lg max-w-none mb-12 prose-headings:text-text prose-p:text-text-muted"
               data-cy="article-content"
               dangerouslySetInnerHTML={{ __html: article.content }}
             />
-          )}
-          {!article.content && (
+          ) : (
             <div className="prose prose-lg max-w-none mb-12">
-              <p className="text-gray-500 italic">No content available for this article.</p>
+              <p className="text-text-muted italic">No content available for this article.</p>
             </div>
           )}
 
-          {/* Tags */}
-          {article.tags && article.tags.length > 0 && (
+          {article.tags && article.tags.length > 0 ? (
             <div className="flex flex-wrap gap-2 mb-12">
               {article.tags.map((tag: any) => (
                 <Link
                   key={tag.id || tag}
                   href={`/tag/${typeof tag === 'string' ? tag : tag.slug}`}
-                  className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-surface-raised text-text border border-border-default hover:opacity-90"
                 >
                   <Tag className="w-3 h-3 mr-1" />
                   {typeof tag === 'string' ? tag : tag.name}
                 </Link>
               ))}
             </div>
-          )}
+          ) : null}
 
-          {/* Share Buttons */}
-          <ShareButtons title={article.title} url={`/articles/${article.slug}`} />
+          <ShareButtons
+            title={article.title}
+            url={`/articles/${article.slug}`}
+            siteOrigin={pageSettings.siteOrigin}
+          />
 
-          {/* Related Articles */}
-          <RelatedArticles 
-            currentArticleId={article.id} 
-            categoryId={article.category_id || undefined} 
+          <RelatedArticles
+            currentArticleId={article.id}
+            categoryId={article.category_id || undefined}
           />
         </div>
       </article>

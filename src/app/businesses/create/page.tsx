@@ -7,7 +7,7 @@ import BusinessCreationWizard from '@/components/businesses/BusinessCreationWiza
 
 export default function CreateBusinessPage() {
   const router = useRouter()
-  const { user, profile, loading } = useAuth()
+  const { user, loading } = useAuth()
 
   useEffect(() => {
     if (!loading && !user) {

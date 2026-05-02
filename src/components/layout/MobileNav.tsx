@@ -53,7 +53,7 @@ export function MobileNav({ menuItems }: MobileNavProps) {
 
       {/* Mobile Navigation Menu */}
       {isMenuOpen && (
-        <div className="fixed inset-0 top-[104px] sm:top-[112px] md:hidden bg-white z-[150] overflow-y-auto">
+        <div className="fixed inset-0 top-[var(--site-header-height,104px)] md:hidden bg-surface z-[150] overflow-y-auto safe-pb">
           <nav className="container-wide py-6 space-y-1">
             <Link 
               href="/" 

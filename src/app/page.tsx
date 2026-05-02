@@ -1,9 +1,14 @@
 import { serverNewsApi } from '@/lib/api-server'
-import Image from 'next/image'
 import Link from 'next/link'
-import { Clock, MapPin, TrendingUp } from 'lucide-react'
-import { getArticleImageUrl, getBusinessImageUrl as getBusinessImageUrlUtil } from '@/lib/image-utils'
+import { TrendingUp } from 'lucide-react'
+import { getArticleImageUrl } from '@/lib/image-utils'
 import FeaturedBusinessCard from '@/components/businesses/FeaturedBusinessCard'
+import {
+  HomeFeaturedArticleBlock,
+  HomeGridArticleBlock,
+  HomeSideArticleBlock,
+  HomeTrendingMeta,
+} from '@/components/home/HomeArticleBlocks'
 
 interface Article {
   id: string
@@ -57,12 +62,6 @@ interface Business {
     image?: { file_url: string }
     description?: string
   }>
-}
-
-interface SiteSettings {
-  site_name: string
-  site_tagline: string
-  breaking_news_enabled: boolean
 }
 
 async function getHomepageData() {
@@ -119,26 +118,16 @@ async function getHomepageData() {
     // Get businesses with products for enhanced display
     let businessesData: any
     try {
-      businessesData = await serverNewsApi.businesses.listEnhanced({ 
+      businessesData = await serverNewsApi.businesses.listEnhanced({
         skipTenant: true,
-        includeProducts: true // Include products for featured display
-      })
-      console.log('📋 Homepage businesses data:', {
-        hasData: !!businessesData,
-        isArray: Array.isArray(businessesData),
-        count: Array.isArray(businessesData) ? businessesData.length : (businessesData?.results?.length || 0)
+        includeProducts: true,
       })
     } catch (businessError) {
-      console.error('❌ Failed to fetch enhanced businesses, falling back to basic:', businessError)
-      // Fallback to basic business list if enhanced fails
+      console.error('Failed to fetch enhanced businesses, falling back to basic:', businessError)
       try {
         businessesData = await serverNewsApi.businesses.list({ skipTenant: true })
-        console.log('📋 Fallback businesses data:', {
-          hasData: !!businessesData,
-          count: Array.isArray(businessesData) ? businessesData.length : (businessesData?.results?.length || 0)
-        })
       } catch (fallbackError) {
-        console.error('❌ Even basic business fetch failed:', fallbackError)
+        console.error('Basic business fetch failed:', fallbackError)
         businessesData = []
       }
     }
@@ -192,32 +181,21 @@ async function getHomepageData() {
   }
 }
 
-function formatDate(dateString: string) {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
-
 function getImageUrl(article?: Article) {
-  return getArticleImageUrl(article)
-}
-
-function getBusinessImageUrl(business?: Business) {
-  return getBusinessImageUrlUtil(business, 'logo')
+  const u = getArticleImageUrl(article)
+  return u || null
 }
 
 export default async function HomePage() {
   const { settings, breakingNews, featuredArticles, trendingArticles, recentArticles, businesses } = await getHomepageData()
 
-  const siteName = settings.site_name || 'The Riverside Herald'
-  const tagline = settings.site_tagline || 'Your Local News Source'
+  const siteName = String(settings.site_name ?? '').trim() || 'Community News'
+  const tagline = String(settings.site_tagline ?? '').trim() || 'Local stories and updates'
+  const defaultLocale = String(settings.default_locale ?? '').trim() || 'en-ZA'
+  const defaultCurrency = String(settings.default_currency ?? '').trim() || 'USD'
 
   return (
-    <div className="bg-white">
+    <div className="bg-bg min-h-screen">
       {/* Breaking News Banner */}
       {breakingNews && (
         <div className="breaking-news">
@@ -240,7 +218,7 @@ export default async function HomePage() {
       )}
 
       {/* Hero Section */}
-      <section className="py-12 bg-gradient-to-b from-neutral-50 to-white" data-cy="home-featured">
+      <section className="py-12 bg-gradient-to-b from-neutral-50 to-bg" data-cy="home-featured">
         <div className="container-wide">
           <div className="text-center mb-12">
             <h1 className="heading-xl mb-4">{siteName}</h1>
@@ -250,93 +228,22 @@ export default async function HomePage() {
           {/* Featured Articles Grid */}
           {featuredArticles.length > 0 && (
             <div className="news-grid news-grid-main mb-16" data-cy="article-list">
-              {/* Main Featured Article */}
               <div className="md:col-span-1 lg:col-span-2 xl:col-span-2">
-                <article className="card-elevated p-4 md:p-6">
-                  <div className="relative mb-4">
-                    {getImageUrl(featuredArticles[0]) && (
-                      <Image
-                        src={getImageUrl(featuredArticles[0])}
-                        alt={featuredArticles[0]?.title}
-                        width={800}
-                        height={400}
-                        className="news-image-featured h-64 sm:h-80 md:h-96 lg:h-[500px]"
-                      />
-                    )}
-                    {featuredArticles[0]?.category && (
-                      <span 
-                        className="absolute top-3 left-3 md:top-4 md:left-4 tag tag-accent"
-                        style={{ backgroundColor: featuredArticles[0].category.color }}
-                      >
-                        {featuredArticles[0].category.name}
-                      </span>
-                    )}
-                  </div>
-                  <h2 className="heading-lg mb-3">
-                    <Link href={`/articles/${featuredArticles[0]?.slug}`} className="hover:text-blue-600">
-                      {featuredArticles[0]?.title}
-                    </Link>
-                  </h2>
-                  {featuredArticles[0]?.subtitle ? (
-                    <p className="text-base md:text-lg text-neutral-600 mb-3 line-clamp-2">
-                      {featuredArticles[0].subtitle}
-                    </p>
-                  ) : null}
-                  <p className="body-lg mb-4 line-clamp-3 md:line-clamp-none">{featuredArticles[0]?.excerpt}</p>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs md:text-sm text-neutral-500 space-y-2 sm:space-y-0">
-                    <div className="flex items-center space-x-3 md:space-x-4">
-                      <span className="truncate max-w-[150px]">By {featuredArticles[0]?.author_name || 'Staff Writer'}</span>
-                      <span className="flex items-center flex-shrink-0">
-                        <Clock className="w-4 h-4 mr-1" />
-                        {featuredArticles[0]?.read_time_minutes || 5} min read
-                      </span>
-                    </div>
-                    <time className="flex-shrink-0">{formatDate(featuredArticles[0]?.published_at)}</time>
-                  </div>
-                </article>
+                <HomeFeaturedArticleBlock
+                  article={featuredArticles[0]}
+                  imageUrl={getImageUrl(featuredArticles[0])}
+                  locale={defaultLocale}
+                />
               </div>
 
-              {/* Side Articles */}
               <div className="md:col-span-1 lg:col-span-1 xl:col-span-2 space-y-4 md:space-y-6">
                 {featuredArticles.slice(1, 4).map((article) => (
-                  <article key={article.id} className="card p-3 md:p-4">
-                    <div className="flex space-x-3 md:space-x-4">
-                      {getImageUrl(article) && (
-                        <div className="flex-shrink-0">
-                          <Image
-                            src={getImageUrl(article)}
-                            alt={article.title}
-                            width={120}
-                            height={80}
-                            className="w-20 h-16 md:w-24 md:h-20 object-cover rounded"
-                          />
-                        </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        {article.category && (
-                          <span 
-                            className="tag tag-primary mb-1 md:mb-2"
-                            style={{ backgroundColor: `${article.category.color}20`, color: article.category.color }}
-                          >
-                            {article.category.name}
-                          </span>
-                        )}
-                        <h3 className="heading-xs mb-1 md:mb-2 line-clamp-2">
-                          <Link href={`/articles/${article.slug}`} className="hover:text-blue-600">
-                            {article.title}
-                          </Link>
-                        </h3>
-                        {article.subtitle ? (
-                          <p className="text-xs md:text-sm text-neutral-600 mb-1 line-clamp-2">{article.subtitle}</p>
-                        ) : null}
-                        <div className="flex items-center text-[10px] md:text-xs text-neutral-500 truncate">
-                          <span className="truncate max-w-[80px] md:max-w-none">{article.author_name || 'Staff Writer'}</span>
-                          <span className="mx-1 md:mx-2 flex-shrink-0">•</span>
-                          <time className="flex-shrink-0">{new Date(article.published_at).toLocaleDateString()}</time>
-                        </div>
-                      </div>
-                    </div>
-                  </article>
+                  <HomeSideArticleBlock
+                    key={article.id}
+                    article={article}
+                    imageUrl={getImageUrl(article)}
+                    locale={defaultLocale}
+                  />
                 ))}
               </div>
             </div>
@@ -356,42 +263,12 @@ export default async function HomePage() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                 {recentArticles.slice(0, 6).map((article) => (
-                  <article key={article.id} className="card overflow-hidden">
-                    {getImageUrl(article) && (
-                      <div className="relative">
-                        <Image
-                          src={getImageUrl(article)}
-                          alt={article.title}
-                          width={400}
-                          height={200}
-                          className="w-full h-40 sm:h-48 object-cover"
-                        />
-                        {article.category && (
-                          <span 
-                            className="absolute top-3 left-3 tag tag-primary"
-                            style={{ backgroundColor: `${article.category.color}20`, color: article.category.color }}
-                          >
-                            {article.category.name}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                    <div className="p-3 md:p-4">
-                      <h3 className="heading-xs mb-2 line-clamp-2">
-                        <Link href={`/articles/${article.slug}`} className="hover:text-blue-600">
-                          {article.title}
-                        </Link>
-                      </h3>
-                      {article.subtitle ? (
-                        <p className="text-xs md:text-sm text-neutral-600 mb-2 line-clamp-2">{article.subtitle}</p>
-                      ) : null}
-                      <p className="text-xs md:text-sm mb-3 text-neutral-600 line-clamp-2">{article.excerpt}</p>
-                      <div className="flex items-center justify-between text-[10px] md:text-xs text-neutral-500">
-                        <span className="truncate max-w-[100px]">{article.author_name || 'Staff Writer'}</span>
-                        <time className="flex-shrink-0">{new Date(article.published_at).toLocaleDateString()}</time>
-                      </div>
-                    </div>
-                  </article>
+                  <HomeGridArticleBlock
+                    key={article.id}
+                    article={article}
+                    imageUrl={getImageUrl(article)}
+                    locale={defaultLocale}
+                  />
                 ))}
               </div>
             </div>
@@ -420,9 +297,7 @@ export default async function HomePage() {
                           {article.subtitle ? (
                             <p className="text-xs text-neutral-600 line-clamp-2 mb-1">{article.subtitle}</p>
                           ) : null}
-                          <div className="text-xs text-neutral-500">
-                            {(article.views || 0).toLocaleString()} views • {new Date(article.published_at).toLocaleDateString()}
-                          </div>
+                          <HomeTrendingMeta article={article} locale={defaultLocale} />
                         </div>
                       </article>
                     ))}
@@ -442,38 +317,25 @@ export default async function HomePage() {
                       View All →
                     </Link>
                   </div>
-                  <div className="space-y-6">
-                    {businesses.slice(0, 3).map((business) => (
+                  <div
+                    className="space-y-6 max-h-[36rem] md:max-h-[44rem] overflow-y-auto pr-2 -mr-2 [scrollbar-gutter:stable]"
+                    data-cy="business-list-scroll"
+                  >
+                    {businesses.map((business) => (
                       <FeaturedBusinessCard
                         key={business.id}
                         business={business}
                         showProducts={true}
                         showWebsiteLink={true}
+                        defaultCurrency={defaultCurrency}
                       />
                     ))}
                   </div>
-                  
-                  {/* Debug info - remove in production */}
-                  {process.env.NODE_ENV === 'development' && (
-                    <div className="mt-4 p-4 bg-gray-100 rounded text-sm">
-                      <p>Debug: {businesses.length} businesses found</p>
-                      {businesses.slice(0, 3).map(business => (
-                        <div key={business.id} className="text-xs">
-                          {business.name} - Products: {business.products?.length || 0} - Website: {business.website_url || 'none'}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {businesses.length > 3 && (
-                    <div className="mt-6 text-center">
-                      <Link 
-                        href="/businesses" 
-                        className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                      >
-                        Discover {businesses.length - 3} More Businesses
-                      </Link>
-                    </div>
-                  )}
+                  <p className="mt-4 text-center text-sm text-text-muted">
+                    <Link href="/businesses" className="text-primary hover:underline font-medium">
+                      View on Businesses page
+                    </Link>
+                  </p>
                 </div>
               )}
             </div>

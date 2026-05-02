@@ -1,8 +1,11 @@
 import { serverNewsApi } from '@/lib/api-server'
 import Link from 'next/link'
-import Image from 'next/image'
 import type { Metadata } from 'next'
-import { Calendar, Clock, User, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
+import { cookies } from 'next/headers'
+import { loadSiteSettingsMap, siteLabelFromMap, stringFromMap } from '@/lib/site-settings'
+import ArticlesFeaturedSplit from '@/components/articles/ArticlesFeaturedSplit'
+import RelatedArticleCard from '@/components/articles/RelatedArticleCard'
 
 // Custom Plus icon
 const Plus = ({ className }: { className?: string }) => (
@@ -10,19 +13,14 @@ const Plus = ({ className }: { className?: string }) => (
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
   </svg>
 )
-import { cookies } from 'next/headers'
 
-export const metadata: Metadata = {
-  title: 'All Articles | The Riverside Herald',
-  description: 'Browse all news articles from The Riverside Herald. Stay informed with our comprehensive coverage of local news, business, sports, and community events.',
-}
-
-function formatDate(dateString: string) {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  })
+export async function generateMetadata(): Promise<Metadata> {
+  const map = await loadSiteSettingsMap()
+  const name = siteLabelFromMap(map, 'site_name', 'News')
+  return {
+    title: `All Articles | ${name}`,
+    description: `Browse all news articles from ${name}. Stay informed with local news and community coverage.`,
+  }
 }
 
 function calculateReadingTime(content: string): number {
@@ -101,11 +99,13 @@ function getImageUrl(article: any) {
 }
 
 export default async function ArticlesPage() {
-  const [articles, categories, profile] = await Promise.all([
+  const [articles, categories, profile, settingsMap] = await Promise.all([
     getArticles(),
     getCategories(),
-    getProfile()
+    getProfile(),
+    loadSiteSettingsMap(),
   ])
+  const locale = stringFromMap(settingsMap, 'default_locale').trim() || 'en-ZA'
 
   const canAddArticle = profile && ['admin', 'editor', 'author', 'business_owner'].includes(profile.role)
 
@@ -172,66 +172,12 @@ export default async function ArticlesPage() {
         {featuredArticle && (
           <div className="mb-16">
             <h2 className="text-2xl font-bold text-gray-900 mb-8">Featured Article</h2>
-            <article className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-200">
-              <div className="md:flex">
-                {/* Featured Image */}
-                <div className="md:w-1/2 relative h-64 md:h-80">
-                  <Image
-                    src={getImageUrl(featuredArticle)}
-                    alt={featuredArticle.title}
-                    fill
-                    className="object-cover"
-                  />
-                  {featuredArticle.category && (
-                    <div className="absolute top-4 left-4">
-                      <span
-                        className="px-3 py-1 text-sm font-semibold text-white rounded-full"
-                        style={{ backgroundColor: featuredArticle.category.color || '#3B82F6' }}
-                      >
-                        {featuredArticle.category.name}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Content */}
-                <div className="md:w-1/2 p-8 flex flex-col justify-center">
-                  <Link href={`/articles/${featuredArticle.slug}`}>
-                    <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 hover:text-blue-600 transition-colors">
-                      {featuredArticle.title}
-                    </h3>
-                  </Link>
-
-                  {featuredArticle.excerpt && (
-                    <p className="text-gray-600 mb-6 leading-relaxed">
-                      {featuredArticle.excerpt}
-                    </p>
-                  )}
-
-                  {/* Meta Info */}
-                  <div className="flex items-center space-x-6 text-sm text-gray-500 mb-6">
-                    <div className="flex items-center space-x-2">
-                      <User className="w-4 h-4" />
-                      <span>{featuredArticle.author_name || 'Staff Writer'}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>{formatDate(featuredArticle.published_at)}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Clock className="w-4 h-4" />
-                      <span>{featuredArticle.read_time_minutes || calculateReadingTime(featuredArticle.content)} min read</span>
-                    </div>
-                  </div>
-
-                  {/* Stats */}
-                  <div className="flex items-center space-x-6 text-sm text-gray-400">
-                    <span>{featuredArticle.views?.toLocaleString() || 0} views</span>
-                    <span>{featuredArticle.likes || 0} likes</span>
-                  </div>
-                </div>
-              </div>
-            </article>
+            <ArticlesFeaturedSplit
+              article={featuredArticle}
+              imageUrl={getImageUrl(featuredArticle)}
+              locale={locale}
+              readingTimeMinutes={featuredArticle.read_time_minutes || calculateReadingTime(featuredArticle.content)}
+            />
           </div>
         )}
 
@@ -242,68 +188,14 @@ export default async function ArticlesPage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8" data-cy="articles-list">
               {otherArticles.map((article: any) => {
                 const readingTime = article.read_time_minutes || calculateReadingTime(article.content)
-                const publishedDate = formatDate(article.published_at)
-
                 return (
-                  <article
+                  <RelatedArticleCard
                     key={article.id}
-                    className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-200 overflow-hidden"
-                  >
-                    <Link href={`/articles/${article.slug}`}>
-                      {/* Article Image */}
-                      <div className="relative h-48 overflow-hidden">
-                        <Image
-                          src={getImageUrl(article)}
-                          alt={article.title}
-                          fill
-                          className="object-cover hover:scale-105 transition-transform duration-200"
-                        />
-                        {article.category && (
-                          <div className="absolute top-4 left-4">
-                            <span
-                              className="px-2 py-1 text-xs font-semibold text-white rounded-full"
-                              style={{ backgroundColor: article.category.color || '#3B82F6' }}
-                            >
-                              {article.category.name}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Article Content */}
-                      <div className="p-6">
-                        <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 hover:text-blue-600 transition-colors">
-                          {article.title}
-                        </h3>
-
-                        {article.excerpt && (
-                          <p className="text-gray-600 mb-4 line-clamp-2">
-                            {article.excerpt}
-                          </p>
-                        )}
-
-                        <div className="flex items-center justify-between text-sm text-gray-500">
-                          <div className="flex items-center space-x-4">
-                            <span>{article.author_name || 'Staff Writer'}</span>
-                            <div className="flex items-center space-x-1">
-                              <Calendar className="w-3 h-3" />
-                              <span>{publishedDate}</span>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <Clock className="w-3 h-3" />
-                            <span>{readingTime} min</span>
-                          </div>
-                        </div>
-
-                        <div className="mt-3 pt-3 border-t border-gray-100">
-                          <span className="text-xs text-gray-400">
-                            {article.views?.toLocaleString() || 0} views • {article.likes || 0} likes
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                  </article>
+                    article={article}
+                    imageUrl={getImageUrl(article)}
+                    readingTime={readingTime}
+                    locale={locale}
+                  />
                 )
               })}
             </div>

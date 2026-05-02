@@ -1,10 +1,12 @@
 import { serverNewsApi } from '@/lib/api-server'
-import Image from 'next/image'
 import type { Metadata } from 'next'
 import { MapPin, Phone, Mail, Globe, Star, CheckCircle } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { BusinessEditButton } from '@/components/businesses/BusinessEditButton'
 import ProductGallery from '@/components/businesses/ProductGallery'
+import BusinessHeroCover from '@/components/businesses/BusinessHeroCover'
+import { getBusinessImageUrl as getBusinessImageUrlUtil, ARTICLE_IMAGE_PLACEHOLDER } from '@/lib/image-utils'
+import { loadSiteSettingsMap, siteLabelFromMap } from '@/lib/site-settings'
 
 function formatPhone(phone?: string): string {
   if (!phone) return ''
@@ -160,8 +162,9 @@ async function getBusiness(slug: string) {
 
 export async function generateMetadata({ params }: BusinessPageProps): Promise<Metadata> {
   const { slug } = await params
-  const business = await getBusiness(slug)
-  
+  const [business, settingsMap] = await Promise.all([getBusiness(slug), loadSiteSettingsMap()])
+  const siteLabel = siteLabelFromMap(settingsMap, 'site_name', 'News')
+
   if (!business) {
     return {
       title: 'Business Not Found',
@@ -169,7 +172,7 @@ export async function generateMetadata({ params }: BusinessPageProps): Promise<M
   }
 
   return {
-    title: (business as any).seo_title || `${business.name} | The Riverside Herald`,
+    title: (business as any).seo_title || `${business.name} | ${siteLabel}`,
     description: (business as any).seo_description || business.description || '',
     openGraph: {
       title: business.name,
@@ -178,8 +181,6 @@ export async function generateMetadata({ params }: BusinessPageProps): Promise<M
     },
   }
 }
-
-import { getBusinessImageUrl as getBusinessImageUrlUtil } from '@/lib/image-utils'
 
 function getBusinessImageUrl(business: any, type: 'logo' | 'cover' = 'cover') {
   return getBusinessImageUrlUtil(business, type)
@@ -210,14 +211,8 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
     <div className="min-h-screen bg-white">
       {/* Cover Image */}
       <div className="relative h-64 md:h-96 overflow-hidden">
-        <Image
-          src={getBusinessImageUrl(business, 'cover')}
-          alt={business.cover_image?.alt_text || business.name}
-          fill
-          className="object-cover"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        <BusinessHeroCover src={getBusinessImageUrl(business, 'cover') || ARTICLE_IMAGE_PLACEHOLDER} />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
         
         {/* Verification Badge */}
         {business.is_verified && (

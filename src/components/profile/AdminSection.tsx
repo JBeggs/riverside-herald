@@ -6,7 +6,6 @@ import {
   User, 
   FileText, 
   Building2, 
-  Globe,
   Mail
 } from 'lucide-react'
 
@@ -63,30 +62,11 @@ const BarChart3 = ({ className }: { className?: string }) => (
   </svg>
 )
 
-const AlertTriangle = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-  </svg>
-)
-
-const Crown = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 16l3-8 5.5 3 3.5-6 1 16H4l1-5z" />
-  </svg>
-)
-
 const Database = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
     <ellipse cx="12" cy="5" rx="9" ry="3" />
     <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
     <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
-  </svg>
-)
-
-const Megaphone = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h1a1 1 0 011 1v2h3a1 1 0 011 1v6a1 1 0 01-1 1H9v3a1 1 0 01-1 1H7a1 1 0 01-1-1v-3H3a1 1 0 01-1-1V5a1 1 0 011-1h4z" />
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 8.5l7-3v13l-7-3" />
   </svg>
 )
 

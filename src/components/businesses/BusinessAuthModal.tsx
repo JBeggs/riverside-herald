@@ -46,7 +46,7 @@ export function BusinessAuthModal({ businessId, onClose, onSuccess }: BusinessAu
 
         // Check if this user owns the business
         try {
-          const business = await newsApi.businesses.get(businessId)
+          await newsApi.businesses.get(businessId)
           
           // Get current user from auth context
           // Note: We'll need to check this after login completes
@@ -54,7 +54,7 @@ export function BusinessAuthModal({ businessId, onClose, onSuccess }: BusinessAu
           // The backend should verify ownership via the JWT token
           
           onSuccess()
-        } catch (businessError: any) {
+        } catch {
           setError('Error verifying business ownership')
           return
         }

@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { serverNewsApi } from '@/lib/api-server'
@@ -200,18 +201,18 @@ export default async function Profile() {
             <p className="text-sm text-gray-600 mb-6">{error.message || 'Unknown error'}</p>
           )}
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <a
+            <Link
               href="/"
               className="inline-block px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
             >
               Go Home
-            </a>
-            <a
+            </Link>
+            <Link
               href="/login"
               className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               Try Login Again
-            </a>
+            </Link>
           </div>
         </div>
       </div>

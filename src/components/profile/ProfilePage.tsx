@@ -1,7 +1,24 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-// User type from API
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/contexts/AuthContext'
+import { Profile } from '@/lib/types'
+import {
+  User as UserIcon,
+  FileText,
+  Building2,
+  Bell,
+  Edit3,
+  Star,
+} from 'lucide-react'
+import PersonalInfoSection from './PersonalInfoSection'
+import AuthorDashboard from './AuthorDashboard'
+import BusinessOwnerSection from './BusinessOwnerSection'
+import AdminSection from './AdminSection'
+import SubscriberSection from './SubscriberSection'
+import NotificationSettings from './NotificationSettings'
+
 interface User {
   id: string
   email?: string
@@ -9,30 +26,6 @@ interface User {
   first_name?: string
   last_name?: string
 }
-import { useRouter } from 'next/navigation'
-import { useAuth } from '@/contexts/AuthContext'
-import { Profile } from '@/lib/types'
-import { 
-  User as UserIcon, 
-  FileText, 
-  Building2, 
-  Bell,
-  Edit3,
-  Mail,
-  Phone,
-  MapPin,
-  Globe,
-  TrendingUp,
-  Star
-} from 'lucide-react'
-
-// Custom SVG icons for missing lucide-react icons
-const Settings = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-  </svg>
-)
 
 const Crown = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -46,24 +39,12 @@ const Shield = ({ className }: { className?: string }) => (
   </svg>
 )
 
-const Users = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m3 4.197a4 4 0 11-3-6.943 4 4 0 013 6.943z" />
-  </svg>
-)
-
 const Award = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <circle cx="12" cy="8" r="7" />
     <path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12" />
   </svg>
 )
-import PersonalInfoSection from './PersonalInfoSection'
-import AuthorDashboard from './AuthorDashboard'
-import BusinessOwnerSection from './BusinessOwnerSection'
-import AdminSection from './AdminSection'
-import SubscriberSection from './SubscriberSection'
-import NotificationSettings from './NotificationSettings'
 
 interface ProfilePageProps {
   user: User

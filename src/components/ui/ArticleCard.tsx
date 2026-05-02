@@ -16,6 +16,7 @@ import {
   Share2
 } from 'lucide-react'
 import { getAbsoluteImageUrl } from '@/lib/image-utils'
+import SafeImage from '@/components/ui/SafeImage'
 
 // Custom icons not available in lucide-react
 const Copy = ({ className }: { className?: string }) => (
@@ -65,11 +66,13 @@ export default function ArticleCard({
 
   const formatDate = (dateString: string) => {
     if (!dateString) return 'Not set'
-    return new Date(dateString).toLocaleDateString('en-US', {
+    const d = new Date(dateString)
+    if (Number.isNaN(d.getTime()) || d.getTime() === 0) return '—'
+    return d.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
-      ...(compact ? {} : { hour: '2-digit', minute: '2-digit' })
+      ...(compact ? {} : { hour: '2-digit', minute: '2-digit' }),
     })
   }
 
@@ -136,10 +139,13 @@ export default function ArticleCard({
         <div className="flex items-start space-x-3">
           {/* Thumbnail */}
           {article.featured_media?.file_url ? (
-            <img
+            <SafeImage
               src={getAbsoluteImageUrl(article.featured_media.file_url)}
-              alt={article.title}
-              className="w-12 h-12 object-cover rounded-lg flex-shrink-0"
+              alt=""
+              width={48}
+              height={48}
+              className="h-12 w-12 flex-shrink-0 rounded-lg"
+              imgClassName="h-full w-full object-cover rounded-lg"
             />
           ) : (
             <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -207,10 +213,13 @@ export default function ArticleCard({
         <div className="flex items-start space-x-4">
           {/* Thumbnail */}
           {article.featured_media?.file_url ? (
-            <img
+            <SafeImage
               src={getAbsoluteImageUrl(article.featured_media.file_url)}
-              alt={article.title}
-              className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
+              alt=""
+              width={80}
+              height={80}
+              className="h-20 w-20 flex-shrink-0 rounded-lg"
+              imgClassName="h-full w-full object-cover rounded-lg"
             />
           ) : (
             <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">

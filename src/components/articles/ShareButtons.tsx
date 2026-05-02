@@ -3,19 +3,29 @@
 import { useState } from 'react'
 import { Share2, Facebook, Twitter, Linkedin, Link2, Mail, Check } from 'lucide-react'
 
+import { getPublicSiteUrl } from '@/lib/public-site-url'
+
 interface ShareButtonsProps {
   title: string
   url: string
+  /** Optional; when set (e.g. from site_canonical_url SiteSetting), used for SSR fallback */
+  siteOrigin?: string
 }
 
-export default function ShareButtons({ title, url }: ShareButtonsProps) {
+export default function ShareButtons({ title, url, siteOrigin }: ShareButtonsProps) {
   const [showShareMenu, setShowShareMenu] = useState(false)
   const [copied, setCopied] = useState(false)
 
-  // Safely get the full URL
-  const fullUrl = typeof window !== 'undefined' 
-    ? `${window.location.origin}${url}` 
-    : `https://riversideherald.com${url}` // fallback for SSR
+  const configuredOrigin = (siteOrigin || getPublicSiteUrl()).replace(/\/$/, '')
+
+  const fullUrl =
+    typeof window !== 'undefined'
+      ? `${window.location.origin}${url}`
+      : configuredOrigin
+        ? `${configuredOrigin}${url}`
+        : url.startsWith('http')
+          ? url
+          : url
   
   const encodedTitle = encodeURIComponent(title)
   const encodedUrl = encodeURIComponent(fullUrl)

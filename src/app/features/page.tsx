@@ -4,7 +4,6 @@ import {
   UserPlus, 
   Building2, 
   FileText, 
-  Star, 
   Search, 
   Bell, 
   CheckCircle

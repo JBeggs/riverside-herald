@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { 
@@ -51,6 +51,9 @@ const BarChart3 = ({ className }: { className?: string }) => (
   </svg>
 )
 import { useAuth } from '@/contexts/AuthContext'
+import { newsApi } from '@/lib/api'
+import { parseSiteSettingsRows, stringFromMap } from '@/lib/site-settings'
+import AdminThemeToggle from '@/components/theme/AdminThemeToggle'
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -59,8 +62,34 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children, profile }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [brandMark, setBrandMark] = useState('•')
   const pathname = usePathname()
   const { signOut } = useAuth()
+
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const data = await newsApi.siteSettings.list()
+        const map = parseSiteSettingsRows(data)
+        const custom = stringFromMap(map, 'dashboard_logo_text').trim()
+        const fromSite =
+          stringFromMap(map, 'site_name')
+            .split(/\s+/)
+            .map((w) => w[0])
+            .join('')
+            .slice(0, 2)
+            .toUpperCase() || '•'
+        const mark = (custom || fromSite).slice(0, 3)
+        if (!cancelled) setBrandMark(mark)
+      } catch {
+        if (!cancelled) setBrandMark('•')
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const _isAdmin = profile?.role === 'admin'
   const _isEditor = profile?.role === 'editor'
@@ -128,7 +157,7 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
   }
 
   return (
-    <div className="bg-gray-50 min-h-0 flex-1 flex flex-col">
+    <div className="bg-bg min-h-0 flex-1 flex flex-col">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 
@@ -139,17 +168,19 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
 
       {/* Sidebar */}
       <div className={`
-        fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0
+        fixed inset-y-0 left-0 z-30 w-64 bg-surface border-r border-border-default transform transition-transform duration-300 ease-in-out lg:translate-x-0
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="flex flex-col h-full">
           {/* Logo/Header */}
-          <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">RH</span>
+          <div className="flex items-center justify-between h-16 px-4 border-b border-border-default">
+            <Link href="/" className="flex items-center space-x-2 min-w-0">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shrink-0">
+                <span className="font-bold text-xs text-[rgb(var(--color-text-inverse))]">
+                  {brandMark}
+                </span>
               </div>
-              <span className="font-bold text-gray-900">Dashboard</span>
+              <span className="font-bold text-text truncate">Dashboard</span>
             </Link>
             <button
               onClick={() => setSidebarOpen(false)}
@@ -164,7 +195,7 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
             {navigation.map((item) => {
               const Icon = item.icon
               const active = isActive(item.href)
-              
+
               return (
                 <Link
                   key={item.name}
@@ -172,9 +203,10 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
                   onClick={() => setSidebarOpen(false)}
                   className={`
                     flex items-center space-x-3 px-3 py-3 md:py-2 rounded-lg text-sm font-medium transition-colors min-h-[44px]
-                    ${active 
-                      ? 'bg-blue-50 text-blue-700' 
-                      : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                    ${
+                      active
+                        ? 'bg-primary/10 text-primary'
+                        : 'text-text-muted hover:bg-surface-raised hover:text-text'
                     }
                   `}
                 >
@@ -186,32 +218,35 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
           </nav>
 
           {/* User section */}
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t border-border-default">
             <div className="flex items-center space-x-3 mb-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-xs font-medium">
-                  {profile?.first_name?.charAt(0) || profile?.full_name?.charAt(0) || profile?.email?.charAt(0) || 'U'}
+              <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center">
+                <span className="text-[rgb(var(--color-text-inverse))] text-xs font-medium">
+                  {profile?.first_name?.charAt(0) ||
+                    profile?.full_name?.charAt(0) ||
+                    profile?.email?.charAt(0) ||
+                    'U'}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  {profile?.first_name || profile?.last_name 
-                    ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() 
+                <p className="text-sm font-medium text-text truncate">
+                  {profile?.first_name || profile?.last_name
+                    ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
                     : profile?.full_name || profile?.email || 'User'}
                 </p>
-                <p className="text-xs text-gray-500 capitalize">{profile?.role || 'user'}</p>
+                <p className="text-xs text-text-muted capitalize">{profile?.role || 'user'}</p>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
               <Link
                 href="/profile"
-                className="flex-1 text-center px-3 py-3 md:py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors min-h-[44px] flex items-center justify-center"
+                className="flex-1 text-center px-3 py-3 md:py-2 text-sm text-text bg-surface-raised rounded-lg hover:opacity-90 transition-opacity min-h-[44px] flex items-center justify-center border border-border-default"
               >
                 Profile
               </Link>
               <button
                 onClick={signOut}
-                className="flex-1 flex items-center justify-center space-x-1 px-3 py-3 md:py-2 text-sm text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors min-h-[44px]"
+                className="flex-1 flex items-center justify-center space-x-1 px-3 py-3 md:py-2 text-sm text-danger bg-surface-raised rounded-lg hover:opacity-90 transition-opacity min-h-[44px] border border-danger/30"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Logout</span>
@@ -224,24 +259,25 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
       {/* Main content */}
       <div className="lg:pl-64 flex flex-col flex-1 min-h-0">
         {/* Top bar */}
-        <div className="sticky top-0 z-10 bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 flex-shrink-0">
+        <div className="sticky top-0 z-10 bg-surface border-b border-border-default h-16 flex items-center justify-between px-4 flex-shrink-0 gap-2">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2 -ml-2 rounded-md text-gray-400 hover:text-gray-500 min-w-[44px] min-h-[44px] flex items-center justify-center"
+            className="lg:hidden p-2 -ml-2 rounded-md text-text-muted hover:text-text min-w-[44px] min-h-[44px] flex items-center justify-center"
           >
             <Menu className="w-6 h-6" />
           </button>
           <div className="flex-1" />
+          <AdminThemeToggle />
           <Link
             href="/"
-            className="text-sm font-medium text-blue-600 hover:text-blue-700 min-h-[44px] flex items-center px-2"
+            className="text-sm font-medium text-primary hover:opacity-90 min-h-[44px] flex items-center px-2"
           >
             View Site →
           </Link>
         </div>
 
-        {/* Page content */}
-        <div className="flex-1 p-4 md:p-6 overflow-y-auto">
+        {/* Page content — document scroll only (no nested overflow) */}
+        <div className="flex-1 p-4 md:p-6">
           {children}
         </div>
       </div>

@@ -2,20 +2,15 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { Profile } from '@/lib/types'
 import { BusinessEditModal } from '@/components/businesses/BusinessEditModal'
 import { getAbsoluteImageUrl } from '@/lib/image-utils'
 import { 
   Building2, 
   Star, 
-  MapPin, 
-  Phone, 
-  Mail, 
-  Globe, 
+  MapPin,
   Edit3,
   TrendingUp,
-  User,
   CheckCircle
 } from 'lucide-react'
 
@@ -43,7 +38,7 @@ interface BusinessOwnerSectionProps {
   profile: Profile
 }
 
-export default function BusinessOwnerSection({ businesses, profile }: BusinessOwnerSectionProps) {
+export default function BusinessOwnerSection({ businesses, profile: _profile }: BusinessOwnerSectionProps) {
   const [editingBusinessId, setEditingBusinessId] = useState<string | null>(null)
 
   const formatDate = (dateString: string) => {

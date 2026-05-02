@@ -13,7 +13,6 @@ import {
   CheckCircle,
   TrendingUp,
   Calendar,
-  User
 } from 'lucide-react'
 
 // Custom SVG icons for missing lucide-react icons

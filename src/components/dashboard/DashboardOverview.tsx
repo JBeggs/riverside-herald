@@ -5,12 +5,9 @@ import Link from 'next/link'
 import { 
   FileText, 
   Building2, 
-  TrendingUp,
   Eye,
-  Clock,
   Star,
-  CheckCircle,
-  AlertCircle
+  CheckCircle
 } from 'lucide-react'
 import ArticleCard from '@/components/ui/ArticleCard'
 import { newsApi } from '@/lib/api'
@@ -57,7 +54,6 @@ export default function DashboardOverview({ profile, stats, recentArticles }: Da
   const isEditor = profile?.role === 'editor'
   const isAuthor = profile?.role === 'author'
   const isBusinessOwner = profile?.role === 'business_owner'
-  const isSubscriber = !isAdmin && !isEditor && !isAuthor && !isBusinessOwner
   
   // Load user's businesses when component mounts
   useEffect(() => {
@@ -91,27 +87,6 @@ export default function DashboardOverview({ profile, stats, recentArticles }: Da
   const filteredArticles = (isAuthor || isBusinessOwner) && profile?.user
     ? recentArticles.filter((article: any) => article.author === profile.user || article.author_id === profile.user)
     : recentArticles
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'published':
-        return 'bg-green-100 text-green-800'
-      case 'draft':
-        return 'bg-gray-100 text-gray-800'
-      case 'scheduled':
-        return 'bg-blue-100 text-blue-800'
-      default:
-        return 'bg-gray-100 text-gray-600'
-    }
-  }
 
   // Business Owner Onboarding Component
   const BusinessOwnerOnboarding = () => {

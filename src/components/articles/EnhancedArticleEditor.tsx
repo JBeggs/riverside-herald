@@ -69,6 +69,11 @@ const ChevronRight = ({ className }: { className: string }) => (
   </svg>
 )
 import { newsApi, apiClient } from '@/lib/api'
+import {
+  toLocalDateTimeInput,
+  nowLocalDateTimeInput,
+  parseLocalDateTimeToIso,
+} from '@/lib/date-utils'
 
 interface Category {
   id: string
@@ -164,6 +169,7 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
   const [isLoadingGallery] = useState(false)
   
   const [editData, setEditData] = useState({
+    id: article.id,
     title: article.title,
     subtitle: article.subtitle || '',
     content: article.content,
@@ -178,10 +184,15 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
     is_trending: article.is_trending || false,
     seo_title: article.seo_title || '',
     seo_description: article.seo_description || '',
-    published_at: article.published_at ? new Date(article.published_at).toISOString().slice(0, 16) : '',
-    scheduled_for: article.scheduled_for ? new Date(article.scheduled_for).toISOString().slice(0, 16) : '',
+    published_at:
+      article.id === 'new'
+        ? nowLocalDateTimeInput()
+        : toLocalDateTimeInput(article.published_at),
+    scheduled_for: toLocalDateTimeInput(article.scheduled_for),
     location_name: article.location_name || '',
-    read_time_minutes: article.read_time_minutes || null
+    read_time_minutes: article.read_time_minutes || null,
+    created_at: (article as { created_at?: string | null }).created_at ?? null,
+    updated_at: (article as { updated_at?: string | null }).updated_at ?? null,
   })
 
   // Update editData when article prop changes
@@ -203,10 +214,13 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
         is_trending: article.is_trending || false,
         seo_title: article.seo_title || '',
         seo_description: article.seo_description || '',
-        published_at: article.published_at ? new Date(article.published_at).toISOString().slice(0, 16) : '',
-        scheduled_for: article.scheduled_for ? new Date(article.scheduled_for).toISOString().slice(0, 16) : '',
+        published_at: toLocalDateTimeInput(article.published_at),
+        scheduled_for: toLocalDateTimeInput(article.scheduled_for),
         location_name: article.location_name || '',
-        read_time_minutes: article.read_time_minutes || null
+        read_time_minutes: article.read_time_minutes || null,
+        id: article.id,
+        created_at: (article as { created_at?: string | null }).created_at ?? null,
+        updated_at: (article as { updated_at?: string | null }).updated_at ?? null,
       })
     }
   }, [article])
@@ -773,12 +787,17 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
         updateData.read_time_minutes = editData.read_time_minutes
       }
       
-      // Handle published_at and scheduled_for
-      if (editData.published_at) {
-        updateData.published_at = new Date(editData.published_at).toISOString()
+      // published_at only when publishing / scheduling (avoid draft + default picker sending bad dates)
+      const st = editData.status || 'draft'
+      if (st === 'published' || st === 'scheduled') {
+        const pubIso = parseLocalDateTimeToIso(editData.published_at)
+        if (pubIso) {
+          updateData.published_at = pubIso
+        }
       }
-      if (editData.scheduled_for) {
-        updateData.scheduled_for = new Date(editData.scheduled_for).toISOString()
+      const schedIso = parseLocalDateTimeToIso(editData.scheduled_for)
+      if (schedIso) {
+        updateData.scheduled_for = schedIso
       }
 
       // Update tags if any are selected
@@ -928,10 +947,16 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
       is_trending: article.is_trending || false,
       seo_title: article.seo_title || '',
       seo_description: article.seo_description || '',
-      published_at: article.published_at ? new Date(article.published_at).toISOString().slice(0, 16) : '',
-      scheduled_for: article.scheduled_for ? new Date(article.scheduled_for).toISOString().slice(0, 16) : '',
+      published_at:
+        article.id === 'new'
+          ? nowLocalDateTimeInput()
+          : toLocalDateTimeInput(article.published_at),
+      scheduled_for: toLocalDateTimeInput(article.scheduled_for),
       location_name: article.location_name || '',
-      read_time_minutes: article.read_time_minutes || null
+      read_time_minutes: article.read_time_minutes || null,
+      id: article.id,
+      created_at: (article as { created_at?: string | null }).created_at ?? null,
+      updated_at: (article as { updated_at?: string | null }).updated_at ?? null,
     })
     setCurrentStep('basic')
     setIsEditing(false)

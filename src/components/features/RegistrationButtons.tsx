@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Building2, FileText } from 'lucide-react'
+import { FileText } from 'lucide-react'
+import AuthModal from '@/components/auth/AuthModal'
 
 // Custom icons for missing lucide-react exports
 const ArrowRight = ({ className }: { className?: string }) => (
@@ -9,8 +10,6 @@ const ArrowRight = ({ className }: { className?: string }) => (
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
   </svg>
 )
-import AuthModal from '@/components/auth/AuthModal'
-import SignUpForm from '@/components/auth/SignUpForm'
 
 export function RegistrationButtons() {
   const [showAuthModal, setShowAuthModal] = useState(false)

@@ -4,11 +4,9 @@ import { useState } from 'react'
 import { Profile } from '@/lib/types'
 import { 
   Star, 
-  Calendar, 
   CheckCircle,
   X,
   Mail,
-  Bell,
   TrendingUp
 } from 'lucide-react'
 
@@ -16,18 +14,6 @@ import {
 const Crown = ({ className }: { className: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 11l5-5 4 4 8-8 1 1-9 9-4-4-5 5z" />
-  </svg>
-)
-
-const CreditCard = ({ className }: { className: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-  </svg>
-)
-
-const Gift = ({ className }: { className: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 20h14a2 2 0 002-2v-6H3v6a2 2 0 002 2z" />
   </svg>
 )
 
