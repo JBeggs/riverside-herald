@@ -7,6 +7,16 @@ import SignUpForm from './SignUpForm';
 
 const mockSignUp = vi.fn();
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
+    back: vi.fn(),
+    refresh: vi.fn(),
+  }),
+}));
+
 vi.mock('@/contexts/AuthContext', () => ({
   useAuth: () => ({ signUp: mockSignUp }),
 }));
