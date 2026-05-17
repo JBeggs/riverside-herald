@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
 import { Eye, EyeOff, Mail, Lock, User, UserPlus, Building2 } from 'lucide-react'
@@ -33,6 +34,7 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
   
   const { signUp } = useAuth()
   const { showError, showSuccess } = useToast()
+  const router = useRouter()
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -91,7 +93,7 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
     }
 
     try {
-      const { error } = await signUp(
+      const { error, verificationRequired, email: verificationEmail } = await signUp(
         formData.email, 
         formData.password, 
         formData.firstName,
@@ -104,6 +106,9 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
         setError(error)
         // Show error toast
         showError(error)
+      } else if (verificationRequired && verificationEmail) {
+        showSuccess('Check your email to verify your account before signing in.')
+        router.push(`/auth/verify-email?email=${encodeURIComponent(verificationEmail.trim())}`)
       } else {
         const successMessage = userType === 'business_owner'
           ? 'Business account created successfully! You can now login with your credentials.'

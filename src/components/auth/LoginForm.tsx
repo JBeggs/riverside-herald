@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
+import { authApi } from '@/lib/api'
 import { useToast } from '@/contexts/ToastContext'
 import { Eye, EyeOff, User, Lock, LogIn } from 'lucide-react'
 
@@ -17,7 +19,10 @@ export default function LoginForm({ onSuccess, onSwitchToSignup, className = '' 
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  
+  const [needsVerifyHint, setNeedsVerifyHint] = useState(false)
+  const [needsPhoneVerifyHint, setNeedsPhoneVerifyHint] = useState(false)
+  const [resendBusy, setResendBusy] = useState(false)
+
   const { signIn } = useAuth()
   const { showError, showSuccess } = useToast()
 
@@ -25,6 +30,8 @@ export default function LoginForm({ onSuccess, onSwitchToSignup, className = '' 
     e.preventDefault()
     setError('')
     setIsLoading(true)
+    setNeedsVerifyHint(false)
+    setNeedsPhoneVerifyHint(false)
 
     // Basic validation
     if (!username || !password) {
@@ -44,11 +51,38 @@ export default function LoginForm({ onSuccess, onSwitchToSignup, className = '' 
     }
 
     try {
-      const { error } = await signIn(username, password)
-      
-      if (error) {
-        setError(error)
-        showError(error)
+      const {
+        error: signInError,
+        code,
+        verificationEmailSent,
+        verificationEmailCooldown,
+      } = await signIn(username, password)
+
+      if (signInError) {
+        if (code === 'email_not_verified') {
+          let detail =
+            'Your account is not verified yet. Check your email (including spam) for a verification link, then sign in here.'
+          if (verificationEmailSent) {
+            detail += ' We sent another verification email—inbox and spam.'
+          } else if (verificationEmailCooldown) {
+            detail +=
+              ' A verification email was sent recently. Check existing messages or try “Resend email” when eligible.'
+          }
+          setError(detail)
+          showError(detail)
+          setNeedsVerifyHint(true)
+        } else if (code === 'phone_not_verified') {
+          const detail =
+            typeof signInError === 'string' && signInError.trim()
+              ? signInError
+              : 'Your cellphone number must be verified before you can sign in. Open your profile to complete verification.'
+          setError(detail)
+          showError(detail)
+          setNeedsPhoneVerifyHint(true)
+        } else {
+          setError(signInError)
+          showError(signInError)
+        }
       } else {
         showSuccess('Login successful!')
         onSuccess?.()
@@ -157,6 +191,54 @@ export default function LoginForm({ onSuccess, onSwitchToSignup, className = '' 
             )}
           </button>
         </form>
+
+        {needsVerifyHint ? (
+          <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm space-y-3">
+            <p className="text-gray-800 font-medium">Email verification is required before sign-in.</p>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href={`/auth/verify-email?email=${encodeURIComponent(username.trim())}`}
+                className="inline-flex justify-center py-2 px-3 rounded-lg border border-gray-300 text-gray-800 text-sm font-medium hover:bg-gray-50"
+              >
+                Verification help
+              </Link>
+              <button
+                type="button"
+                disabled={resendBusy}
+                onClick={async () => {
+                  try {
+                    setResendBusy(true)
+                    await authApi.resendVerificationEmail(username.trim())
+                    showSuccess(
+                      'If your account exists and still needs verification, we sent another email.',
+                    )
+                  } catch {
+                    showError('Could not resend. Try again shortly.')
+                  } finally {
+                    setResendBusy(false)
+                  }
+                }}
+                className="py-2 px-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium disabled:opacity-50"
+              >
+                {resendBusy ? 'Sending…' : 'Resend email'}
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        {needsPhoneVerifyHint ? (
+          <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm space-y-3">
+            <p className="text-gray-800 font-medium">
+              Phone verification is required. Complete verification from your profile, then sign in again.
+            </p>
+            <Link
+              href="/profile"
+              className="inline-flex justify-center py-2 px-3 rounded-lg border border-gray-300 text-gray-800 text-sm font-medium hover:bg-gray-50"
+            >
+              Go to profile
+            </Link>
+          </div>
+        ) : null}
 
         {/* Footer */}
         <div className="mt-8 text-center">
