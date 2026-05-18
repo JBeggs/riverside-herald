@@ -213,9 +213,10 @@ export class ApiClient {
   }
 
   /**
-   * Build headers for API requests
+   * Build headers for API requests.
+   * @param companySlugOverride When set (e.g. business listing slug), scopes requests to that company instead of DEFAULT_COMPANY_SLUG.
    */
-  private getHeaders(includeAuth: boolean = true): HeadersInit {
+  private getHeaders(includeAuth: boolean = true, companySlugOverride?: string | null): HeadersInit {
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
     }
@@ -231,9 +232,12 @@ export class ApiClient {
     if (companyId) {
       headers['X-Company-Id'] = companyId
     }
-    
-    // Always include company slug for tenant context
-    headers['X-Company-Slug'] = DEFAULT_COMPANY_SLUG
+
+    const tenant =
+      companySlugOverride != null && String(companySlugOverride).trim() !== ''
+        ? String(companySlugOverride).trim()
+        : DEFAULT_COMPANY_SLUG
+    headers['X-Company-Slug'] = tenant
 
     return headers
   }
@@ -396,6 +400,33 @@ export class ApiClient {
   }
 
   /**
+   * GET with X-Company-Slug scoped to a specific business/company slug (e.g. page-heroes, media for that tenant).
+   */
+  async getWithCompanySlug<T>(
+    endpoint: string,
+    companySlug: string,
+    params?: Record<string, any>,
+  ): Promise<T> {
+    const url = new URL(`${this.baseURL}${endpoint}`)
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          url.searchParams.append(key, String(value))
+        }
+      })
+    }
+
+    const makeRequest = () =>
+      fetch(url.toString(), {
+        method: 'GET',
+        headers: this.getHeaders(true, companySlug),
+      })
+
+    const response = await makeRequest()
+    return this.handleResponse<T>(response, makeRequest)
+  }
+
+  /**
    * POST request
    */
   async post<T>(endpoint: string, data?: any, includeAuth: boolean = true): Promise<T> {
@@ -439,6 +470,18 @@ export class ApiClient {
     return this.handleResponse<T>(response, makeRequest)
   }
 
+  async postWithCompanySlug<T>(endpoint: string, companySlug: string, data?: any): Promise<T> {
+    const makeRequest = () =>
+      fetch(`${this.baseURL}${endpoint}`, {
+        method: 'POST',
+        headers: this.getHeaders(true, companySlug),
+        body: data ? JSON.stringify(data) : undefined,
+      })
+
+    const response = await makeRequest()
+    return this.handleResponse<T>(response, makeRequest)
+  }
+
   /**
    * PUT request
    */
@@ -453,6 +496,18 @@ export class ApiClient {
     return this.handleResponse<T>(response, makeRequest)
   }
 
+  async putWithCompanySlug<T>(endpoint: string, companySlug: string, data?: any): Promise<T> {
+    const makeRequest = () =>
+      fetch(`${this.baseURL}${endpoint}`, {
+        method: 'PUT',
+        headers: this.getHeaders(true, companySlug),
+        body: data ? JSON.stringify(data) : undefined,
+      })
+
+    const response = await makeRequest()
+    return this.handleResponse<T>(response, makeRequest)
+  }
+
   /**
    * PATCH request
    */
@@ -462,6 +517,18 @@ export class ApiClient {
       headers: this.getHeaders(),
       body: data ? JSON.stringify(data) : undefined,
     })
+
+    const response = await makeRequest()
+    return this.handleResponse<T>(response, makeRequest)
+  }
+
+  async patchWithCompanySlug<T>(endpoint: string, companySlug: string, data?: any): Promise<T> {
+    const makeRequest = () =>
+      fetch(`${this.baseURL}${endpoint}`, {
+        method: 'PATCH',
+        headers: this.getHeaders(true, companySlug),
+        body: data ? JSON.stringify(data) : undefined,
+      })
 
     const response = await makeRequest()
     return this.handleResponse<T>(response, makeRequest)
@@ -492,10 +559,37 @@ export class ApiClient {
     return this.handleResponse<T>(response, makeRequest)
   }
 
+  async deleteWithCompanySlug<T>(endpoint: string, companySlug: string, data?: Record<string, any>): Promise<T> {
+    const makeRequest = () => {
+      const options: RequestInit = {
+        method: 'DELETE',
+        headers: this.getHeaders(true, companySlug),
+      }
+
+      if (data) {
+        options.headers = {
+          ...options.headers,
+          'Content-Type': 'application/json',
+        }
+        options.body = JSON.stringify(data)
+      }
+
+      return fetch(`${this.baseURL}${endpoint}`, options)
+    }
+
+    const response = await makeRequest()
+    return this.handleResponse<T>(response, makeRequest)
+  }
+
   /**
    * Upload file
    */
-  async uploadFile<T>(endpoint: string, file: File, additionalData?: Record<string, any>): Promise<T> {
+  async uploadFile<T>(
+    endpoint: string,
+    file: File,
+    additionalData?: Record<string, any>,
+    companySlugOverride?: string | null,
+  ): Promise<T> {
     const makeRequest = () => {
       const formData = new FormData()
       formData.append('file', file)
@@ -515,8 +609,11 @@ export class ApiClient {
       if (companyId) {
         headers['X-Company-Id'] = companyId
       }
-      // Always include company slug
-      headers['X-Company-Slug'] = DEFAULT_COMPANY_SLUG
+      const tenant =
+        companySlugOverride != null && String(companySlugOverride).trim() !== ''
+          ? String(companySlugOverride).trim()
+          : DEFAULT_COMPANY_SLUG
+      headers['X-Company-Slug'] = tenant
 
       return fetch(`${this.baseURL}${endpoint}`, {
         method: 'POST',
@@ -838,9 +935,35 @@ export const newsApi = {
     list: (params?: { media_type?: string; is_public?: boolean }) =>
       apiClient.get('/news/media/', params),
     get: (id: string) => apiClient.get(`/news/media/${id}/`),
-    upload: (file: File, data?: any) => apiClient.uploadFile('/news/media/', file, data),
+    /** When `companySlug` is set, upload is scoped to that business/company (required for PageHero `image_id`). */
+    upload: (file: File, data?: any, companySlug?: string | null) =>
+      apiClient.uploadFile('/news/media/', file, data, companySlug),
     update: (id: string, data: any) => apiClient.put(`/news/media/${id}/`, data),
     delete: (id: string) => apiClient.delete(`/news/media/${id}/`),
+  },
+
+  /**
+   * Page heroes — always pass the business listing `slug` as `companySlug` (tenant) so Media + Hero rows stay consistent.
+   */
+  pageHeroes: {
+    list: (
+      companySlug: string,
+      params?: { page_slug?: string; enabled?: boolean },
+    ) => apiClient.getWithCompanySlug('/news/page-heroes/', companySlug, params),
+
+    listForPage: (companySlug: string, pageSlug: string) =>
+      apiClient.getWithCompanySlug('/news/page-heroes/', companySlug, {
+        page_slug: pageSlug,
+      }),
+
+    create: (companySlug: string, data: Record<string, unknown>) =>
+      apiClient.postWithCompanySlug('/news/page-heroes/', companySlug, data),
+
+    update: (companySlug: string, id: string, data: Record<string, unknown>) =>
+      apiClient.patchWithCompanySlug(`/news/page-heroes/${id}/`, companySlug, data),
+
+    delete: (companySlug: string, id: string) =>
+      apiClient.deleteWithCompanySlug(`/news/page-heroes/${id}/`, companySlug),
   },
 
   // Businesses

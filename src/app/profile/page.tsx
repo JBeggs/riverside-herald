@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { serverNewsApi } from '@/lib/api-server'
+import { getHomeHeroImageFileUrlFromPayload } from '@/lib/page-hero'
 import ProfilePage from '@/components/profile/ProfilePage'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
 
@@ -144,7 +145,32 @@ export default async function Profile() {
       console.error('Error fetching businesses:', error)
       ownedBusinesses = []
     }
-    
+
+    // Match public homepage/cards: when Business.cover_image is empty but a home PageHero exists, show that banner in owner profile/admin cards.
+    if (ownedBusinesses.length > 0) {
+      ownedBusinesses = await Promise.all(
+        ownedBusinesses.map(async (b: any) => {
+          if (b?.cover_image?.file_url) return b
+          const slug = String(b?.slug || '').trim()
+          if (!slug) return b
+          try {
+            const raw = await serverNewsApi.pageHeroes.listForHome(slug)
+            const url = getHomeHeroImageFileUrlFromPayload(raw)
+            if (!url) return b
+            return {
+              ...b,
+              cover_image: {
+                ...(typeof b.cover_image === 'object' && b.cover_image ? b.cover_image : {}),
+                file_url: url,
+              },
+            }
+          } catch {
+            return b
+          }
+        }),
+      )
+    }
+
     additionalData = { 
       ...additionalData, 
       ownedBusinesses 

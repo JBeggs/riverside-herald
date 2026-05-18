@@ -16,9 +16,9 @@ class ServerApiClient {
 
   private async getHeaders(
     customHeaders?: HeadersInit,
-    options: { skipTenant?: boolean; skipAuth?: boolean } = {}
+    options: { skipTenant?: boolean; skipAuth?: boolean; companySlug?: string } = {},
   ): Promise<Record<string, string>> {
-    const { skipTenant = false, skipAuth = false } = options
+    const { skipTenant = false, skipAuth = false, companySlug } = options
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     }
@@ -46,8 +46,11 @@ class ServerApiClient {
       }
     }
     
-    // Always include company slug for tenant context
-    headers['X-Company-Slug'] = DEFAULT_COMPANY_SLUG
+    // Always include company slug for tenant context (override per-business when listing page-heroes)
+    headers['X-Company-Slug'] =
+      companySlug != null && String(companySlug).trim() !== ''
+        ? String(companySlug).trim()
+        : DEFAULT_COMPANY_SLUG
     
     // Add auth token from cookie if available (skip for public endpoints - invalid token causes 401)
     if (!skipAuth) {
@@ -84,7 +87,7 @@ class ServerApiClient {
   private async request<T>(
     endpoint: string,
     options: RequestInit = {},
-    requestOptions: { skipTenant?: boolean; skipAuth?: boolean } = {}
+    requestOptions: { skipTenant?: boolean; skipAuth?: boolean; companySlug?: string } = {},
   ): Promise<T> {
     const url = this.buildUrl(endpoint)
     
@@ -149,11 +152,12 @@ class ServerApiClient {
     return await response.text() as unknown as T
   }
 
-  async get<T>(endpoint: string, params?: Record<string, any> | { headers?: HeadersInit; skipTenant?: boolean; skipAuth?: boolean }): Promise<T> {
+  async get<T>(endpoint: string, params?: Record<string, any> | { headers?: HeadersInit; skipTenant?: boolean; skipAuth?: boolean; companySlug?: string }): Promise<T> {
     let url = this.buildUrl(endpoint)
     let customHeaders: HeadersInit | undefined
     let skipTenant = false
     let skipAuth = false
+    let companySlug: string | undefined
     
     // Check if params contains headers, skipTenant, or skipAuth
     if (params) {
@@ -166,9 +170,13 @@ class ServerApiClient {
       if ('skipAuth' in params) {
         skipAuth = !!(params as any).skipAuth
       }
+      if ('companySlug' in params && (params as any).companySlug != null) {
+        const cs = String((params as any).companySlug).trim()
+        if (cs) companySlug = cs
+      }
       
       // Remove internal options from params for URL search params
-      const { headers: _, skipTenant: __, skipAuth: ___, ...urlParams } = params as any
+      const { headers: _, skipTenant: __, skipAuth: ___, companySlug: ____, ...urlParams } = params as any
       params = urlParams
     }
     
@@ -176,7 +184,14 @@ class ServerApiClient {
     if (params && Object.keys(params).length > 0) {
       const urlObj = new URL(url)
       Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && key !== 'headers' && key !== 'skipTenant' && key !== 'skipAuth') {
+        if (
+          value !== undefined &&
+          value !== null &&
+          key !== 'headers' &&
+          key !== 'skipTenant' &&
+          key !== 'skipAuth' &&
+          key !== 'companySlug'
+        ) {
           urlObj.searchParams.append(key, String(value))
         }
       })
@@ -186,7 +201,7 @@ class ServerApiClient {
     return this.request<T>(url, {
       method: 'GET',
       headers: customHeaders,
-    }, { skipTenant, skipAuth })
+    }, { skipTenant, skipAuth, companySlug })
   }
 
   async post<T>(
@@ -362,6 +377,16 @@ export const serverNewsApi = {
       const settingsArray = Array.isArray(settings) ? settings : (settings?.results || [])
       return settingsArray.find((s: any) => s.key === key) || null
     },
+  },
+
+  /** Page heroes (scoped by business `companySlug` = listing slug, not Riverside default tenant). */
+  pageHeroes: {
+    listForHome: (businessSlug: string) =>
+      serverApi.get('/news/page-heroes/', {
+        page_slug: 'home',
+        companySlug: businessSlug,
+        skipAuth: true,
+      }),
   },
 
   // Profile (requires auth) - reads token from cookies automatically

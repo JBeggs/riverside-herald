@@ -3,6 +3,11 @@
 import { useState, useEffect } from 'react'
 import { X, Save } from 'lucide-react'
 import { newsApi } from '@/lib/api'
+import {
+  unwrapPageHeroListPayload,
+  pickHomePageHeroRow,
+  getHeroImageFileUrl,
+} from '@/lib/page-hero'
 import { useToast } from '@/contexts/ToastContext'
 import MediaPicker from '@/components/media/MediaPicker'
 
@@ -62,6 +67,15 @@ function isUuid(value: string): boolean {
   return !!value && UUID_REGEX.test(value)
 }
 
+function generateSlug(name: string) {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '') // Remove leading/trailing dashes
+}
+
 export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage = false }: BusinessEditModalProps) {
   const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
@@ -104,6 +118,12 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
   const [fetchErrorShown, setFetchErrorShown] = useState(false)
 
   const handleImageUpload = async (file: File, type: 'logo' | 'cover') => {
+    const tenantSlug = (businessData.slug || '').trim() || generateSlug(businessData.name || '')
+    if (!tenantSlug) {
+      showError('Please enter a business name first (needed to scope media to your listing).')
+      return
+    }
+
     if (type === 'logo') {
       setUploadingLogo(true)
     } else {
@@ -122,11 +142,15 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
         return
       }
 
-      // Upload media
-      const mediaData = await newsApi.media.upload(file, {
-        media_type: 'image',
-        alt_text: `${type === 'logo' ? 'Logo' : 'Cover image'} for business`,
-      }) as any
+      // Upload media scoped to this business/company so PageHero.image_id validation passes
+      const mediaData = await newsApi.media.upload(
+        file,
+        {
+          media_type: 'image',
+          alt_text: `${type === 'logo' ? 'Logo' : 'Cover image'} for business`,
+        },
+        tenantSlug,
+      ) as any
 
       // Update business data
       if (type === 'logo') {
@@ -247,6 +271,27 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
       // Store media objects for display
       setLogoMedia(business.logo || null)
       setCoverMedia(business.cover_image || null)
+
+      // Homepage banner may live on PageHero (page_slug=home) while Business.cover_image is empty — align admin with public site.
+      try {
+        const heroRaw = await newsApi.pageHeroes.list(String(business.slug || '').trim(), {
+          page_slug: 'home',
+        })
+        const heroRows = unwrapPageHeroListPayload(heroRaw)
+        const heroRow = pickHomePageHeroRow(heroRows)
+        if (!business.cover_image?.id && heroRow && getHeroImageFileUrl(heroRow)) {
+          const img = heroRow.image
+          if (img?.id) {
+            setBusinessData((prev) => ({
+              ...prev,
+              cover_image: String(img.id),
+            }))
+            setCoverMedia(img)
+          }
+        }
+      } catch {
+        /* keep business-only payload */
+      }
     } catch (error: any) {
       if (!fetchErrorShown) {
         setFetchErrorShown(true)
@@ -256,15 +301,6 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
     } finally {
       setLoading(false)
     }
-  }
-
-  const generateSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-+|-+$/g, '') // Remove leading/trailing dashes
   }
 
   const handleInputChange = (field: keyof BusinessData, value: any) => {
@@ -373,9 +409,47 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
         businessPayload.cover_image_id = null
       }
 
+      const tenantSlug = String(businessPayload.slug || '').trim()
+      const syncHomePageHero = async () => {
+        if (!tenantSlug) return
+        try {
+          if (businessData.cover_image) {
+            const raw = await newsApi.pageHeroes.list(tenantSlug, { page_slug: 'home' })
+            const rows = unwrapPageHeroListPayload(raw)
+            const existing = pickHomePageHeroRow(rows)
+            if (existing?.id) {
+              await newsApi.pageHeroes.update(tenantSlug, String(existing.id), {
+                image_id: businessData.cover_image,
+                enabled: true,
+              })
+            } else {
+              await newsApi.pageHeroes.create(tenantSlug, {
+                page_slug: 'home',
+                image_id: businessData.cover_image,
+                enabled: true,
+                title: businessData.name?.trim() || '',
+                subtitle: '',
+              })
+            }
+          } else {
+            const raw = await newsApi.pageHeroes.list(tenantSlug, { page_slug: 'home' })
+            const rows = unwrapPageHeroListPayload(raw)
+            const existing = pickHomePageHeroRow(rows)
+            if (existing?.id) {
+              await newsApi.pageHeroes.update(tenantSlug, String(existing.id), {
+                image_id: null,
+                enabled: false,
+              })
+            }
+          }
+        } catch (err) {
+          console.warn('[BusinessEditModal] Home page hero sync failed:', err)
+        }
+      }
+
       if (businessId === 'new') {
-        // Create new business
         await newsApi.businesses.create(businessPayload)
+        await syncHomePageHero()
         showSuccess('Business created successfully!')
       } else {
         // Update existing business - use resolved UUID (from slug or id)
@@ -385,6 +459,7 @@ export function BusinessEditModal({ businessId, onClose, onSuccess, isFullPage =
           return
         }
         await newsApi.businesses.update(updateId, businessPayload)
+        await syncHomePageHero()
         showSuccess('Business updated successfully!')
       }
 
