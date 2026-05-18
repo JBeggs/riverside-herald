@@ -237,7 +237,7 @@ export default function ArticleEditor({ article }: ArticleEditorProps) {
     <>
       {/* Edit Mode Overlay */}
       <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start justify-center pt-20 px-4">
-        <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[80vh] overflow-hidden">
+        <div className="bg-white text-gray-900 rounded-xl shadow-2xl w-full max-w-4xl max-h-[80vh] overflow-hidden">
           {/* Header */}
           <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
             <h2 className="text-xl font-semibold text-gray-900">Edit Article</h2>

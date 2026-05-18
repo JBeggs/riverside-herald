@@ -50,6 +50,13 @@ module.exports = {
           800: rgbVar('--color-neutral-800'),
           900: rgbVar('--color-neutral-900'),
         },
+        /** Site footer: stable across themes (neutral scale inverts under data-theme=dark) */
+        footer: {
+          bg: rgbVar('--color-footer-bg'),
+          fg: rgbVar('--color-footer-text'),
+          muted: rgbVar('--color-footer-muted'),
+          border: rgbVar('--color-footer-border'),
+        },
       },
       borderRadius: {
         card: 'var(--radius-card)',

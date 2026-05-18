@@ -22,7 +22,7 @@ export type HomeArticleBlockData = {
 function revealClass(revealed: boolean) {
   return revealed
     ? 'opacity-100 pointer-events-auto transition-opacity duration-200'
-    : 'opacity-0 pointer-events-none transition-opacity duration-200'
+    : 'opacity-100 pointer-events-auto transition-opacity duration-200'
 }
 
 /** Large featured tile (hero grid). */

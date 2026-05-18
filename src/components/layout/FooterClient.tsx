@@ -47,7 +47,7 @@ export default function FooterClient({
 
   return (
     <footer
-      className={`bg-neutral-900 text-neutral-50 ${isDashboardRoute ? 'lg:pl-64' : ''}`}
+      className={`bg-footer-bg text-footer-fg border-t border-footer-border ${isDashboardRoute ? 'lg:pl-64' : ''}`}
     >
       <div className="container-wide safe-pb">
         <div className="py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -63,9 +63,9 @@ export default function FooterClient({
                     .toUpperCase()}
                 </span>
               </div>
-              <span className="font-bold text-lg">{siteName}</span>
+              <span className="font-bold text-lg text-footer-fg">{siteName}</span>
             </div>
-            <p className="text-neutral-300 mb-4">{description}</p>
+            <p className="text-footer-muted mb-4">{description}</p>
             {socialLinks.length > 0 ? (
               <div className="flex flex-wrap gap-3">
                 {socialLinks.map((s, i) => {
@@ -77,7 +77,7 @@ export default function FooterClient({
                       href={s.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-neutral-400 hover:text-white inline-flex items-center gap-1"
+                      className="text-footer-muted hover:text-footer-fg inline-flex items-center gap-1"
                       title={label}
                     >
                       <Icon className="w-5 h-5" />
@@ -89,26 +89,26 @@ export default function FooterClient({
           </div>
 
           <div>
-            <h3 className="font-semibold text-lg mb-4">Quick Links</h3>
+            <h3 className="font-semibold text-lg mb-4 text-footer-fg">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/" className="text-neutral-300 hover:text-white">
+                <Link href="/" className="text-footer-muted hover:text-footer-fg">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/articles" className="text-neutral-300 hover:text-white">
+                <Link href="/articles" className="text-footer-muted hover:text-footer-fg">
                   Latest News
                 </Link>
               </li>
               <li>
-                <Link href="/businesses" className="text-neutral-300 hover:text-white">
+                <Link href="/businesses" className="text-footer-muted hover:text-footer-fg">
                   Business Directory
                 </Link>
               </li>
               {menuItems.slice(0, 4).map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href} className="text-neutral-300 hover:text-white">
+                  <Link href={item.href} className="text-footer-muted hover:text-footer-fg">
                     {item.title}
                   </Link>
                 </li>
@@ -117,11 +117,11 @@ export default function FooterClient({
           </div>
 
           <div>
-            <h3 className="font-semibold text-lg mb-4">Services</h3>
+            <h3 className="font-semibold text-lg mb-4 text-footer-fg">Services</h3>
             <ul className="space-y-2">
               {servicesLinks.map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href} className="text-neutral-300 hover:text-white inline-flex items-center gap-1">
+                  <Link href={item.href} className="text-footer-muted hover:text-footer-fg inline-flex items-center gap-1">
                     {item.label}
                     {item.href.startsWith('http') ? (
                       <ExternalLinkIcon className="w-3 h-3 shrink-0" />
@@ -133,24 +133,24 @@ export default function FooterClient({
           </div>
 
           <div>
-            <h3 className="font-semibold text-lg mb-4">Contact</h3>
+            <h3 className="font-semibold text-lg mb-4 text-footer-fg">Contact</h3>
             <div className="space-y-3">
               {contact.address ? (
                 <div className="flex items-start space-x-2">
-                  <MapPin className="w-4 h-4 text-neutral-400 mt-0.5 shrink-0" />
-                  <span className="text-neutral-300 text-sm">{contact.address}</span>
+                  <MapPin className="w-4 h-4 text-footer-muted mt-0.5 shrink-0" />
+                  <span className="text-footer-muted text-sm">{contact.address}</span>
                 </div>
               ) : null}
               {contact.phone ? (
                 <div className="flex items-center space-x-2">
-                  <Phone className="w-4 h-4 text-neutral-400 shrink-0" />
-                  <span className="text-neutral-300">{contact.phone}</span>
+                  <Phone className="w-4 h-4 text-footer-muted shrink-0" />
+                  <span className="text-footer-muted">{contact.phone}</span>
                 </div>
               ) : null}
               {contact.email ? (
                 <div className="flex items-center space-x-2">
-                  <Mail className="w-4 h-4 text-neutral-400 shrink-0" />
-                  <a href={`mailto:${contact.email}`} className="text-neutral-300 hover:text-white">
+                  <Mail className="w-4 h-4 text-footer-muted shrink-0" />
+                  <a href={`mailto:${contact.email}`} className="text-footer-muted hover:text-footer-fg">
                     {contact.email}
                   </a>
                 </div>
@@ -159,19 +159,19 @@ export default function FooterClient({
           </div>
         </div>
 
-        <div className="py-6 border-t border-neutral-800">
+        <div className="py-6 border-t border-footer-border">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-neutral-400 text-sm">
+            <p className="text-footer-muted text-sm">
               © {new Date().getFullYear()} {siteName}. All rights reserved.
             </p>
             <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
-              <Link href="/privacy" className="text-neutral-400 hover:text-white text-sm">
+              <Link href="/privacy" className="text-footer-muted hover:text-footer-fg text-sm">
                 Privacy Policy
               </Link>
-              <Link href="/terms" className="text-neutral-400 hover:text-white text-sm">
+              <Link href="/terms" className="text-footer-muted hover:text-footer-fg text-sm">
                 Terms of Service
               </Link>
-              <Link href="/cookies" className="text-neutral-400 hover:text-white text-sm">
+              <Link href="/cookies" className="text-footer-muted hover:text-footer-fg text-sm">
                 Cookie Policy
               </Link>
             </div>

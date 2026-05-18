@@ -230,7 +230,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
       <article className="container-wide py-8 md:py-12">
         <div className="max-w-4xl mx-auto">
-          <EnhancedArticleEditor article={article as any} />
+          <EnhancedArticleEditor article={article as any} chrome="public" />
 
           {article.content ? (
             <div

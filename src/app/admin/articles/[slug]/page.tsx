@@ -74,12 +74,13 @@ export default function ArticleEditPage() {
 
   return (
     <DashboardLayout profile={profile}>
-      <div className="min-h-full">
+      <div className="flex-1 min-h-0 flex flex-col">
         <EnhancedArticleEditor
           article={article}
           onSave={() => router.push('/admin/articles')}
           onCancel={() => router.push('/admin/articles')}
           inModal={true}
+          chrome="dashboard"
         />
       </div>
     </DashboardLayout>

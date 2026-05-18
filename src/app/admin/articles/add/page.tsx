@@ -27,12 +27,13 @@ export default function AddArticlePage() {
 
   return (
     <DashboardLayout profile={profile}>
-      <div className="min-h-full">
+      <div className="flex-1 min-h-0 flex flex-col">
         <EnhancedArticleEditor
           article={{ id: 'new', title: '', content: '', author_id: profile.user, status: 'draft' }}
           onSave={handleSave}
           onCancel={handleCancel}
           inModal={true}
+          chrome="dashboard"
         />
       </div>
     </DashboardLayout>

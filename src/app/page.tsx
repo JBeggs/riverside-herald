@@ -155,27 +155,74 @@ async function getHomepageData() {
       }
     }
     const businessesArray = Array.isArray(businessesData) ? businessesData : (businessesData?.results || [])
-    const businesses: Business[] = businessesArray.map((business: any) => ({
-      id: business.id,
-      name: business.name,
-      slug: business.slug,
-      description: business.description || '',
-      industry: business.industry || '',
-      city: business.address_city || business.city || '',
-      rating: parseFloat(business.rating) || 0,
-      review_count: business.review_count || 0,
-      website_url: business.website || business.website_url,
-      phone: business.phone,
-      email: business.email,
-      is_verified: business.is_verified,
-      logo: business.logo ? {
-        file_url: business.logo.file_url
-      } : business.logo_url ? { file_url: business.logo_url } : undefined,
-      cover_image: business.cover_image ? {
-        file_url: business.cover_image.file_url
-      } : undefined,
-      products: business.products || [],
-    }))
+    const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api').replace(/\/+$/, '')
+    const businessHomeBannerBySlug = new Map<string, string>()
+    await Promise.all(
+      businessesArray.map(async (business: any) => {
+        const slug = String(business?.slug || '').trim()
+        if (!slug) return
+        try {
+          const response = await fetch(
+            `${apiBaseUrl}/news/page-heroes/?page_slug=home&enabled=true`,
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Company-Slug': slug,
+              },
+              cache: 'no-store',
+            }
+          )
+          if (!response.ok) return
+          const heroData: any = await response.json()
+          const rows = Array.isArray(heroData) ? heroData : (heroData?.results || [])
+          const imageUrl = rows?.[0]?.image?.file_url
+          if (typeof imageUrl === 'string' && imageUrl.length > 0) {
+            businessHomeBannerBySlug.set(slug, imageUrl)
+          }
+        } catch {
+          // Ignore individual banner fetch errors so homepage still renders.
+        }
+      })
+    )
+
+    const businesses: Business[] = businessesArray.map((business: any) => {
+      const mappedProducts = Array.isArray(business.products)
+        ? business.products.map((product: any) => ({
+            ...product,
+            image:
+              product?.image?.file_url
+                ? product.image
+                : product?.image
+                  ? { file_url: product.image }
+                  : undefined,
+          }))
+        : []
+      const bannerFromHomeHero = businessHomeBannerBySlug.get(String(business.slug || ''))
+
+      return {
+        id: business.id,
+        name: business.name,
+        slug: business.slug,
+        description: business.description || '',
+        industry: business.industry || '',
+        city: business.address_city || business.city || '',
+        rating: parseFloat(business.rating) || 0,
+        review_count: business.review_count || 0,
+        website_url: business.website || business.website_url,
+        phone: business.phone,
+        email: business.email,
+        is_verified: business.is_verified,
+        logo: business.logo ? {
+          file_url: business.logo.file_url
+        } : business.logo_url ? { file_url: business.logo_url } : undefined,
+        cover_image: business.cover_image?.file_url
+          ? { file_url: business.cover_image.file_url }
+          : bannerFromHomeHero
+            ? { file_url: bannerFromHomeHero }
+            : undefined,
+        products: mappedProducts,
+      }
+    })
 
     const breakingNews = articles.find(article => article.is_breaking_news) || null
 
@@ -186,14 +233,6 @@ async function getHomepageData() {
     for (const a of featuredPool) {
       if (featuredArticles.length >= 6) break
       if (!heroFeaturedIds.has(a.id)) {
-        heroFeaturedIds.add(a.id)
-        featuredArticles.push(a)
-      }
-    }
-    if (featuredArticles.length < 6) {
-      for (const a of nonBreaking) {
-        if (featuredArticles.length >= 6) break
-        if (heroFeaturedIds.has(a.id)) continue
         heroFeaturedIds.add(a.id)
         featuredArticles.push(a)
       }

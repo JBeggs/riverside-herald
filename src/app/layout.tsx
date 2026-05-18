@@ -163,7 +163,7 @@ export default async function RootLayout({
               <AuthProvider>
                 <div className="min-h-screen flex flex-col">
                   <Header />
-                  <main className="flex-1">{children}</main>
+                  <main className="flex min-h-0 flex-1 flex-col">{children}</main>
                   <Footer />
                 </div>
                 <Suspense fallback={null}>

@@ -126,12 +126,20 @@ interface ArticleEditorProps {
   }
   onSave?: (newArticle?: any) => void
   onCancel?: () => void
-  inModal?: boolean // If true, don't render the fixed overlay
+  inModal?: boolean // If true, always start in editing mode (embedded admin / dialog)
+  /** Where the editor is mounted — controls min-height and sticky step bar offset */
+  chrome?: 'default' | 'dashboard' | 'modal' | 'public'
 }
 
 type EditorStep = 'basic' | 'content' | 'media' | 'settings' | 'seo' | 'research' | 'publish'
 
-export default function EnhancedArticleEditor({ article, onSave, onCancel, inModal = false }: ArticleEditorProps) {
+export default function EnhancedArticleEditor({
+  article,
+  onSave,
+  onCancel,
+  inModal = false,
+  chrome = 'default',
+}: ArticleEditorProps) {
   const { user, profile, isCompanyOwner } = useAuth()
   const { showError, showSuccess } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -330,6 +338,16 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
   const currentStepIndex = steps.findIndex(step => step.id === currentStep)
   const canGoNext = currentStepIndex < steps.length - 1
   const canGoPrev = currentStepIndex > 0
+
+  const stepStickyTopClass =
+    chrome === 'dashboard'
+      ? 'top-16'
+      : chrome === 'public'
+        ? 'top-[var(--site-header-height,104px)]'
+        : 'top-0'
+
+  const rootLayoutClass =
+    chrome === 'dashboard' || chrome === 'modal' ? 'min-h-0 flex-1' : 'min-h-screen'
 
   useEffect(() => {
     if (currentStep !== 'research' || article.id === 'new' || !canManageArticleResearch) return
@@ -1370,8 +1388,8 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
               <textarea
                 value={editData.content}
                 onChange={(e) => setEditData(prev => ({ ...prev, content: e.target.value }))}
-                rows={window.innerWidth < 640 ? 15 : 20}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y font-mono text-sm"
+                rows={16}
+                className="w-full min-h-[12rem] sm:min-h-[16rem] px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y font-mono text-sm"
                 placeholder="Write your article content here..."
               />
               <p className="mt-2 text-sm text-gray-500">
@@ -2138,123 +2156,137 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
   }
 
   return (
-    <div className="w-full flex flex-col bg-white min-h-screen">
+    <div className={`w-full flex flex-col bg-white text-gray-900 ${rootLayoutClass}`}>
       {/* Step Navigation */}
-      <div className="px-4 sm:px-6 py-4 border-b border-gray-200 bg-gray-50 sticky top-0 z-20">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide">
-            {steps.map((step, index) => {
-              const StepIcon = step.icon
-              const isActive = step.id === currentStep
-              const isCompleted = index < currentStepIndex
-              
-              return (
-                <button
-                  key={step.id}
-                  type="button"
-                  onClick={() => setCurrentStep(step.id)}
-                  className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg transition-all text-sm font-bold whitespace-nowrap ${
-                    isActive 
-                      ? 'bg-blue-600 text-white shadow-md scale-105' 
-                      : isCompleted 
-                        ? 'bg-green-100 text-green-700 hover:bg-green-200 border border-green-200' 
-                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-                  }`}
-                >
-                  <StepIcon className="w-4 h-4" />
-                  <span className="hidden sm:inline">{step.label}</span>
-                </button>
-              )
-            })}
+      <div
+        className={`px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200 bg-gray-50 sticky z-20 shadow-sm ${stepStickyTopClass}`}
+      >
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+          <div className="flex sm:hidden items-center justify-between gap-2">
+            <p className="text-sm font-semibold text-gray-800 truncate min-w-0 pr-2">
+              {steps[currentStepIndex]?.label ?? 'Step'}
+            </p>
+            <div className="flex items-center gap-1 flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => canGoPrev && setCurrentStep(steps[currentStepIndex - 1].id)}
+                disabled={!canGoPrev}
+                className="p-2.5 rounded-lg bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200 shadow-sm min-w-[44px] min-h-[44px] flex items-center justify-center"
+                aria-label="Previous step"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <span className="text-xs font-bold text-gray-500 tabular-nums px-1 min-w-[3rem] text-center">
+                {currentStepIndex + 1}/{steps.length}
+              </span>
+              <button
+                type="button"
+                onClick={() => canGoNext && setCurrentStep(steps[currentStepIndex + 1].id)}
+                disabled={!canGoNext}
+                className="p-2.5 rounded-lg bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200 shadow-sm min-w-[44px] min-h-[44px] flex items-center justify-center"
+                aria-label="Next step"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
           </div>
-          
-          <div className="flex items-center space-x-2 ml-4">
-            <button
-              type="button"
-              onClick={() => setCurrentStep(steps[currentStepIndex - 1].id)}
-              disabled={!canGoPrev}
-              className="p-2.5 rounded-lg bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200 shadow-sm"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setCurrentStep(steps[currentStepIndex + 1].id)}
-              disabled={!canGoNext}
-              className="p-2.5 rounded-lg bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200 shadow-sm"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
+
+          <div className="flex items-stretch sm:items-center gap-3 min-w-0 sm:flex-1 sm:justify-between">
+            <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0 -mx-1 px-1 sm:mx-0 sm:px-0 scrollbar-hide sm:flex-1 sm:min-w-0">
+              {steps.map((step, index) => {
+                const StepIcon = step.icon
+                const isActive = step.id === currentStep
+                const isCompleted = index < currentStepIndex
+
+                return (
+                  <button
+                    key={step.id}
+                    type="button"
+                    onClick={() => setCurrentStep(step.id)}
+                    className={`flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-lg transition-all text-xs sm:text-sm font-bold whitespace-nowrap flex-shrink-0 min-h-[44px] ${
+                      isActive
+                        ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-200'
+                        : isCompleted
+                          ? 'bg-green-100 text-green-700 hover:bg-green-200 border border-green-200'
+                          : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                    }`}
+                  >
+                    <StepIcon className="w-4 h-4 flex-shrink-0" />
+                    <span className="hidden sm:inline">{step.label}</span>
+                    <span className="sm:hidden max-w-[4.5rem] truncate">{step.label.split(' ')[0]}</span>
+                  </button>
+                )
+              })}
+            </div>
+
+            <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => setCurrentStep(steps[currentStepIndex - 1].id)}
+                disabled={!canGoPrev}
+                className="p-2.5 rounded-lg bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200 shadow-sm"
+                aria-label="Previous step"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurrentStep(steps[currentStepIndex + 1].id)}
+                disabled={!canGoNext}
+                className="p-2.5 rounded-lg bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200 shadow-sm"
+                aria-label="Next step"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Step Content */}
-      <div className="flex-1 p-6 sm:p-10 max-w-6xl mx-auto w-full">
+      <div className="flex-1 min-h-0 p-4 sm:p-6 md:p-10 max-w-6xl mx-auto w-full pb-10 max-md:pb-12">
         {renderStepContent()}
       </div>
       
-      {/* Footer with Save/Cancel buttons */}
-      <div className="px-4 sm:px-6 py-8 border-t border-gray-200 bg-gray-50 flex items-center justify-between flex-wrap gap-6 sticky bottom-0 z-20">
-        <div className="flex items-center space-x-4">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              handleCancel()
-            }}
-            className="flex items-center space-x-2 px-8 py-3 bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl transition-all font-bold shadow-sm active:scale-95"
-          >
-            <X className="w-5 h-5" />
-            <span>Cancel & Exit</span>
-          </button>
-        </div>
-        
-        <div className="flex items-center space-x-6">
-          {/* Mobile Navigation */}
-          <div className="sm:hidden flex items-center space-x-4">
-            <button
-              type="button"
-              onClick={() => canGoPrev && setCurrentStep(steps[currentStepIndex - 1].id)}
-              disabled={!canGoPrev}
-              className="p-3 rounded-xl bg-white text-gray-600 border-2 border-gray-200 disabled:opacity-50 shadow-sm"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <span className="text-sm font-bold text-gray-500">
-              {currentStepIndex + 1} / {steps.length}
-            </span>
-            <button
-              type="button"
-              onClick={() => canGoNext && setCurrentStep(steps[currentStepIndex + 1].id)}
-              disabled={!canGoNext}
-              className="p-3 rounded-xl bg-white text-gray-600 border-2 border-gray-200 disabled:opacity-50 shadow-sm"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
-          
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={isSaving || !validateArticle().valid}
-            className="flex items-center space-x-3 px-12 py-4 bg-green-600 text-white hover:bg-green-700 rounded-xl transition-all font-black text-lg shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95"
-            title={!validateArticle().valid ? validateArticle().message : 'Save article'}
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="w-6 h-6 animate-spin" />
-                <span>Saving...</span>
-              </>
-            ) : (
-              <>
-                <Save className="w-6 h-6" />
-                <span>Save Article</span>
-              </>
-            )}
-          </button>
-        </div>
+      {/* Footer with Save/Cancel buttons — non-sticky on small screens so it does not cover inputs / keyboard */}
+      <div
+        className={`px-4 sm:px-6 py-4 sm:py-6 border-t border-gray-200 bg-gray-50 z-20 shrink-0 max-md:pb-[max(1.25rem,env(safe-area-inset-bottom))] ${
+          chrome === 'modal'
+            ? ''
+            : 'md:sticky md:bottom-0'
+        } flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:flex-wrap sm:gap-6`}
+      >
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            handleCancel()
+          }}
+          className="flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl transition-all font-bold shadow-sm active:scale-95 w-full sm:w-auto order-2 sm:order-1"
+        >
+          <X className="w-5 h-5" />
+          <span>Cancel & Exit</span>
+        </button>
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={isSaving || !validateArticle().valid}
+          className="flex items-center justify-center gap-3 px-8 sm:px-12 py-3.5 sm:py-4 bg-green-600 text-white hover:bg-green-700 rounded-xl transition-all font-black text-base sm:text-lg shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95 w-full sm:w-auto order-1 sm:order-2"
+          title={!validateArticle().valid ? validateArticle().message : 'Save article'}
+        >
+          {isSaving ? (
+            <>
+              <Loader2 className="w-6 h-6 animate-spin" />
+              <span>Saving...</span>
+            </>
+          ) : (
+            <>
+              <Save className="w-6 h-6" />
+              <span>Save Article</span>
+            </>
+          )}
+        </button>
       </div>
     </div>
   )

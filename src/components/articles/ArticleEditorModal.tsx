@@ -181,7 +181,7 @@ export default function ArticleEditorModal({ isOpen, onClose, onSave, articleId 
         onClick={(e) => e.stopPropagation()}
       >
         <div 
-          className="relative w-full max-w-6xl transform transition-all bg-white rounded-lg shadow-xl max-h-[90vh] overflow-hidden flex flex-col"
+          className="relative w-full max-w-6xl transform transition-all bg-white rounded-lg shadow-xl max-h-[90vh] min-h-0 overflow-hidden flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -206,8 +206,8 @@ export default function ArticleEditorModal({ isOpen, onClose, onSave, articleId 
             </button>
           </div>
 
-          {/* Content */}
-          <div className="flex-1 overflow-hidden flex flex-col">
+          {/* Content — scroll inside dialog so the form is not clipped */}
+          <div className="flex-1 min-h-0 overflow-y-auto flex flex-col">
             {loading ? (
               <div className="flex items-center justify-center py-12 flex-1">
                 <div className="text-center">
@@ -216,7 +216,13 @@ export default function ArticleEditorModal({ isOpen, onClose, onSave, articleId 
                 </div>
               </div>
             ) : articleData ? (
-              <EnhancedArticleEditor article={articleData} onSave={handleSave} onCancel={onClose} inModal={true} />
+              <EnhancedArticleEditor
+                article={articleData}
+                onSave={handleSave}
+                onCancel={onClose}
+                inModal={true}
+                chrome="modal"
+              />
             ) : (
               <div className="flex items-center justify-center py-12 flex-1">
                 <div className="text-center">

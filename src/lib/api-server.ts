@@ -212,7 +212,7 @@ export const serverApi = new ServerApiClient()
 export const serverNewsApi = {
   // Articles (skipAuth for public read - invalid token in cookie causes 401)
   articles: {
-    list: (params?: { status?: string; category?: string; search?: string; page?: number; author?: string; limit?: number; ordering?: string; slug?: string; skipTenant?: boolean }) =>
+    list: (params?: { status?: string; category?: string; category__slug?: string; tags__slug?: string; search?: string; page?: number; author?: string; limit?: number; ordering?: string; slug?: string; skipTenant?: boolean }) =>
       serverApi.get('/news/articles/', { ...params, skipAuth: true }),
     getBySlug: async (slug: string) => {
       try {

@@ -277,7 +277,7 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
         </div>
 
         {/* Page content — document scroll only (no nested overflow) */}
-        <div className="flex-1 p-4 md:p-6">
+        <div className="flex-1 min-h-0 flex flex-col p-4 md:p-6">
           {children}
         </div>
       </div>
