@@ -115,6 +115,8 @@ interface ArticleEditorProps {
     is_premium?: boolean
     is_breaking_news?: boolean
     is_trending?: boolean
+    /** Homepage hero pool; keep status=published for public visibility */
+    is_featured?: boolean
     seo_title?: string
     seo_description?: string
     published_at?: string
@@ -177,11 +179,15 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
     featured_image_url: article.featured_media?.file_url || article.featured_image_url || '',
     featured_media_id: article.featured_media?.id || article.featured_media_id || '',
     category_id: article.category_id || '',
-    status: article.status || 'draft',
+    status:
+      article.status === 'featured' ? 'published' : article.status || 'draft',
     content_type: article.content_type || 'article',
     is_premium: article.is_premium || false,
     is_breaking_news: article.is_breaking_news || false,
     is_trending: article.is_trending || false,
+    is_featured:
+      Boolean((article as { is_featured?: boolean }).is_featured) ||
+      article.status === 'featured',
     seo_title: article.seo_title || '',
     seo_description: article.seo_description || '',
     published_at:
@@ -207,11 +213,15 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
         featured_image_url: article.featured_media?.file_url || article.featured_image_url || '',
         featured_media_id: article.featured_media?.id || article.featured_media_id || '',
         category_id: article.category?.id || article.category_id || '',
-        status: article.status || 'draft',
+        status:
+          article.status === 'featured' ? 'published' : article.status || 'draft',
         content_type: article.content_type || 'article',
         is_premium: article.is_premium || false,
         is_breaking_news: article.is_breaking_news || false,
         is_trending: article.is_trending || false,
+        is_featured:
+          Boolean((article as { is_featured?: boolean }).is_featured) ||
+          article.status === 'featured',
         seo_title: article.seo_title || '',
         seo_description: article.seo_description || '',
         published_at: toLocalDateTimeInput(article.published_at),
@@ -760,6 +770,7 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
         is_premium: editData.is_premium || false,
         is_breaking_news: editData.is_breaking_news || false,
         is_trending: editData.is_trending || false,
+        is_featured: Boolean(editData.is_featured),
         seo_title: editData.seo_title || '',
         seo_description: editData.seo_description || '',
         location_name: editData.location_name || '',
@@ -940,11 +951,15 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
       featured_image_url: article.featured_media?.file_url || article.featured_image_url || '',
       featured_media_id: article.featured_media?.id || article.featured_media_id || '',
       category_id: article.category_id || '',
-      status: article.status || 'draft',
+      status:
+        article.status === 'featured' ? 'published' : article.status || 'draft',
       content_type: article.content_type || 'article',
       is_premium: article.is_premium || false,
       is_breaking_news: article.is_breaking_news || false,
       is_trending: article.is_trending || false,
+      is_featured:
+        Boolean((article as { is_featured?: boolean }).is_featured) ||
+        article.status === 'featured',
       seo_title: article.seo_title || '',
       seo_description: article.seo_description || '',
       published_at:
@@ -1607,8 +1622,10 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
                 <option value="published">Published</option>
                 <option value="scheduled">Scheduled</option>
                 <option value="archived">Archived</option>
-                <option value="featured">Featured</option>
               </select>
+              <p className="mt-2 text-sm text-gray-500">
+                Use <span className="font-medium">Published</span> for live articles. To highlight on the homepage hero, enable &quot;Feature on homepage&quot; below (do not use a separate &quot;featured&quot; status).
+              </p>
             </div>
 
             <div className="space-y-4">
@@ -1642,6 +1659,21 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
                   className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
                 />
                 <span className="text-sm font-medium text-gray-700">Trending</span>
+              </label>
+
+              <label className="flex items-start space-x-3">
+                <input
+                  type="checkbox"
+                  checked={editData.is_featured}
+                  onChange={(e) => setEditData(prev => ({ ...prev, is_featured: e.target.checked }))}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded mt-0.5"
+                />
+                <span>
+                  <span className="text-sm font-medium text-gray-700">Feature on homepage</span>
+                  <span className="block text-xs text-gray-500 mt-0.5">
+                    Eligible for the main hero on the public site (up to six slots; published articles only).
+                  </span>
+                </span>
               </label>
             </div>
 
@@ -2094,6 +2126,7 @@ export default function EnhancedArticleEditor({ article, onSave, onCancel, inMod
                 {editData.is_premium && <p className="text-amber-600">⭐ Premium Content</p>}
                 {editData.is_breaking_news && <p className="text-red-600">🚨 Breaking News</p>}
                 {editData.is_trending && <p className="text-orange-600">📈 Trending</p>}
+                {editData.is_featured && <p className="text-indigo-600">⭐ Homepage hero (featured)</p>}
               </div>
             </div>
           </div>
