@@ -131,11 +131,17 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
         alt_text: `Avatar for ${formData.full_name || user.email}`
       }) as { file_url: string }
 
+      // Persist avatar immediately so users don't need to press "Save".
+      await newsApi.profile.patch({ avatar_url: mediaData.file_url })
+
       // Update form data with new avatar URL
       setFormData(prev => ({
         ...prev,
         avatar_url: mediaData.file_url
       }))
+
+      // Refresh shared auth/profile state so header + profile page stay in sync.
+      await refreshProfile()
 
     } catch (error: any) {
       console.error('Error uploading avatar:', error)
