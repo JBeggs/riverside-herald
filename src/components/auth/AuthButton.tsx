@@ -43,6 +43,7 @@ export default function AuthButton({ onAction }: { onAction?: () => void }) {
     const showMyBusinesses = role === 'business_owner'
     const showContentTools = Boolean(role && CONTENT_ROLES.has(role))
     const showAdminPanel = Boolean(role && ADMIN_ROLES.has(role))
+    const avatarUrl = profile.avatar_url?.trim() || ''
 
     const closeMenu = () => {
       setShowUserMenu(false)
@@ -57,9 +58,17 @@ export default function AuthButton({ onAction }: { onAction?: () => void }) {
           onClick={() => setShowUserMenu(!showUserMenu)}
           className="flex items-center space-x-2 px-3 py-2 rounded-full bg-[rgb(var(--color-surface-raised)/0.85)] hover:bg-[rgb(var(--color-surface-raised))] border border-border-default transition-colors"
         >
-          <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-            <User className="w-4 h-4 text-[rgb(var(--color-on-accent))]" />
-          </div>
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt=""
+              className="w-8 h-8 rounded-full object-cover border border-border-default"
+            />
+          ) : (
+            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+              <User className="w-4 h-4 text-[rgb(var(--color-on-accent))]" />
+            </div>
+          )}
           <span className="text-sm font-medium text-text hidden sm:block">
             {profile.first_name || profile.last_name 
               ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() 

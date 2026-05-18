@@ -29,6 +29,7 @@ export function MobileNav({ menuItems }: MobileNavProps) {
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
 
   const role = profile?.role
+  const avatarUrl = profile?.avatar_url?.trim() || ''
   const showDashboard = Boolean(user && role && DASHBOARD_ROLES.has(role))
   const showMyBusinesses = role === 'business_owner'
   const showContentTools = Boolean(user && role && CONTENT_ROLES.has(role))
@@ -125,9 +126,17 @@ export function MobileNav({ menuItems }: MobileNavProps) {
                 ) : (
                   <div className="flex flex-col space-y-2">
                     <div className="flex items-center gap-3 p-3 rounded-xl bg-[rgb(var(--color-surface-raised)/0.45)] border border-border-default">
-                      <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center shrink-0">
-                        <User className="w-5 h-5 text-[rgb(var(--color-on-accent))]" />
-                      </div>
+                      {avatarUrl ? (
+                        <img
+                          src={avatarUrl}
+                          alt=""
+                          className="w-10 h-10 rounded-full object-cover border border-border-default shrink-0"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center shrink-0">
+                          <User className="w-5 h-5 text-[rgb(var(--color-on-accent))]" />
+                        </div>
+                      )}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-text truncate">
                           {profile?.first_name || profile?.last_name
