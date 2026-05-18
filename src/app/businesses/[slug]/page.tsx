@@ -115,6 +115,32 @@ async function getBusiness(slug: string) {
     })
     const reviews = reviewsData?.results || reviewsData || []
 
+    // Fallback to this business's saved homepage hero banner when cover_image is not set.
+    let homeBannerUrl: string | null = null
+    try {
+      const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api').replace(/\/+$/, '')
+      const heroResponse = await fetch(
+        `${apiBaseUrl}/news/page-heroes/?page_slug=home&enabled=true`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Company-Slug': slug,
+          },
+          cache: 'no-store',
+        }
+      )
+      if (heroResponse.ok) {
+        const heroData: any = await heroResponse.json()
+        const rows = Array.isArray(heroData) ? heroData : (heroData?.results || [])
+        const imageUrl = rows?.[0]?.image?.file_url
+        if (typeof imageUrl === 'string' && imageUrl.length > 0) {
+          homeBannerUrl = imageUrl
+        }
+      }
+    } catch {
+      /* Ignore banner fallback failures and keep normal business payload */
+    }
+
     return {
       id: business.id,
       name: business.name,
@@ -148,10 +174,17 @@ async function getBusiness(slug: string) {
         file_url: business.logo.file_url,
         alt_text: `${business.name} logo`
       } : business.logo_url ? { file_url: business.logo_url, alt_text: `${business.name} logo` } : null,
-      cover_image: business.cover_image ? {
-        file_url: business.cover_image.file_url,
-        alt_text: `${business.name} cover`
-      } : null,
+      cover_image: business.cover_image?.file_url
+        ? {
+            file_url: business.cover_image.file_url,
+            alt_text: `${business.name} cover`
+          }
+        : homeBannerUrl
+          ? {
+              file_url: homeBannerUrl,
+              alt_text: `${business.name} cover`
+            }
+          : null,
       reviews: reviews,
     }
   } catch (error) {
