@@ -3,8 +3,12 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
-import { LogIn, LogOut, User, ChevronDown } from 'lucide-react'
+import { LogIn, LogOut, User, ChevronDown, Building2, FileText, Images } from 'lucide-react'
 import AuthModal from './AuthModal'
+
+const DASHBOARD_ROLES = new Set(['admin', 'editor', 'author', 'business_owner'])
+const CONTENT_ROLES = new Set(['admin', 'editor', 'author', 'business_owner'])
+const ADMIN_ROLES = new Set(['admin', 'editor'])
 
 export default function AuthButton({ onAction }: { onAction?: () => void }) {
   const { user, profile, signOut, loading } = useAuth()
@@ -34,72 +38,123 @@ export default function AuthButton({ onAction }: { onAction?: () => void }) {
   }
 
   if (user && profile) {
+    const role = profile.role
+    const showDashboard = Boolean(role && DASHBOARD_ROLES.has(role))
+    const showMyBusinesses = role === 'business_owner'
+    const showContentTools = Boolean(role && CONTENT_ROLES.has(role))
+    const showAdminPanel = Boolean(role && ADMIN_ROLES.has(role))
+
+    const closeMenu = () => {
+      setShowUserMenu(false)
+      if (onAction) onAction()
+    }
+
     return (
       <div className="relative">
         {/* User Menu Button */}
         <button
+          type="button"
           onClick={() => setShowUserMenu(!showUserMenu)}
-          className="flex items-center space-x-2 px-3 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+          className="flex items-center space-x-2 px-3 py-2 rounded-full bg-[rgb(var(--color-surface-raised)/0.85)] hover:bg-[rgb(var(--color-surface-raised))] border border-border-default transition-colors"
         >
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
-            <User className="w-4 h-4 text-white" />
+          <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+            <User className="w-4 h-4 text-[rgb(var(--color-on-accent))]" />
           </div>
-          <span className="text-sm font-medium text-gray-700 hidden sm:block">
+          <span className="text-sm font-medium text-text hidden sm:block">
             {profile.first_name || profile.last_name 
               ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() 
               : profile.full_name || user.email?.split('@')[0]}
           </span>
-          <ChevronDown className="w-4 h-4 text-gray-500" />
+          <ChevronDown className="w-4 h-4 text-text-muted" />
         </button>
 
         {/* User Dropdown Menu */}
         {showUserMenu && (
-          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-            <div className="px-4 py-2 border-b border-gray-100">
-              <p className="text-sm font-medium text-gray-900">
+          <div className="absolute right-0 mt-2 w-60 sm:w-64 bg-surface rounded-lg shadow-card border border-border-default py-2 z-50">
+            <div className="px-4 py-2 border-b border-border-default">
+              <p className="text-sm font-medium text-text">
                 {profile.first_name || profile.last_name 
                   ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() 
                   : profile.full_name}
               </p>
-              <p className="text-xs text-gray-500">{user.email}</p>
-              {profile.role && (
-                <span className="inline-block mt-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                  {profile.role}
+              <p className="text-xs text-text-muted">{user.email}</p>
+              {role ? (
+                <span className="inline-block mt-1 px-2 py-0.5 bg-[rgb(var(--color-surface-raised))] text-text-muted text-[10px] uppercase tracking-wide rounded-md">
+                  {role.replace(/_/g, ' ')}
                 </span>
-              )}
+              ) : null}
             </div>
             
+            {showDashboard ? (
+              <Link 
+                href="/dashboard"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/5"
+                onClick={closeMenu}
+              >
+                Dashboard
+              </Link>
+            ) : null}
+
+            {showMyBusinesses ? (
+              <Link 
+                href="/businesses/my"
+                className="flex items-center gap-2 px-4 py-2 text-sm text-text hover:bg-[rgb(var(--color-surface-raised)/0.5)]"
+                onClick={closeMenu}
+              >
+                <Building2 className="w-4 h-4 shrink-0 text-text-muted" />
+                My businesses
+              </Link>
+            ) : null}
+
+            {showContentTools ? (
+              <Link 
+                href="/admin/articles"
+                className="flex items-center gap-2 px-4 py-2 text-sm text-text hover:bg-[rgb(var(--color-surface-raised)/0.5)]"
+                onClick={closeMenu}
+              >
+                <FileText className="w-4 h-4 shrink-0 text-text-muted" />
+                {role === 'business_owner' ? 'My articles' : 'Articles (CMS)'}
+              </Link>
+            ) : null}
+
+            {showContentTools ? (
+              <Link 
+                href="/admin/media"
+                className="flex items-center gap-2 px-4 py-2 text-sm text-text hover:bg-[rgb(var(--color-surface-raised)/0.5)]"
+                onClick={closeMenu}
+              >
+                <Images className="w-4 h-4 shrink-0 text-text-muted" />
+                Media library
+              </Link>
+            ) : null}
+
             <Link 
-              href={['admin', 'editor', 'author', 'business_owner'].includes(profile.role) ? '/dashboard' : '/profile'}
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-              onClick={() => {
-                setShowUserMenu(false)
-                if (onAction) onAction()
-              }}
+              href="/profile"
+              className="flex items-center gap-2 px-4 py-2 text-sm text-text hover:bg-[rgb(var(--color-surface-raised)/0.5)]"
+              onClick={closeMenu}
             >
-              Dashboard
+              <User className="w-4 h-4 shrink-0 text-text-muted" />
+              Profile & settings
             </Link>
             
-            {(profile.role === 'admin' || profile.role === 'editor') && (
+            {showAdminPanel ? (
               <Link 
                 href="/admin" 
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                onClick={() => {
-                  setShowUserMenu(false)
-                  if (onAction) onAction()
-                }}
+                className="flex items-center gap-2 px-4 py-2 text-sm text-text hover:bg-[rgb(var(--color-surface-raised)/0.5)]"
+                onClick={closeMenu}
               >
-                Admin Panel
+                Admin panel
               </Link>
-            )}
+            ) : null}
             
-            <div className="border-t border-gray-100 mt-2 pt-2">
+            <div className="border-t border-border-default mt-1 pt-1">
               <button
+                type="button"
                 onClick={handleSignOut}
-                className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
               >
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
+                <LogOut className="w-4 h-4 mr-2 shrink-0" />
+                Sign out
               </button>
             </div>
           </div>
@@ -110,6 +165,7 @@ export default function AuthButton({ onAction }: { onAction?: () => void }) {
           <div
             className="fixed inset-0 z-40"
             onClick={() => setShowUserMenu(false)}
+            aria-hidden
           />
         )}
       </div>

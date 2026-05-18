@@ -43,6 +43,7 @@ declare module 'lucide-react' {
   export const Menu: FC<IconProps>
   export const Bell: FC<IconProps>
   export const FileText: FC<IconProps>
+  export const Images: FC<IconProps>
   export const ArrowLeft: FC<IconProps>
   export const Tag: FC<IconProps>
   export const Trash2: FC<IconProps>

@@ -325,58 +325,54 @@ export default async function HomePage() {
         <HomeFeaturedBusinessesSlideshow businesses={businesses} defaultCurrency={defaultCurrency} />
       ) : null}
 
-      {/* Latest & Trending */}
-      <section className="py-10 md:py-14">
+      {/* Latest News — full width; Trending follows below */}
+      <section className="home-latest-section py-10 md:py-14 border-t border-border-default">
         <div className="container-wide">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
-            <div className="lg:col-span-2">
-              <div className="section-header">
-                <h2 className="section-title">Latest News</h2>
-                <Link href="/articles" className="btn btn-secondary text-xs md:text-sm">View All</Link>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-                {recentArticles.slice(0, 6).map((article) => (
-                  <HomeGridArticleBlock
-                    key={article.id}
-                    article={article}
-                    imageUrl={getImageUrl(article)}
-                    locale={defaultLocale}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-8">
-              {trendingArticles.length > 0 && (
-                <div className="rounded-2xl border border-border-default bg-surface p-5 md:p-6 shadow-card">
-                  <h3 className="heading-sm mb-4 flex items-center">
-                    <TrendingUp className="w-5 h-5 mr-2 text-red-600 flex-shrink-0" />
-                    Trending
-                  </h3>
-                  <div className="space-y-4">
-                    {trendingArticles.map((article, index) => (
-                      <article key={article.id} className="flex space-x-3">
-                        <span className="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                          {index + 1}
-                        </span>
-                        <div className="min-w-0">
-                          <h4 className="font-semibold text-sm leading-snug mb-1">
-                            <Link href={`/articles/${article.slug}`} className="hover:text-primary">
-                              {article.title}
-                            </Link>
-                          </h4>
-                          {article.subtitle ? (
-                            <p className="text-xs text-neutral-600 line-clamp-2 mb-1">{article.subtitle}</p>
-                          ) : null}
-                          <HomeTrendingMeta article={article} locale={defaultLocale} />
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+          <div className="section-header">
+            <h2 className="section-title">Latest News</h2>
+            <Link href="/articles" className="btn btn-secondary text-xs md:text-sm">View All</Link>
           </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {recentArticles.slice(0, 6).map((article) => (
+              <HomeGridArticleBlock
+                key={article.id}
+                article={article}
+                imageUrl={getImageUrl(article)}
+                locale={defaultLocale}
+              />
+            ))}
+          </div>
+
+          {trendingArticles.length > 0 && (
+            <div className="mt-12 md:mt-16 pt-10 md:pt-12 border-t border-border-default">
+              <div className="rounded-2xl border border-border-default bg-surface p-5 md:p-8 shadow-card max-w-4xl mx-auto lg:max-w-none">
+                <h3 className="heading-sm mb-6 flex items-center">
+                  <TrendingUp className="w-5 h-5 mr-2 text-red-600 flex-shrink-0" />
+                  Trending
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 lg:gap-4">
+                  {trendingArticles.map((article, index) => (
+                    <article key={article.id} className="flex space-x-3 min-w-0">
+                      <span className="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                        {index + 1}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-semibold text-sm leading-snug mb-1">
+                          <Link href={`/articles/${article.slug}`} className="hover:text-primary">
+                            {article.title}
+                          </Link>
+                        </h4>
+                        {article.subtitle ? (
+                          <p className="text-xs text-neutral-600 line-clamp-2 mb-1">{article.subtitle}</p>
+                        ) : null}
+                        <HomeTrendingMeta article={article} locale={defaultLocale} />
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </section>
     </div>

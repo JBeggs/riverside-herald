@@ -383,6 +383,10 @@ h6 {
   @apply relative;
 }
 
+.home-latest-section {
+  @apply bg-[rgb(var(--color-surface-raised)/0.35)];
+}
+
 *:focus-visible {
   outline: 2px solid rgb(var(--color-ring));
   outline-offset: 2px;
