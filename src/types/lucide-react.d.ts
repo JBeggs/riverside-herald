@@ -31,6 +31,8 @@ declare module 'lucide-react' {
   export const Check: FC<IconProps>
   export const LogIn: FC<IconProps>
   export const LogOut: FC<IconProps>
+  export const ChevronLeft: FC<IconProps>
+  export const ChevronRight: FC<IconProps>
   export const ChevronDown: FC<IconProps>
   export const AlertCircle: FC<IconProps>
   export const CheckCircle: FC<IconProps>
