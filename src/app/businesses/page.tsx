@@ -97,15 +97,15 @@ export default async function BusinessesPage() {
   const otherBusinesses = businesses.filter((b: any) => !featuredBusinesses.some((fb: any) => fb.id === b.id))
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-bg text-text">
       {/* Header */}
-      <div className="bg-gray-50 py-16">
+      <div className="bg-[rgb(var(--color-surface-raised)/0.35)] py-16 border-b border-border-default">
         <div className="container-wide">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+            <h1 className="text-4xl md:text-5xl font-bold text-text mb-6">
               Local Businesses
             </h1>
-            <p className="text-xl text-gray-600 leading-relaxed">
+            <p className="text-xl text-text-muted leading-relaxed">
               Discover and connect with local businesses in your community. Find services, read reviews, and support local entrepreneurs.
             </p>
           </div>
@@ -120,7 +120,7 @@ export default async function BusinessesPage() {
         {featuredBusinesses.length > 0 && (
           <div className="mb-16">
             <div className="flex items-center space-x-3 mb-8">
-              <h2 className="text-2xl font-bold text-gray-900">Featured Businesses</h2>
+              <h2 className="text-2xl font-bold text-text">Featured Businesses</h2>
               <div className="flex items-center space-x-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
                 <Star className="w-3 h-3 fill-current" />
                 <span>Verified</span>
@@ -141,7 +141,7 @@ export default async function BusinessesPage() {
 
         {/* All Businesses */}
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">
+          <h2 className="text-2xl font-bold text-text mb-8">
             {featuredBusinesses.length > 0 ? 'All Businesses' : 'Our Local Businesses'}
           </h2>
           
@@ -157,9 +157,9 @@ export default async function BusinessesPage() {
             </div>
           ) : (
             <div className="text-center py-16">
-              <Building2 className="w-16 h-16 text-gray-300 mx-auto mb-6" />
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">No Businesses Found</h3>
-              <p className="text-gray-600">
+              <Building2 className="w-16 h-16 text-text-muted mx-auto mb-6" />
+              <h3 className="text-2xl font-bold text-text mb-4">No Businesses Found</h3>
+              <p className="text-text-muted">
                 There are no businesses listed at the moment. Check back later!
               </p>
             </div>

@@ -64,7 +64,7 @@ export function FeaturedBusinessListingCard({
 
   return (
     <article
-      className={`bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-200 overflow-hidden border border-gray-100 ${
+      className={`bg-surface rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-200 overflow-hidden border border-border-default ${
         revealed ? 'opacity-100 pointer-events-auto transition-opacity duration-200' : 'opacity-0 pointer-events-none transition-opacity duration-200'
       }`}
     >
@@ -94,21 +94,21 @@ export function FeaturedBusinessListingCard({
 
       <div className="p-6">
         <div className="mb-4">
-          <h3 className="text-xl font-bold text-gray-900 mb-2">{business.name}</h3>
+          <h3 className="text-xl font-bold text-text mb-2">{business.name}</h3>
           <div className="flex items-center space-x-2">
             <div className="flex items-center space-x-1">{renderStars(business.rating)}</div>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-text-muted">
               {business.rating.toFixed(1)} ({business.review_count} reviews)
             </span>
           </div>
         </div>
 
-        {business.description ? <p className="text-gray-600 mb-4 line-clamp-2">{business.description}</p> : null}
+        {business.description ? <p className="text-text-muted mb-4 line-clamp-2">{business.description}</p> : null}
 
         {(business.address || business.city) && (
           <div className="flex items-start space-x-2 mb-3">
-            <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-            <span className="text-sm text-gray-600 line-clamp-1">
+            <MapPin className="w-4 h-4 text-text-muted mt-0.5 flex-shrink-0" />
+            <span className="text-sm text-text-muted line-clamp-1">
               {business.address && business.city
                 ? `${business.address}, ${business.city}${business.state ? `, ${business.state}` : ''}`
                 : business.city || business.address}
@@ -120,12 +120,12 @@ export function FeaturedBusinessListingCard({
           <div className="mb-4">
             <div className="flex flex-wrap gap-1">
               {business.services.slice(0, 3).map((service: string, index: number) => (
-                <span key={index} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
+                <span key={index} className="px-2 py-1 bg-[rgb(var(--color-surface-raised)/0.85)] text-text-muted text-xs rounded-full">
                   {service}
                 </span>
               ))}
               {business.services.length > 3 && (
-                <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
+                <span className="px-2 py-1 bg-[rgb(var(--color-surface-raised)/0.85)] text-text-muted text-xs rounded-full">
                   +{business.services.length - 3} more
                 </span>
               )}
@@ -133,10 +133,10 @@ export function FeaturedBusinessListingCard({
           </div>
         )}
 
-        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+        <div className="flex items-center justify-between pt-4 border-t border-border-default">
           <div className="flex items-center space-x-3">
             {business.phone && (
-              <a href={`tel:${business.phone}`} className="flex items-center text-sm text-blue-600 hover:text-blue-800">
+              <a href={`tel:${business.phone}`} className="flex items-center text-sm text-primary hover:opacity-80">
                 <Phone className="w-4 h-4 mr-1" />
                 Call
               </a>
@@ -146,7 +146,7 @@ export function FeaturedBusinessListingCard({
                 href={business.website_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center text-sm text-blue-600 hover:text-blue-800"
+                className="flex items-center text-sm text-primary hover:opacity-80"
               >
                 <Globe className="w-4 h-4 mr-1" />
                 Visit
@@ -155,7 +155,7 @@ export function FeaturedBusinessListingCard({
           </div>
 
           {business.slug ? (
-            <Link href={`/businesses/${business.slug}`} className="text-sm font-medium text-blue-600 hover:text-blue-800">
+            <Link href={`/businesses/${business.slug}`} className="text-sm font-medium text-primary hover:opacity-80">
               View Details →
             </Link>
           ) : null}
@@ -171,7 +171,7 @@ export function GridBusinessListingCard({ business, coverSrc }: { business: Busi
 
   return (
     <article
-      className={`bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-200 overflow-hidden border border-gray-100 ${
+      className={`bg-surface rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-200 overflow-hidden border border-border-default ${
         revealed ? 'opacity-100 pointer-events-auto transition-opacity duration-200' : 'opacity-0 pointer-events-none transition-opacity duration-200'
       }`}
     >
@@ -185,43 +185,43 @@ export function GridBusinessListingCard({ business, coverSrc }: { business: Busi
       </div>
 
       <div className="p-5">
-        <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-1">{business.name}</h3>
+        <h3 className="text-lg font-bold text-text mb-2 line-clamp-1">{business.name}</h3>
 
         <div className="flex items-center space-x-2 mb-3">
           <div className="flex items-center space-x-1">{renderStars(business.rating, 'sm')}</div>
-          <span className="text-xs text-gray-600">
+          <span className="text-xs text-text-muted">
             {business.rating.toFixed(1)} ({business.review_count})
           </span>
         </div>
 
-        {business.description ? <p className="text-gray-600 text-sm mb-3 line-clamp-2">{business.description}</p> : null}
+        {business.description ? <p className="text-text-muted text-sm mb-3 line-clamp-2">{business.description}</p> : null}
 
         {business.city ? (
           <div className="flex items-center space-x-1 mb-3">
-            <MapPin className="w-3 h-3 text-gray-400" />
-            <span className="text-xs text-gray-600">
+            <MapPin className="w-3 h-3 text-text-muted" />
+            <span className="text-xs text-text-muted">
               {business.city}
               {business.state ? `, ${business.state}` : ''}
             </span>
           </div>
         ) : null}
 
-        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+        <div className="flex items-center justify-between pt-3 border-t border-border-default">
           <div className="flex items-center space-x-2">
             {business.phone && (
-              <a href={`tel:${business.phone}`} className="text-xs text-blue-600 hover:text-blue-800">
+              <a href={`tel:${business.phone}`} className="text-xs text-primary hover:opacity-80">
                 <Phone className="w-3 h-3" />
               </a>
             )}
             {business.website_url && (
-              <a href={business.website_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:text-blue-800">
+              <a href={business.website_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:opacity-80">
                 <Globe className="w-3 h-3" />
               </a>
             )}
           </div>
 
           {business.slug ? (
-            <Link href={`/businesses/${business.slug}`} className="text-xs font-medium text-blue-600 hover:text-blue-800">
+            <Link href={`/businesses/${business.slug}`} className="text-xs font-medium text-primary hover:opacity-80">
               Details →
             </Link>
           ) : null}

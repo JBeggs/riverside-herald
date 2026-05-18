@@ -208,7 +208,7 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-bg text-text">
       {/* Cover Image */}
       <div className="relative h-64 md:h-96 overflow-hidden">
         <BusinessHeroCover src={getBusinessImageUrl(business, 'cover') || ARTICLE_IMAGE_PLACEHOLDER} />
@@ -230,13 +230,13 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
           <div className="flex-1">
             <div className="flex items-center space-x-3 mb-3 md:mb-4">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-text">
                 {business.name}
               </h1>
             </div>
             
             {business.industry && (
-              <p className="text-base md:text-lg text-gray-600 mb-3 md:mb-4">{business.industry}</p>
+              <p className="text-base md:text-lg text-text-muted mb-3 md:mb-4">{business.industry}</p>
             )}
 
             {/* Rating */}
@@ -244,17 +244,17 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
               <div className="flex items-center space-x-0.5 md:space-x-1">
                 {renderStars(business.rating || 0, 'sm')}
               </div>
-              <span className="text-base md:text-lg font-semibold text-gray-900">
+              <span className="text-base md:text-lg font-semibold text-text">
                 {(business.rating || 0).toFixed(1)}
               </span>
-              <span className="text-sm md:text-base text-gray-600">
+              <span className="text-sm md:text-base text-text-muted">
                 ({business.review_count || 0} {(business.review_count || 0) === 1 ? 'review' : 'reviews'})
               </span>
             </div>
 
             {/* Location */}
             {(business.address || business.city) && (
-              <div className="flex items-start space-x-2 text-sm md:text-base text-gray-600 mb-3 md:mb-4">
+              <div className="flex items-start space-x-2 text-sm md:text-base text-text-muted mb-3 md:mb-4">
                 <MapPin className="w-4 h-4 md:w-5 md:h-5 mt-0.5 flex-shrink-0" />
                 <span>
                   {business.address && business.city 
@@ -270,7 +270,7 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
               {business.phone && (
                 <a 
                   href={`tel:${business.phone}`}
-                  className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 min-h-[32px]"
+                  className="flex items-center space-x-2 text-primary hover:opacity-80 min-h-[32px]"
                 >
                   <Phone className="w-4 h-4" />
                   <span>{formatPhone(business.phone)}</span>
@@ -279,7 +279,7 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
               {business.email && (
                 <a 
                   href={`mailto:${business.email}`}
-                  className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 min-h-[32px]"
+                  className="flex items-center space-x-2 text-primary hover:opacity-80 min-h-[32px]"
                 >
                   <Mail className="w-4 h-4" />
                   <span>{business.email}</span>
@@ -290,7 +290,7 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
                   href={business.website_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 min-h-[32px]"
+                  className="flex items-center space-x-2 text-primary hover:opacity-80 min-h-[32px]"
                 >
                   <Globe className="w-4 h-4" />
                   <span>Visit Website</span>
@@ -321,9 +321,9 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
             {/* Description */}
             {business.long_description && (
               <section>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">About</h2>
+                <h2 className="text-2xl font-bold text-text mb-4">About</h2>
                 <div className="prose max-w-none">
-                  <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                  <p className="text-text-muted leading-relaxed whitespace-pre-line">
                     {business.long_description}
                   </p>
                 </div>
@@ -333,12 +333,12 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
             {/* Services */}
             {business.services && business.services.length > 0 && (
               <section>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Services</h2>
+                <h2 className="text-2xl font-bold text-text mb-4">Services</h2>
                 <div className="flex flex-wrap gap-2">
                   {business.services.map((service: string, index: number) => (
                     <span
                       key={index}
-                      className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium"
+                      className="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium"
                     >
                       {service}
                     </span>
@@ -350,19 +350,19 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
             {/* Reviews */}
             {business.reviews && business.reviews.length > 0 && (
               <section>
-                <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6">
+                <h2 className="text-xl md:text-2xl font-bold text-text mb-4 md:mb-6">
                   Reviews ({business.review_count})
                 </h2>
                 <div className="space-y-4 md:space-y-6">
                   {business.reviews.map((review: any) => (
-                    <div key={review.id} className="border-b border-gray-200 pb-4 md:pb-6 last:border-0">
+                    <div key={review.id} className="border-b border-border-default pb-4 md:pb-6 last:border-0">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1 min-w-0 mr-2">
-                          <h4 className="font-semibold text-gray-900 truncate">
+                          <h4 className="font-semibold text-text truncate">
                             {review.reviewer_name || review.reviewer || 'Anonymous'}
                           </h4>
                           {review.title && (
-                            <p className="text-sm md:text-base text-gray-700 font-medium line-clamp-1">{review.title}</p>
+                            <p className="text-sm md:text-base text-text font-medium line-clamp-1">{review.title}</p>
                           )}
                         </div>
                         <div className="flex items-center space-x-0.5 flex-shrink-0">
@@ -370,9 +370,9 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
                         </div>
                       </div>
                       {review.comment && (
-                        <p className="text-sm md:text-base text-gray-600 mt-2 line-clamp-4 md:line-clamp-none">{review.comment}</p>
+                        <p className="text-sm md:text-base text-text-muted mt-2 line-clamp-4 md:line-clamp-none">{review.comment}</p>
                       )}
-                      <time className="text-[10px] md:text-sm text-gray-500 mt-2 block">
+                      <time className="text-[10px] md:text-sm text-text-muted mt-2 block">
                         {new Date(review.created_at).toLocaleDateString()}
                       </time>
                     </div>
@@ -386,13 +386,13 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
           <div className="space-y-6">
             {/* Business Hours */}
             {businessHours && (
-              <section className="bg-gray-50 rounded-lg p-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Business Hours</h3>
+              <section className="bg-surface rounded-lg p-6 border border-border-default">
+                <h3 className="text-lg font-bold text-text mb-4">Business Hours</h3>
                 <div className="space-y-2">
                   {businessHours.map((dayInfo, index) => (
                     <div key={index} className="flex justify-between text-sm">
-                      <span className="font-medium text-gray-700">{dayInfo.day}</span>
-                      <span className="text-gray-600">{dayInfo.hours}</span>
+                      <span className="font-medium text-text">{dayInfo.day}</span>
+                      <span className="text-text-muted">{dayInfo.hours}</span>
                     </div>
                   ))}
                 </div>
@@ -401,8 +401,8 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
 
             {/* Social Links */}
             {business.social_links && Object.keys(business.social_links).length > 0 && (
-              <section className="bg-gray-50 rounded-lg p-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Follow Us</h3>
+              <section className="bg-surface rounded-lg p-6 border border-border-default">
+                <h3 className="text-lg font-bold text-text mb-4">Follow Us</h3>
                 <div className="flex flex-wrap gap-2">
                   {Object.entries(business.social_links).map(([platform, url]: [string, any]) => (
                     <a
@@ -410,7 +410,7 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
                       href={url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-3 py-2 bg-white text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-100"
+                      className="px-3 py-2 bg-[rgb(var(--color-surface-raised)/0.85)] text-text rounded-lg text-sm font-medium hover:bg-[rgb(var(--color-border)/0.25)]"
                     >
                       {platform.charAt(0).toUpperCase() + platform.slice(1)}
                     </a>

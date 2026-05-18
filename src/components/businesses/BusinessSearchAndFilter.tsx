@@ -93,24 +93,24 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
   const hasActiveFilters = searchTerm || selectedIndustry
 
   return (
-    <div className="bg-white border-b border-gray-200">
+    <div className="bg-surface border-b border-border-default">
       <div className="container-wide py-6">
         {/* Search and Filter Controls */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           {/* Search Bar */}
           <div className="relative flex-1 max-w-lg">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-muted w-5 h-5" />
             <input
               type="text"
               placeholder="Search businesses by name, description, location, or services..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-3 border border-border-default bg-bg text-text rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
             />
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm('')}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-text-muted hover:text-text"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -126,7 +126,7 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
                 className={`flex items-center space-x-2 px-4 py-3 border rounded-lg transition-colors ${
                   selectedIndustry 
                     ? 'border-blue-500 bg-blue-50 text-blue-700' 
-                    : 'border-gray-300 hover:border-gray-400'
+                    : 'border-border-default hover:border-neutral-400 text-text'
                 }`}
               >
                 <Filter className="w-4 h-4" />
@@ -136,9 +136,9 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
               </button>
 
               {isFilterOpen && (
-                <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                <div className="absolute top-full left-0 mt-2 w-64 bg-surface border border-border-default rounded-lg shadow-lg z-10">
                   <div className="p-4">
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Filter by Industry</h3>
+                    <h3 className="text-sm font-semibold text-text mb-3">Filter by Industry</h3>
                     <div className="space-y-2 max-h-60 overflow-y-auto">
                       <button
                         onClick={() => {
@@ -148,7 +148,7 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
                         className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
                           !selectedIndustry 
                             ? 'bg-blue-100 text-blue-700' 
-                            : 'hover:bg-gray-100'
+                            : 'hover:bg-[rgb(var(--color-surface-raised)/0.85)] text-text'
                         }`}
                       >
                         All Industries
@@ -163,7 +163,7 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
                           className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
                             selectedIndustry === industry 
                               ? 'bg-blue-100 text-blue-700' 
-                              : 'hover:bg-gray-100'
+                              : 'hover:bg-[rgb(var(--color-surface-raised)/0.85)] text-text'
                           }`}
                         >
                           {industry}
@@ -179,7 +179,7 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="flex items-center space-x-1 px-3 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="flex items-center space-x-1 px-3 py-2 text-sm text-text-muted hover:text-text border border-border-default rounded-lg hover:bg-[rgb(var(--color-surface-raised)/0.85)]"
               >
                 <X className="w-4 h-4" />
                 <span>Clear</span>
@@ -189,7 +189,7 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
         </div>
 
         {/* Results Summary */}
-        <div className="flex items-center justify-between text-sm text-gray-600 mb-6">
+        <div className="flex items-center justify-between text-sm text-text-muted mb-6">
           <span>
             Showing {filteredBusinesses.length} of {businesses.length} businesses
             {selectedIndustry && (
@@ -201,12 +201,12 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
             <div className="flex items-center space-x-2">
               <span>Filters:</span>
               {searchTerm && (
-                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                <span className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs">
                   Search: "{searchTerm}"
                 </span>
               )}
               {selectedIndustry && (
-                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                <span className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs">
                   Industry: {selectedIndustry}
                 </span>
               )}
@@ -220,7 +220,7 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
             {filteredBusinesses.map((business) => (
               <article
                 key={business.id}
-                className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-200 overflow-hidden border border-gray-100"
+              className="bg-surface rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-200 overflow-hidden border border-border-default"
               >
                 {/* Business Image */}
                 <div className="relative h-40 overflow-hidden">
@@ -232,7 +232,7 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
                       className="object-cover hover:scale-105 transition-transform duration-200"
                     />
                   ) : business.logo?.file_url ? (
-                    <div className="w-full h-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+                    <div className="w-full h-full bg-[rgb(var(--color-surface-raised)/0.85)] flex items-center justify-center">
                       <Image
                         src={business.logo.file_url}
                         alt={business.logo.alt_text || business.name}
@@ -272,7 +272,7 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
                 {/* Business Info */}
                 <div className="p-5">
                   {/* Title */}
-                  <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-1">
+                  <h3 className="text-lg font-bold text-text mb-2 line-clamp-1">
                     {business.name}
                   </h3>
 
@@ -281,14 +281,14 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
                     <div className="flex items-center space-x-1">
                       {renderStars(business.rating)}
                     </div>
-                    <span className="text-xs text-gray-600">
+                    <span className="text-xs text-text-muted">
                       {business.rating.toFixed(1)} ({business.review_count})
                     </span>
                   </div>
 
                   {/* Description */}
                   {business.description && (
-                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                    <p className="text-text-muted text-sm mb-3 line-clamp-2">
                       {business.description}
                     </p>
                   )}
@@ -296,8 +296,8 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
                   {/* Location */}
                   {business.city && (
                     <div className="flex items-center space-x-1 mb-3">
-                      <MapPin className="w-3 h-3 text-gray-400" />
-                      <span className="text-xs text-gray-600">
+                      <MapPin className="w-3 h-3 text-text-muted" />
+                      <span className="text-xs text-text-muted">
                         {business.city}{business.state ? `, ${business.state}` : ''}
                       </span>
                     </div>
@@ -310,13 +310,13 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
                         {business.services.slice(0, 2).map((service, index) => (
                           <span 
                             key={index}
-                            className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
+                            className="px-2 py-1 bg-[rgb(var(--color-surface-raised)/0.85)] text-text-muted text-xs rounded-full"
                           >
                             {service}
                           </span>
                         ))}
                         {business.services.length > 2 && (
-                          <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
+                          <span className="px-2 py-1 bg-[rgb(var(--color-surface-raised)/0.85)] text-text-muted text-xs rounded-full">
                             +{business.services.length - 2} more
                           </span>
                         )}
@@ -325,11 +325,11 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
                   )}
 
                   {/* Actions */}
-                  <div className="pt-3 border-t border-gray-100">
+                  <div className="pt-3 border-t border-border-default">
                     {business.slug ? (
                       <Link 
                         href={`/businesses/${business.slug}`}
-                        className="block w-full text-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                        className="block w-full text-center px-4 py-2 bg-primary text-[rgb(var(--color-on-accent))] text-sm font-medium rounded-lg hover:opacity-90 transition-colors"
                       >
                         View Details
                       </Link>
@@ -338,7 +338,7 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
                         {business.phone && (
                           <a 
                             href={`tel:${business.phone}`}
-                            className="text-sm text-blue-600 hover:text-blue-800"
+                            className="text-sm text-primary hover:opacity-80"
                           >
                             Call Now
                           </a>
@@ -348,7 +348,7 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
                             href={business.website_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sm text-blue-600 hover:text-blue-800"
+                            className="text-sm text-primary hover:opacity-80"
                           >
                             Visit Website
                           </a>
@@ -363,14 +363,14 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
         ) : (
           /* No Results */
           <div className="text-center py-16">
-            <Building2 className="w-16 h-16 text-gray-300 mx-auto mb-6" />
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">No Businesses Found</h3>
-            <p className="text-gray-600 mb-8">
+            <Building2 className="w-16 h-16 text-text-muted mx-auto mb-6" />
+            <h3 className="text-2xl font-bold text-text mb-4">No Businesses Found</h3>
+            <p className="text-text-muted mb-8">
               No businesses match your current search criteria. Try adjusting your filters or search terms.
             </p>
             <button
               onClick={clearFilters}
-              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center px-6 py-3 bg-primary text-[rgb(var(--color-on-accent))] font-semibold rounded-lg hover:opacity-90 transition-colors"
             >
               Clear All Filters
             </button>
