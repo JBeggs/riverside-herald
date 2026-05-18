@@ -15,6 +15,43 @@ export interface ApiError {
   status?: number
 }
 
+/** Flatten DRF / JSON error payloads into a single human-readable string. */
+function drfErrorToMessage(value: unknown, fallback: string): string {
+  if (value == null || value === '') return fallback
+  if (typeof value === 'string') return value
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value)
+  if (Array.isArray(value)) {
+    const parts = value.map((v) => drfErrorToMessage(v, '')).filter((s) => s.length > 0)
+    return parts.length > 0 ? parts.join('; ') : fallback
+  }
+  if (typeof value === 'object') {
+    const parts = Object.entries(value as Record<string, unknown>)
+      .map(([k, v]) => {
+        const inner = drfErrorToMessage(v, '')
+        return inner ? `${k}: ${inner}` : ''
+      })
+      .filter((s) => s.length > 0)
+    return parts.length > 0 ? parts.join('; ') : fallback
+  }
+  return fallback
+}
+
+/** Use in catch blocks so API/network errors always produce a visible toast message. */
+export function getApiErrorMessage(error: unknown, fallback = 'Something went wrong'): string {
+  if (error instanceof Error && error.message) return error.message
+  if (error && typeof error === 'object') {
+    const o = error as { message?: unknown; details?: unknown }
+    const fromMsg = drfErrorToMessage(o.message, '')
+    if (fromMsg) return fromMsg
+    if (o.details && typeof o.details === 'object') {
+      const fromDetails = drfErrorToMessage(o.details, '')
+      if (fromDetails) return fromDetails
+    }
+  }
+  if (typeof error === 'string' && error.trim()) return error
+  return fallback
+}
+
 export class ApiClient {
   private baseURL: string
   private token: string | null = null
@@ -256,32 +293,45 @@ export class ApiClient {
         // OR: { "error": "message" } for custom errors
         // OR: { "detail": "message" } for generic errors
         let message = 'An error occurred'
-        
+
+        const isDrfFieldPayload = (val: any) =>
+          val != null &&
+          (typeof val === 'string' ||
+            Array.isArray(val) ||
+            (typeof val === 'object' && Object.keys(val).length > 0))
+
         // Check for Django field validation errors (directly in data)
-        const hasFieldErrors = Object.keys(data).some(key => 
-          key !== 'error' && key !== 'detail' && key !== 'message' && 
-          (Array.isArray(data[key]) || typeof data[key] === 'string')
+        const hasFieldErrors = Object.keys(data).some(
+          (key) =>
+            key !== 'error' &&
+            key !== 'detail' &&
+            key !== 'message' &&
+            isDrfFieldPayload(data[key]),
         )
-        
+
         if (hasFieldErrors) {
           // Format field errors
           const errorFields = Object.entries(data)
             .filter(([key]) => key !== 'error' && key !== 'detail' && key !== 'message')
             .map(([field, messages]: [string, any]) => {
-              const messageArray = Array.isArray(messages) ? messages : [messages]
-              const formattedField = field.split('_').map(word => 
-                word.charAt(0).toUpperCase() + word.slice(1)
-              ).join(' ')
-              return `${formattedField}: ${messageArray.join(', ')}`
+              const formattedField = field
+                .split('_')
+                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ')
+              const m = drfErrorToMessage(messages, '')
+              return m ? `${formattedField}: ${m}` : ''
             })
+            .filter(Boolean)
           message = errorFields.join('; ')
         } else if (data.error) {
           // If error is an object with field errors, format it
           if (typeof data.error === 'object' && data.error !== null) {
-            const errorFields = Object.entries(data.error).map(([field, messages]: [string, any]) => {
-              const messageArray = Array.isArray(messages) ? messages : [messages]
-              return `${field}: ${messageArray.join(', ')}`
-            })
+            const errorFields = Object.entries(data.error)
+              .map(([field, messages]: [string, any]) => {
+                const m = drfErrorToMessage(messages, '')
+                return m ? `${field}: ${m}` : ''
+              })
+              .filter(Boolean)
             message = errorFields.join('; ')
           } else if (typeof data.error === 'string') {
             message = data.error
@@ -289,7 +339,14 @@ export class ApiClient {
         } else {
           message = data.message || data.detail || `HTTP ${response.status}: ${response.statusText}`
         }
-        
+
+        const fallbackMsg = `HTTP ${response.status}: ${response.statusText}`
+        message =
+          drfErrorToMessage(message, '') ||
+          drfErrorToMessage(data.message, '') ||
+          drfErrorToMessage(data.detail, '') ||
+          fallbackMsg
+
         error = {
           message,
           code: data.code || `HTTP_${response.status}`,

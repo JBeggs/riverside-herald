@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
-import { newsApi } from '@/lib/api'
+import { getApiErrorMessage, newsApi } from '@/lib/api'
 import { MapPin, Phone, Mail, Globe, Check } from 'lucide-react'
 
 // Custom icons not available in lucide-react
@@ -207,7 +207,7 @@ export default function BusinessCreationWizard({ onComplete, onCancel, inModal =
       }
     } catch (error: any) {
       console.error('Error creating business:', error)
-      showError(error.message || 'Failed to create business')
+      showError(getApiErrorMessage(error, 'Failed to create business'))
     } finally {
       setLoading(false)
     }

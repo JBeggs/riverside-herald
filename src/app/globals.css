@@ -375,6 +375,14 @@ h6 {
   @apply heading-md text-text;
 }
 
+.home-hero-kicker {
+  @apply font-semibold text-primary;
+}
+
+.home-hero-section {
+  @apply relative;
+}
+
 *:focus-visible {
   outline: 2px solid rgb(var(--color-ring));
   outline-offset: 2px;

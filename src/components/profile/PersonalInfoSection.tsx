@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Profile } from '@/lib/types'
-import { newsApi } from '@/lib/api'
+import { getApiErrorMessage, newsApi } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
 import { 
@@ -85,7 +85,7 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
       setIsEditing(false)
     } catch (error: any) {
       console.error('Error updating profile:', error)
-      showError(error.message || 'Failed to update profile. Please try again.')
+      showError(getApiErrorMessage(error, 'Failed to update profile. Please try again.'))
     } finally {
       setLoading(false)
     }
@@ -139,7 +139,7 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
 
     } catch (error: any) {
       console.error('Error uploading avatar:', error)
-      showError(error.message || 'Failed to upload image. Please try again.')
+      showError(getApiErrorMessage(error, 'Failed to upload image. Please try again.'))
     } finally {
       setUploading(false)
     }

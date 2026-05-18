@@ -187,6 +187,12 @@ export default function ProfilePage({ user: initialUser, profile: initialProfile
               </div>
               
               <p className="text-gray-600 mb-2 break-all">{user.email}</p>
+              {profile.pending_email ? (
+                <p className="text-sm text-amber-800 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 mb-2 max-w-2xl">
+                  New email <strong className="break-all">{profile.pending_email}</strong> is pending — check your inbox to confirm.
+                  Until then, sign in with <strong className="break-all">{profile.email}</strong>.
+                </p>
+              ) : null}
               
               {profile.bio && (
                 <p className="text-gray-700 max-w-2xl mx-auto sm:mx-0">{profile.bio}</p>

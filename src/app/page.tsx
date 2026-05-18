@@ -1,14 +1,14 @@
 import { serverNewsApi } from '@/lib/api-server'
 import Link from 'next/link'
 import { TrendingUp } from 'lucide-react'
-import { getArticleImageUrl } from '@/lib/image-utils'
-import FeaturedBusinessCard from '@/components/businesses/FeaturedBusinessCard'
 import {
   HomeFeaturedArticleBlock,
   HomeGridArticleBlock,
   HomeSideArticleBlock,
   HomeTrendingMeta,
 } from '@/components/home/HomeArticleBlocks'
+import HomeFeaturedBusinessesSlideshow from '@/components/home/HomeFeaturedBusinessesSlideshow'
+import { getArticleImageUrl } from '@/lib/image-utils'
 
 interface Article {
   id: string
@@ -18,8 +18,11 @@ interface Article {
   excerpt: string
   content: string
   published_at: string
+  /** API may send published + featured as status=featured; is_featured is derived in list serializer. */
+  status?: string
   is_breaking_news: boolean
   is_trending: boolean
+  is_featured: boolean
   location_name?: string
   read_time_minutes?: number
   views: number
@@ -82,14 +85,32 @@ async function getHomepageData() {
     })
 
     // Get articles
-    const articlesData: any = await serverNewsApi.articles.list({ 
-      status: 'published',
-      page: 1,
-      skipTenant: true
-    })
-    
+    const [articlesPage1, articlesPage2]: [any, any] = await Promise.all([
+      serverNewsApi.articles.list({ 
+        status: 'published',
+        page: 1,
+        skipTenant: true
+      }),
+      serverNewsApi.articles.list({ 
+        status: 'published',
+        page: 2,
+        skipTenant: true
+      }).catch(() => ({ results: [] })),
+    ])
+
+    const raw1 = articlesPage1?.results ?? articlesPage1 ?? []
+    const raw2 = articlesPage2?.results ?? articlesPage2 ?? []
+    const seenIds = new Set<string>()
+    const mergedRaw: any[] = []
+    for (const article of [...raw1, ...raw2]) {
+      const id = article?.id
+      if (!id || seenIds.has(id)) continue
+      seenIds.add(id)
+      mergedRaw.push(article)
+    }
+
     // Transform articles to match expected format
-    const articles: Article[] = (articlesData?.results || articlesData || []).map((article: any) => {
+    const articles: Article[] = mergedRaw.map((article: any) => {
       return {
         id: article.id,
         title: article.title,
@@ -100,6 +121,8 @@ async function getHomepageData() {
         published_at: article.published_at,
         is_breaking_news: article.is_breaking_news,
         is_trending: article.is_trending,
+        status: article.status,
+        is_featured: Boolean(article.is_featured) || article.status === 'featured',
         read_time_minutes: article.read_time_minutes,
         views: article.views || 0,
         featured_media: article.featured_media && article.featured_media.file_url ? {
@@ -154,11 +177,30 @@ async function getHomepageData() {
       products: business.products || [],
     }))
 
-    // Separate articles by type
     const breakingNews = articles.find(article => article.is_breaking_news) || null
-    const featuredArticles = articles.filter(article => !article.is_breaking_news).slice(0, 6)
+
+    const nonBreaking = articles.filter((a) => !a.is_breaking_news)
+    const featuredPool = nonBreaking.filter((a) => a.is_featured)
+    const heroFeaturedIds = new Set<string>()
+    const featuredArticles: Article[] = []
+    for (const a of featuredPool) {
+      if (featuredArticles.length >= 6) break
+      if (!heroFeaturedIds.has(a.id)) {
+        heroFeaturedIds.add(a.id)
+        featuredArticles.push(a)
+      }
+    }
+    if (featuredArticles.length < 6) {
+      for (const a of nonBreaking) {
+        if (featuredArticles.length >= 6) break
+        if (heroFeaturedIds.has(a.id)) continue
+        heroFeaturedIds.add(a.id)
+        featuredArticles.push(a)
+      }
+    }
+
     const trendingArticles = articles.filter(article => article.is_trending).slice(0, 5)
-    const recentArticles = articles.slice(0, 8)
+    const recentArticles = nonBreaking.filter((a) => !heroFeaturedIds.has(a.id)).slice(0, 8)
 
     return {
       settings: settingsMap,
@@ -217,45 +259,76 @@ export default async function HomePage() {
         </div>
       )}
 
-      {/* Hero Section */}
-      <section className="py-12 bg-gradient-to-b from-neutral-50 to-bg" data-cy="home-featured">
+      {/* Hero: featured-first (6 slots) */}
+      <section
+        className="home-hero-section py-10 md:py-14 bg-gradient-to-b from-neutral-50 via-bg to-bg"
+        data-cy="home-featured"
+      >
         <div className="container-wide">
-          <div className="text-center mb-12">
-            <h1 className="heading-xl mb-4">{siteName}</h1>
-            <p className="text-xl text-neutral-600 mb-8">{tagline}</p>
+          <div className="text-center max-w-3xl mx-auto mb-10 md:mb-12">
+            <p className="home-hero-kicker text-primary font-semibold tracking-[0.2em] uppercase text-xs mb-3">
+              {siteName}
+            </p>
+            <h1 className="heading-xl mb-4 text-text">Today&rsquo;s top stories</h1>
+            <p className="text-lg md:text-xl text-neutral-600">{tagline}</p>
           </div>
 
-          {/* Featured Articles Grid */}
           {featuredArticles.length > 0 && (
-            <div className="news-grid news-grid-main mb-16" data-cy="article-list">
-              <div className="md:col-span-1 lg:col-span-2 xl:col-span-2">
-                <HomeFeaturedArticleBlock
-                  article={featuredArticles[0]}
-                  imageUrl={getImageUrl(featuredArticles[0])}
-                  locale={defaultLocale}
-                />
+            <div data-cy="article-list">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6">
+                <h2 className="heading-sm font-serif text-text m-0 border-0 pb-0">
+                  Featured
+                </h2>
+                <Link href="/articles" className="text-sm font-semibold text-primary hover:underline">
+                  All articles →
+                </Link>
               </div>
 
-              <div className="md:col-span-1 lg:col-span-1 xl:col-span-2 space-y-4 md:space-y-6">
-                {featuredArticles.slice(1, 4).map((article) => (
-                  <HomeSideArticleBlock
-                    key={article.id}
-                    article={article}
-                    imageUrl={getImageUrl(article)}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+                <div className="lg:col-span-2">
+                  <HomeFeaturedArticleBlock
+                    article={featuredArticles[0]}
+                    imageUrl={getImageUrl(featuredArticles[0])}
                     locale={defaultLocale}
                   />
-                ))}
+                </div>
+                <div className="space-y-4 md:space-y-5 flex flex-col">
+                  {featuredArticles.slice(1, 4).map((article) => (
+                    <HomeSideArticleBlock
+                      key={article.id}
+                      article={article}
+                      imageUrl={getImageUrl(article)}
+                      locale={defaultLocale}
+                    />
+                  ))}
+                </div>
               </div>
+
+              {featuredArticles.length > 4 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mt-6 md:mt-8">
+                  {featuredArticles.slice(4, 6).map((article) => (
+                    <HomeGridArticleBlock
+                      key={article.id}
+                      article={article}
+                      imageUrl={getImageUrl(article)}
+                      locale={defaultLocale}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
       </section>
 
-      {/* Trending & Recent News */}
-      <section className="py-8 md:py-12">
+      {businesses.length > 0 ? (
+        <HomeFeaturedBusinessesSlideshow businesses={businesses} defaultCurrency={defaultCurrency} />
+      ) : null}
+
+      {/* Latest & Trending */}
+      <section className="py-10 md:py-14">
         <div className="container-wide">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
-            {/* Trending Articles */}
             <div className="lg:col-span-2">
               <div className="section-header">
                 <h2 className="section-title">Latest News</h2>
@@ -273,13 +346,11 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* Sidebar */}
             <div className="space-y-8">
-              {/* Trending */}
               {trendingArticles.length > 0 && (
-                <div>
+                <div className="rounded-2xl border border-border-default bg-surface p-5 md:p-6 shadow-card">
                   <h3 className="heading-sm mb-4 flex items-center">
-                    <TrendingUp className="w-5 h-5 mr-2 text-red-600" />
+                    <TrendingUp className="w-5 h-5 mr-2 text-red-600 flex-shrink-0" />
                     Trending
                   </h3>
                   <div className="space-y-4">
@@ -288,9 +359,9 @@ export default async function HomePage() {
                         <span className="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
                           {index + 1}
                         </span>
-                        <div>
+                        <div className="min-w-0">
                           <h4 className="font-semibold text-sm leading-snug mb-1">
-                            <Link href={`/articles/${article.slug}`} className="hover:text-blue-600">
+                            <Link href={`/articles/${article.slug}`} className="hover:text-primary">
                               {article.title}
                             </Link>
                           </h4>
@@ -302,40 +373,6 @@ export default async function HomePage() {
                       </article>
                     ))}
                   </div>
-                </div>
-              )}
-
-              {/* Featured Businesses with Products */}
-              {businesses.length > 0 && (
-                <div data-cy="business-list">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="heading-sm">Featured Businesses</h3>
-                    <Link 
-                      href="/businesses" 
-                      className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                    >
-                      View All →
-                    </Link>
-                  </div>
-                  <div
-                    className="space-y-6 max-h-[36rem] md:max-h-[44rem] overflow-y-auto pr-2 -mr-2 [scrollbar-gutter:stable]"
-                    data-cy="business-list-scroll"
-                  >
-                    {businesses.map((business) => (
-                      <FeaturedBusinessCard
-                        key={business.id}
-                        business={business}
-                        showProducts={true}
-                        showWebsiteLink={true}
-                        defaultCurrency={defaultCurrency}
-                      />
-                    ))}
-                  </div>
-                  <p className="mt-4 text-center text-sm text-text-muted">
-                    <Link href="/businesses" className="text-primary hover:underline font-medium">
-                      View on Businesses page
-                    </Link>
-                  </p>
                 </div>
               )}
             </div>

@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
-import { newsApi } from '@/lib/api'
+import { getApiErrorMessage, newsApi } from '@/lib/api'
 import { Edit3, Save, X, Loader2 } from 'lucide-react'
 
 // Custom icons since they're not available in lucide-react
@@ -87,7 +87,7 @@ export default function ArticleEditor({ article }: ArticleEditorProps) {
       
     } catch (error: any) {
       console.error('Error saving article:', error)
-      showError(error.message || 'Error saving article. Please try again.')
+      showError(getApiErrorMessage(error, 'Error saving article. Please try again.'))
     } finally {
       setIsSaving(false)
     }
@@ -115,7 +115,7 @@ export default function ArticleEditor({ article }: ArticleEditorProps) {
       
     } catch (error: any) {
       console.error('Error deleting article:', error)
-      showError(error.message || 'Error deleting article. Please try again.')
+      showError(getApiErrorMessage(error, 'Error deleting article. Please try again.'))
     } finally {
       setIsDeleting(false)
       setShowDeleteConfirm(false)
@@ -155,7 +155,7 @@ export default function ArticleEditor({ article }: ArticleEditorProps) {
 
     } catch (error: any) {
       console.error('Error uploading image:', error)
-      showError(error.message || 'Error uploading image. Please try again.')
+      showError(getApiErrorMessage(error, 'Error uploading image. Please try again.'))
     } finally {
       setIsUploading(false)
     }

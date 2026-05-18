@@ -85,8 +85,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             id: profileData.user,
             email: profileData.email,
             username: profileData.username,
-            first_name: profileData.first_name,
-            last_name: profileData.last_name,
+            first_name: profileData.first_name || profileData.full_name?.split(' ')[0],
+            last_name: profileData.last_name || profileData.full_name?.split(' ').slice(1).join(' '),
           }
           console.log('[DEBUG] Setting user state:', userData)
           setUser(userData)

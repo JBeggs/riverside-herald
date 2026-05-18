@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
 import { useConfirm } from '@/contexts/ConfirmDialogContext'
-import { newsApi } from '@/lib/api'
+import { getApiErrorMessage, newsApi } from '@/lib/api'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
 import ArticlesList from '@/components/dashboard/ArticlesList'
 import Link from 'next/link'
@@ -67,7 +67,7 @@ function ArticlesPageContent() {
       setArticles(Array.isArray(data) ? data : (data?.results || []))
     } catch (error: any) {
       console.error('Error loading articles:', error)
-      showError(error.message || 'Failed to load articles')
+      showError(getApiErrorMessage(error, 'Failed to load articles'))
     } finally {
       setLoading(false)
     }
@@ -86,7 +86,7 @@ function ArticlesPageContent() {
       await loadArticles()
     } catch (error: any) {
       console.error('Error deleting article:', error)
-      showError(error.message || 'Failed to delete article')
+      showError(getApiErrorMessage(error, 'Failed to delete article'))
     }
   }
 

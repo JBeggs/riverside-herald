@@ -49,6 +49,8 @@ interface FeaturedBusinessCardProps {
   showWebsiteLink?: boolean
   /** From SiteSetting `default_currency` when product has no currency */
   defaultCurrency?: string
+  /** Larger cover + more context for homepage slideshow */
+  prominent?: boolean
 }
 
 function resolveImageUrl(url?: string | null) {
@@ -61,6 +63,7 @@ export default function FeaturedBusinessCard({
   showProducts = true,
   showWebsiteLink = true,
   defaultCurrency = 'USD',
+  prominent = false,
 }: FeaturedBusinessCardProps) {
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
@@ -90,7 +93,7 @@ export default function FeaturedBusinessCard({
   return (
     <article className="bg-surface rounded-xl border border-border-default shadow-card hover:shadow-md transition-all duration-300 overflow-hidden">
       {/* Cover: keep overflow hidden only on this band */}
-      <div className="relative h-32 bg-gradient-to-r from-primary/80 to-accent/40 overflow-hidden">
+      <div className={`relative overflow-hidden bg-gradient-to-r from-primary/80 to-accent/40 ${prominent ? 'h-44 md:h-52' : 'h-32'}`}>
         {coverUrl ? (
           <SafeImage src={coverUrl} alt="" fill imgClassName="object-cover" />
         ) : null}
@@ -104,14 +107,14 @@ export default function FeaturedBusinessCard({
       </div>
 
       {/* Logo overlaps cover from below — not clipped by cover overflow */}
-      <div className="relative px-4 -mt-8 z-[1] pb-1">
-        <div className="w-12 h-12 rounded-lg border-2 border-surface shadow-md overflow-hidden bg-surface">
+      <div className={`relative z-[1] pb-1 ${prominent ? 'px-5 -mt-10' : 'px-4 -mt-8'}`}>
+        <div className={`rounded-lg border-2 border-surface shadow-md overflow-hidden bg-surface ${prominent ? 'w-16 h-16' : 'w-12 h-12'}`}>
           {logoUrl ? (
             <SafeImage
               src={logoUrl}
               alt=""
-              width={48}
-              height={48}
+              width={prominent ? 64 : 48}
+              height={prominent ? 64 : 48}
               className="rounded-md"
               imgClassName="h-full w-full object-cover"
             />
@@ -123,11 +126,11 @@ export default function FeaturedBusinessCard({
         </div>
       </div>
 
-      <div className="pt-3 pb-4 px-4">
+      <div className={`pt-3 pb-4 ${prominent ? 'px-5' : 'px-4'}`}>
         <div className="flex items-start justify-between mb-2">
           <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-semibold text-text truncate">{business.name}</h3>
-            {business.industry ? <p className="text-sm text-text-muted">{business.industry}</p> : null}
+            <h3 className={`font-semibold text-text truncate ${prominent ? 'text-xl md:text-2xl' : 'text-lg'}`}>{business.name}</h3>
+            {business.industry ? <p className={`text-text-muted ${prominent ? 'text-sm md:text-base mt-1' : 'text-sm'}`}>{business.industry}</p> : null}
           </div>
         </div>
 
@@ -148,7 +151,9 @@ export default function FeaturedBusinessCard({
         ) : null}
 
         {business.description ? (
-          <p className="text-sm text-text-muted mb-4 line-clamp-2">{business.description}</p>
+          <p className={`text-text-muted mb-4 ${prominent ? 'text-sm md:text-base line-clamp-4' : 'text-sm line-clamp-2'}`}>
+            {business.description}
+          </p>
         ) : null}
 
         {showProducts && hasProducts ? (

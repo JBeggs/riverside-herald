@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Profile } from '@/lib/types'
-import { newsApi } from '@/lib/api'
+import { getApiErrorMessage, newsApi } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
 import { 
@@ -120,7 +120,7 @@ export default function NotificationSettings({ profile }: NotificationSettingsPr
       setTimeout(() => setSaved(false), 3000)
     } catch (error: any) {
       console.error('Error updating notification preferences:', error)
-      showError(error.message || 'Failed to save preferences. Please try again.')
+      showError(getApiErrorMessage(error, 'Failed to save preferences. Please try again.'))
     } finally {
       setLoading(false)
     }

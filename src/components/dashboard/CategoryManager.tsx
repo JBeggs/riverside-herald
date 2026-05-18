@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { newsApi } from '@/lib/api'
+import { getApiErrorMessage, newsApi } from '@/lib/api'
 import { useToast } from '@/contexts/ToastContext'
 import { useConfirm } from '@/contexts/ConfirmDialogContext'
 import { Profile } from '@/lib/types'
@@ -137,7 +137,7 @@ export default function CategoryManager({ profile }: CategoryManagerProps) {
       fetchCategories()
       cancelEdit()
     } catch (error: any) {
-      showError(error.message || 'Failed to save category')
+      showError(getApiErrorMessage(error, 'Failed to save category'))
     }
   }
 

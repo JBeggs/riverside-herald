@@ -13,6 +13,7 @@ export type MediaType = 'image' | 'video' | 'audio' | 'document' | 'embed'
 export interface Profile {
   user: string
   email: string
+  pending_email?: string
   username?: string
   first_name?: string
   last_name?: string
