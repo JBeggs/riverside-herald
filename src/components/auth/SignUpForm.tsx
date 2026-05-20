@@ -1,11 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
-import { Eye, EyeOff, Mail, Lock, User, UserPlus, Building2, Phone } from 'lucide-react'
+import { authApi } from '@/lib/api'
+import { useRegistrationEmailCheck } from '@/hooks/useRegistrationEmailCheck'
+import { Eye, EyeOff, Mail, Lock, User, UserPlus, Building2, Phone, Link2 } from 'lucide-react'
 
 interface SignUpFormProps {
   onSuccess?: () => void
@@ -57,6 +59,23 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
   const { showError, showSuccess } = useToast()
   const router = useRouter()
 
+  const runEmailCheck = useCallback(
+    (email: string) =>
+      authApi.checkRegistrationEmail(email, {
+        linkable: userType !== 'business_owner',
+      }),
+    [userType],
+  )
+
+  const {
+    emailCheckStatus,
+    checkEmail,
+    resetEmailCheck,
+    linkMode,
+    alreadyLinked,
+    emailTakenNoLink,
+  } = useRegistrationEmailCheck(runEmailCheck)
+
   const clearFieldError = (apiField: string) => {
     setFieldErrors((prev) => {
       if (!prev[apiField]) return prev
@@ -70,6 +89,13 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
     setFormData((prev) => ({ ...prev, [formKey]: value }))
     setError('')
     clearFieldError(apiField)
+    if (apiField === 'email') {
+      resetEmailCheck()
+    }
+  }
+
+  const handleEmailBlur = () => {
+    void checkEmail(formData.email)
   }
 
   const validateForm = (): { message?: string; focusId?: string } => {
@@ -135,11 +161,28 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
     }
 
     try {
+      const checkStatus = await checkEmail(formData.email)
+      if (checkStatus === 'already_linked') {
+        const msg = 'This email is already linked to Riverside Herald. Please sign in instead.'
+        setError(msg)
+        showError(msg)
+        return
+      }
+      if (userType === 'business_owner' && checkStatus === 'existing_no_link') {
+        const msg = 'Email already registered. Sign in or use a different email for a new business account.'
+        setError(msg)
+        setFieldErrors({ email: msg })
+        showError(msg)
+        scrollFieldIntoView('register-email')
+        return
+      }
+
       const {
         error: signUpError,
         fieldErrors: serverFieldErrors,
         verificationRequired,
         email: verificationEmail,
+        accountLinked,
       } = await signUp(
         formData.email,
         formData.password,
@@ -174,13 +217,19 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
           else if (first === 'password_confirm') scrollFieldIntoView('register-password-confirm')
         }
       } else if (verificationRequired && verificationEmail) {
-        showSuccess('Check your email to verify your account before signing in.')
+        showSuccess(
+          accountLinked
+            ? 'Account linked to Riverside Herald. Check your email to verify before signing in.'
+            : 'Check your email to verify your account before signing in.',
+        )
         router.push(`/auth/verify-email?email=${encodeURIComponent(verificationEmail.trim())}`)
       } else {
         const successMessage =
           userType === 'business_owner'
             ? 'Business account created successfully! You can now login with your credentials.'
-            : 'Account created successfully! You can now login with your credentials.'
+            : accountLinked
+              ? 'Your account is now linked to Riverside Herald. You can sign in with your existing credentials.'
+              : 'Account created successfully! You can now login with your credentials.'
         setSuccess(successMessage)
         showSuccess(successMessage)
         setFormData({
@@ -216,9 +265,56 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
           <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
             <UserPlus className="w-8 h-8 text-[rgb(var(--color-on-accent))]" />
           </div>
-          <h2 className="text-2xl font-playfair font-semibold text-text mb-2">Create Account</h2>
-          <p className="text-text-muted">Choose your account type and join our community</p>
+          <h2 className="text-2xl font-playfair font-semibold text-text mb-2">
+            {linkMode && userType === 'author' ? 'Link Your Account' : 'Create Account'}
+          </h2>
+          <p className="text-text-muted">
+            {linkMode && userType === 'author'
+              ? 'Connect Riverside Herald to your existing account'
+              : 'Choose your account type and join our community'}
+          </p>
         </div>
+
+        {linkMode && userType === 'author' ? (
+          <div
+            role="status"
+            className="mb-6 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900"
+          >
+            <div className="flex items-start gap-2">
+              <Link2 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+              <p>
+                An account with this email already exists. Enter your password to link Riverside Herald
+                to your existing account — we won&apos;t create a duplicate.
+              </p>
+            </div>
+          </div>
+        ) : null}
+
+        {alreadyLinked && userType === 'author' ? (
+          <div
+            role="status"
+            className="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+          >
+            This email is already linked to Riverside Herald.{' '}
+            <Link href="/login" className="font-semibold underline underline-offset-2">
+              Sign in instead
+            </Link>
+            .
+          </div>
+        ) : null}
+
+        {emailTakenNoLink && userType === 'business_owner' ? (
+          <div
+            role="status"
+            className="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+          >
+            This email is already registered. Use a different email for a new business account, or{' '}
+            <Link href="/login" className="font-semibold underline underline-offset-2">
+              sign in
+            </Link>
+            .
+          </div>
+        ) : null}
 
         <div className="mb-6">
           <label className="block text-sm font-medium text-text mb-3">Account Type</label>
@@ -230,6 +326,7 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
                 setFormData((prev) => ({ ...prev, companyName: '' }))
                 setError('')
                 setFieldErrors({})
+                resetEmailCheck()
               }}
               className={`p-4 border-2 rounded-lg transition-all ${
                 userType === 'author'
@@ -249,6 +346,7 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
                 setUserType('business_owner')
                 setError('')
                 setFieldErrors({})
+                resetEmailCheck()
               }}
               className={`p-4 border-2 rounded-lg transition-all ${
                 userType === 'business_owner'
@@ -389,6 +487,7 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', 'email', e.target.value)}
+                onBlur={handleEmailBlur}
                 data-cy="register-email"
                 aria-invalid={Boolean(fe.email)}
                 className={`${inputIconWrap} ${fe.email ? inputErrorRing : ''}`}
@@ -397,6 +496,9 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
               />
             </div>
             {fe.email ? <p className="mt-1 text-xs text-red-600">{fe.email}</p> : null}
+            {emailCheckStatus === 'checking' ? (
+              <p className="mt-1 text-xs text-text-muted">Checking email…</p>
+            ) : null}
           </div>
 
           <div>
@@ -462,15 +564,17 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || (userType === 'author' && alreadyLinked) || (userType === 'business_owner' && emailTakenNoLink)}
             data-cy="register-submit"
             className="btn btn-primary w-full flex justify-center items-center py-3 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <span className="flex items-center">
                 <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-[rgb(var(--color-on-accent))] mr-2" />
-                Creating Account...
+                {linkMode && userType === 'author' ? 'Linking Account...' : 'Creating Account...'}
               </span>
+            ) : linkMode && userType === 'author' ? (
+              'Link Account'
             ) : (
               'Create Account'
             )}

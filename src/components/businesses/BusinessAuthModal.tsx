@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { X, Mail, Lock, LogIn, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { newsApi } from '@/lib/api'
@@ -12,6 +13,7 @@ interface BusinessAuthModalProps {
 }
 
 export function BusinessAuthModal({ businessId, onClose, onSuccess }: BusinessAuthModalProps) {
+  const router = useRouter()
   const [isLogin, setIsLogin] = useState(true)
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('') // For signup
@@ -97,7 +99,11 @@ export function BusinessAuthModal({ businessId, onClose, onSuccess }: BusinessAu
           return
         }
 
-        const { error: signupError } = await signUp(
+        const {
+          error: signupError,
+          verificationRequired,
+          email: verificationEmail,
+        } = await signUp(
           email,
           password,
           fn,
@@ -109,6 +115,12 @@ export function BusinessAuthModal({ businessId, onClose, onSuccess }: BusinessAu
 
         if (signupError) {
           setError(signupError)
+          return
+        }
+
+        if (verificationRequired && verificationEmail) {
+          router.push(`/auth/verify-email?email=${encodeURIComponent(verificationEmail.trim())}`)
+          onClose()
           return
         }
 

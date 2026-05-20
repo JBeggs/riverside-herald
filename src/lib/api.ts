@@ -16,7 +16,7 @@ export interface ApiError {
 }
 
 /** Flatten DRF / JSON error payloads into a single human-readable string. */
-function drfErrorToMessage(value: unknown, fallback: string): string {
+export function drfErrorToMessage(value: unknown, fallback: string): string {
   if (value == null || value === '') return fallback
   if (typeof value === 'string') return value
   if (typeof value === 'number' || typeof value === 'boolean') return String(value)
@@ -38,17 +38,23 @@ function drfErrorToMessage(value: unknown, fallback: string): string {
 
 /** Use in catch blocks so API/network errors always produce a visible toast message. */
 export function getApiErrorMessage(error: unknown, fallback = 'Something went wrong'): string {
+  if (typeof error === 'string' && error.trim()) return error.trim()
   if (error instanceof Error && error.message) return error.message
   if (error && typeof error === 'object') {
-    const o = error as { message?: unknown; details?: unknown }
+    const o = error as { message?: unknown; details?: Record<string, unknown> }
     const fromMsg = drfErrorToMessage(o.message, '')
     if (fromMsg) return fromMsg
+    const errPayload =
+      o.details && typeof o.details === 'object' && 'error' in o.details ? o.details.error : undefined
+    if (errPayload !== undefined && errPayload !== null) {
+      const fromValidation = drfErrorToMessage(errPayload, '')
+      if (fromValidation) return fromValidation
+    }
     if (o.details && typeof o.details === 'object') {
       const fromDetails = drfErrorToMessage(o.details, '')
       if (fromDetails) return fromDetails
     }
   }
-  if (typeof error === 'string' && error.trim()) return error
   return fallback
 }
 
@@ -835,7 +841,7 @@ export const authApi = {
   async magicLinkRequest(email: string) {
     return apiClient.post<{ detail: string }>(
       '/auth/magic-link/request/',
-      { email: email.trim().toLowerCase() },
+      { email: email.trim().toLowerCase(), company_slug: DEFAULT_COMPANY_SLUG },
       false,
     )
   },
@@ -862,7 +868,18 @@ export const authApi = {
   async resendVerificationEmail(email: string) {
     return apiClient.post<{ detail: string }>(
       '/auth/resend-verification/',
-      { email: email.trim().toLowerCase() },
+      { email: email.trim().toLowerCase(), company_slug: DEFAULT_COMPANY_SLUG },
+      false,
+    )
+  },
+  async checkRegistrationEmail(email: string, options?: { linkable?: boolean; companySlug?: string }) {
+    return apiClient.post<{ status: 'available' | 'existing_can_link' | 'existing_no_link' | 'already_linked' }>(
+      '/auth/check-registration-email/',
+      {
+        email: email.trim().toLowerCase(),
+        company_slug: options?.companySlug ?? DEFAULT_COMPANY_SLUG,
+        linkable: options?.linkable ?? true,
+      },
       false,
     )
   },

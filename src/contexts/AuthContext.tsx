@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState } from 'react'
-import { authApi, apiClient, newsApi } from '@/lib/api'
+import { authApi, apiClient, newsApi, getApiErrorMessage, drfErrorToMessage } from '@/lib/api'
 import { Profile } from '@/lib/types'
 
 interface User {
@@ -68,26 +68,32 @@ function registrationFieldErrorsFromApi(errorDetails: unknown): Record<string, s
   const out: Record<string, string> = {}
   if (!errorDetails || typeof errorDetails !== 'object' || Array.isArray(errorDetails)) return out
   for (const [field, messages] of Object.entries(errorDetails as Record<string, unknown>)) {
-    const arr = Array.isArray(messages) ? messages : [messages]
-    const first = arr.find((m) => m != null && String(m).trim() !== '')
-    if (first != null) out[field] = String(first)
+    const text = drfErrorToMessage(messages, '').trim()
+    if (text) out[field] = text
   }
   return out
 }
 
 function formatRegistrationErrorMessage(errorDetails: unknown): string {
-  if (typeof errorDetails === 'string' && errorDetails.trim()) return errorDetails
-  if (!errorDetails || typeof errorDetails !== 'object' || Array.isArray(errorDetails)) {
-    return 'Registration failed. Please try again.'
+  if (typeof errorDetails === 'string' && errorDetails.trim()) return errorDetails.trim()
+  if (
+    errorDetails != null &&
+    typeof errorDetails === 'object' &&
+    !Array.isArray(errorDetails)
+  ) {
+    const entries = Object.entries(errorDetails as Record<string, unknown>)
+      .map(([field, messages]) => {
+        const inner = drfErrorToMessage(messages, '').trim()
+        if (!inner) return ''
+        const fieldLabel =
+          REGISTRATION_FIELD_LABELS[field] || field.charAt(0).toUpperCase() + field.slice(1).replace(/_/g, ' ')
+        return `${fieldLabel}: ${inner}`
+      })
+      .filter(Boolean)
+    if (entries.length > 0) return entries.join('. ')
   }
-  const errorMessages = Object.entries(errorDetails as Record<string, unknown>).map(([field, messages]) => {
-    const fieldLabel =
-      REGISTRATION_FIELD_LABELS[field] || field.charAt(0).toUpperCase() + field.slice(1).replace(/_/g, ' ')
-    const messageArray = Array.isArray(messages) ? messages : [messages]
-    const messageText = messageArray.map((m) => String(m)).join(', ')
-    return `${fieldLabel}: ${messageText}`
-  })
-  return errorMessages.length > 0 ? errorMessages.join('. ') : 'Registration failed. Please try again.'
+  const flat = drfErrorToMessage(errorDetails, '').trim()
+  return flat || 'Registration failed. Please try again.'
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -249,6 +255,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const needsVerify =
         'email_verification_required' in response &&
         Boolean((response as { email_verification_required?: boolean }).email_verification_required)
+      const accountLinked = Boolean(
+        (response as { account_linked?: boolean }).account_linked,
+      )
       if (needsVerify) {
         authApi.logout()
         setUser(null)
@@ -258,7 +267,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (typeof window !== 'undefined') {
           localStorage.removeItem(RH_OWNER_STORAGE)
         }
-        return { error: null, verificationRequired: true as const, email }
+        return { error: null, verificationRequired: true as const, email, accountLinked }
       }
 
       setUser(response.user)
@@ -267,55 +276,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Fetch profile after registration
       await fetchProfile()
       
-      return { error: null }
-    } catch (error: any) {
-      // Log full error structure for debugging - use JSON.stringify to avoid circular reference issues
-      try {
-        console.error('Registration error - message:', error?.message)
-        console.error('Registration error - code:', error?.code)
-        console.error('Registration error - status:', error?.status)
-        console.error('Registration error - url:', error?.url)
-        console.error('Registration error - details:', error?.details)
-        console.error('Registration error - full error (stringified):', JSON.stringify(error, null, 2))
-      } catch {
-        console.error('Registration error - could not serialize:', error)
-      }
-      
-      // Extract error message from API error structure
-      let errorMessage = 'Registration failed. Please try again.'
-      
-      // Backend returns {error: {field: ['message']}} structure in details
+      return { error: null, accountLinked }
+    } catch (error: unknown) {
+      console.error('Registration error:', error)
+
+      const fallback = 'Registration failed. Please try again.'
+      let errorMessage = getApiErrorMessage(error, fallback).trim() || fallback
       let fieldErrors: Record<string, string> | undefined
-      if (error?.details?.error) {
-        const errorDetails = error.details.error
-        if (typeof errorDetails === 'string') {
-          errorMessage = errorDetails
-        } else if (typeof errorDetails === 'object' && errorDetails !== null) {
-          fieldErrors = registrationFieldErrorsFromApi(errorDetails)
-          errorMessage = formatRegistrationErrorMessage(errorDetails)
-        }
-      } else if (error?.details && typeof error.details === 'object') {
-        // Try to extract from details object directly
-        if (error.details.detail) {
-          errorMessage = error.details.detail
-        } else if (error.details.message) {
-          errorMessage = error.details.message
-        } else if (Object.keys(error.details).length > 0) {
-          const raw = Object.fromEntries(
-            Object.entries(error.details).filter(
-              ([key]) => key !== 'error' && key !== 'message' && key !== 'detail',
-            ),
-          )
-          if (Object.keys(raw).length > 0) {
-            fieldErrors = registrationFieldErrorsFromApi(raw)
-            errorMessage = formatRegistrationErrorMessage(raw)
-          }
-        }
-      } else if (error?.message) {
-        errorMessage = error.message
+
+      const details =
+        error && typeof error === 'object'
+          ? (error as { details?: Record<string, unknown> }).details
+          : undefined
+      const errPayload =
+        details && typeof details === 'object' && 'error' in details ? details.error : undefined
+
+      if (
+        typeof errPayload === 'object' &&
+        errPayload !== null &&
+        !Array.isArray(errPayload)
+      ) {
+        fieldErrors = registrationFieldErrorsFromApi(errPayload)
+        errorMessage = formatRegistrationErrorMessage(errPayload)
       }
-      
-      return { error: errorMessage, ...(fieldErrors && Object.keys(fieldErrors).length ? { fieldErrors } : {}) }
+
+      const extraDetails =
+        (!fieldErrors || Object.keys(fieldErrors).length === 0) &&
+        details &&
+        typeof details === 'object' &&
+        !('error' in details && typeof (details as { error?: unknown }).error === 'object')
+
+      if (
+        extraDetails &&
+        !(typeof errPayload === 'string' && errPayload.trim())
+      ) {
+        const raw = Object.fromEntries(
+          Object.entries(details).filter(
+            ([key]) => key !== 'error' && key !== 'message' && key !== 'detail',
+          ),
+        )
+        if (raw && typeof raw === 'object' && Object.keys(raw).length > 0) {
+          fieldErrors = registrationFieldErrorsFromApi(raw)
+          errorMessage = formatRegistrationErrorMessage(raw)
+        }
+      }
+
+      return {
+        error: errorMessage.trim() || fallback,
+        ...(fieldErrors && Object.keys(fieldErrors).length ? { fieldErrors } : {}),
+      }
     }
   }
 
