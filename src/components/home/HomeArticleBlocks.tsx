@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react'
 import Link from 'next/link'
 import { Clock } from 'lucide-react'
 import SafeImage from '@/components/ui/SafeImage'
+import { shouldShowExcerptWithSubtitle, trimArticleSubtitle } from '@/lib/article-deck'
 import { formatArticleDate, formatArticleDateShort } from '@/lib/date-utils'
 
 export type HomeArticleBlockData = {
@@ -25,6 +26,26 @@ function revealClass(revealed: boolean) {
     : 'opacity-100 pointer-events-auto transition-opacity duration-200'
 }
 
+function ArticleCardSubtitle({
+  text,
+  size = 'sm',
+}: {
+  text: string
+  size?: 'sm' | 'lg'
+}) {
+  const deck = trimArticleSubtitle(text)
+  if (!deck) return null
+  const className =
+    size === 'lg'
+      ? 'text-base md:text-lg text-text-muted mb-3 line-clamp-2 leading-snug'
+      : 'text-xs md:text-sm text-text-muted mb-2 line-clamp-2 leading-snug'
+  return (
+    <p className={className} data-cy="article-card-subtitle" data-testid="article-card-subtitle">
+      {deck}
+    </p>
+  )
+}
+
 /** Large featured tile (hero grid). */
 export function HomeFeaturedArticleBlock({
   article,
@@ -37,6 +58,8 @@ export function HomeFeaturedArticleBlock({
 }) {
   const [revealed, setRevealed] = useState(!imageUrl)
   const onLoad = useCallback(() => setRevealed(true), [])
+  const subtitle = trimArticleSubtitle(article.subtitle)
+  const showExcerpt = shouldShowExcerptWithSubtitle(subtitle, article.excerpt)
 
   return (
     <article className={`card-elevated p-4 md:p-6 ${revealClass(revealed)}`}>
@@ -72,10 +95,10 @@ export function HomeFeaturedArticleBlock({
           {article.title}
         </Link>
       </h2>
-      {article.subtitle ? (
-        <p className="text-base md:text-lg text-neutral-600 mb-3 line-clamp-2">{article.subtitle}</p>
+      <ArticleCardSubtitle text={subtitle} size="lg" />
+      {showExcerpt && article.excerpt ? (
+        <p className="body-lg mb-4 line-clamp-3 md:line-clamp-none text-text-muted">{article.excerpt}</p>
       ) : null}
-      <p className="body-lg mb-4 line-clamp-3 md:line-clamp-none">{article.excerpt}</p>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs md:text-sm text-neutral-500 space-y-2 sm:space-y-0">
         <div className="flex items-center space-x-3 md:space-x-4">
           <span className="truncate max-w-[150px]">By {article.author_name || 'Staff Writer'}</span>
@@ -108,6 +131,7 @@ export function HomeSideArticleBlock({
 }) {
   const [revealed, setRevealed] = useState(!imageUrl)
   const onLoad = useCallback(() => setRevealed(true), [])
+  const subtitle = trimArticleSubtitle(article.subtitle)
 
   return (
     <article className={`card p-3 md:p-4 ${revealClass(revealed)}`}>
@@ -143,9 +167,7 @@ export function HomeSideArticleBlock({
               {article.title}
             </Link>
           </h3>
-          {article.subtitle ? (
-            <p className="text-xs md:text-sm text-neutral-600 mb-1 line-clamp-2">{article.subtitle}</p>
-          ) : null}
+          <ArticleCardSubtitle text={subtitle} />
           <div className="flex items-center text-[10px] md:text-xs text-neutral-500 truncate">
             <span className="truncate max-w-[80px] md:max-w-none">{article.author_name || 'Staff Writer'}</span>
             <span className="mx-1 md:mx-2 flex-shrink-0">•</span>
@@ -169,6 +191,8 @@ export function HomeGridArticleBlock({
 }) {
   const [revealed, setRevealed] = useState(!imageUrl)
   const onLoad = useCallback(() => setRevealed(true), [])
+  const subtitle = trimArticleSubtitle(article.subtitle)
+  const showExcerpt = shouldShowExcerptWithSubtitle(subtitle, article.excerpt)
 
   return (
     <article className={`card overflow-hidden ${revealClass(revealed)}`}>
@@ -201,10 +225,10 @@ export function HomeGridArticleBlock({
             {article.title}
           </Link>
         </h3>
-        {article.subtitle ? (
-          <p className="text-xs md:text-sm text-neutral-600 mb-2 line-clamp-2">{article.subtitle}</p>
+        <ArticleCardSubtitle text={subtitle} />
+        {showExcerpt && article.excerpt ? (
+          <p className="text-xs md:text-sm mb-3 text-text-muted line-clamp-2">{article.excerpt}</p>
         ) : null}
-        <p className="text-xs md:text-sm mb-3 text-neutral-600 line-clamp-2">{article.excerpt}</p>
         <div className="flex items-center justify-between text-[10px] md:text-xs text-neutral-500">
           <span className="truncate max-w-[100px]">{article.author_name || 'Staff Writer'}</span>
           <time className="flex-shrink-0">{formatArticleDateShort(article.published_at, locale) || '—'}</time>

@@ -120,7 +120,7 @@ async function getHomepageData() {
         id: article.id,
         title: article.title,
         slug: article.slug,
-        subtitle: article.subtitle || '',
+        subtitle: (article.subtitle ?? '').trim(),
         excerpt: article.excerpt || '',
         content: article.content || '',
         published_at: article.published_at,
