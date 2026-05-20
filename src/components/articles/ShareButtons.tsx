@@ -67,7 +67,11 @@ export default function ShareButtons({ title, url, siteOrigin }: ShareButtonsPro
           
           {/* Share Options */}
           <div className="absolute bottom-16 right-0 bg-white rounded-xl shadow-2xl border border-gray-200 p-4 min-w-[200px]">
-            <h3 className="text-sm font-semibold text-gray-900 mb-3">Share this article</h3>
+            <h3 className="text-sm font-semibold text-gray-900 mb-3">Share article link</h3>
+            <p className="text-xs text-gray-500 mb-3">
+              Opens each network&apos;s share window with this page URL only — not a staff post to the
+              3 Pillars Company Page.
+            </p>
             
             <div className="space-y-2">
               {/* Facebook */}
@@ -100,7 +104,7 @@ export default function ShareButtons({ title, url, siteOrigin }: ShareButtonsPro
                 <div className="w-8 h-8 bg-blue-700 rounded-full flex items-center justify-center mr-3">
                   <Linkedin className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-gray-700">LinkedIn</span>
+                <span className="text-gray-700">LinkedIn (link only)</span>
               </button>
 
               {/* Email */}

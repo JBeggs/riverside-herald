@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useCompany } from '@/contexts/CompanyContext'
 import { useToast } from '@/contexts/ToastContext'
@@ -140,6 +141,7 @@ interface ArticleEditorProps {
       file_url?: string | null
     } | null
     author_id: string
+    author_name?: string
     category?: {
       id: string
       name: string
@@ -170,6 +172,16 @@ interface ArticleEditorProps {
 
 type EditorStep = 'basic' | 'content' | 'media' | 'settings' | 'seo' | 'research' | 'publish'
 
+const EDITOR_STEPS: EditorStep[] = [
+  'basic',
+  'content',
+  'media',
+  'settings',
+  'seo',
+  'research',
+  'publish',
+]
+
 export default function EnhancedArticleEditor({
   article,
   onSave,
@@ -177,7 +189,14 @@ export default function EnhancedArticleEditor({
   inModal = false,
   chrome = 'default',
 }: ArticleEditorProps) {
+  const searchParams = useSearchParams()
   const { user, profile, isCompanyOwner } = useAuth()
+  const [authorDisplayName, setAuthorDisplayName] = useState(
+    (article as { author_name?: string }).author_name?.trim() ||
+      (article as { author?: { full_name?: string } }).author?.full_name?.trim() ||
+      profile?.full_name?.trim() ||
+      '',
+  )
   const { name: siteBrandName } = useCompany()
   const { showError, showSuccess } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -186,7 +205,12 @@ export default function EnhancedArticleEditor({
   // If inModal, always start in editing mode (don't show "Edit Article" button)
   // Otherwise, only start in editing mode for new articles
   const [isEditing, setIsEditing] = useState(inModal || article.id === 'new')
-  const [currentStep, setCurrentStep] = useState<EditorStep>('basic')
+  const stepFromUrl = searchParams.get('step')
+  const initialStep: EditorStep =
+    stepFromUrl && EDITOR_STEPS.includes(stepFromUrl as EditorStep)
+      ? (stepFromUrl as EditorStep)
+      : 'basic'
+  const [currentStep, setCurrentStep] = useState<EditorStep>(initialStep)
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -262,6 +286,15 @@ export default function EnhancedArticleEditor({
     created_at: (article as { created_at?: string | null }).created_at ?? null,
     updated_at: (article as { updated_at?: string | null }).updated_at ?? null,
   })
+
+  useEffect(() => {
+    const name =
+      article.author_name?.trim() ||
+      (article as { author?: { full_name?: string } }).author?.full_name?.trim() ||
+      profile?.full_name?.trim() ||
+      ''
+    if (name) setAuthorDisplayName(name)
+  }, [article.id, article.author_name, profile?.full_name])
 
   // Update editData when article prop changes
   useEffect(() => {
@@ -819,14 +852,10 @@ export default function EnhancedArticleEditor({
     setIsSaving(true)
     
     try {
-      // Get author ID from profile
-      const authorId = profile?.user
+      const authorId = user?.id || profile?.user
       if (!authorId && article.id === 'new') {
         throw new Error('Author ID is required. Please ensure you are logged in.')
       }
-      
-      // Note: Company ID is not required - backend attaches the tenant news company automatically.
-      // for business owners and other users creating articles
 
       // Slug always follows current title so public/edit URLs stay aligned (matches user expectation).
       const slug = generateSlug(editData.title || 'untitled-article')
@@ -838,7 +867,6 @@ export default function EnhancedArticleEditor({
         subtitle: editData.subtitle || '',
         content: content, // Already validated and trimmed
         excerpt: editData.excerpt || '',
-        author: authorId,
         status: editData.status || 'draft',
         content_type: editData.content_type || 'article',
         is_premium: editData.is_premium || false,
@@ -850,8 +878,10 @@ export default function EnhancedArticleEditor({
         location_name: editData.location_name || '',
       }
 
-      // Note: Company is set by the backend to the news platform tenant in perform_create.
-      // No need to send company from frontend
+      // Author is set on create by the API (perform_create); do not PATCH author on updates.
+      if (article.id === 'new' && authorId) {
+        updateData.author = authorId
+      }
 
       // Category: PATCH always include so we can set or clear FK (create omits when empty)
       if (article.id === 'new') {
@@ -903,7 +933,12 @@ export default function EnhancedArticleEditor({
         console.log('Creating article with data:', updateData)
         const newArticle: any = await newsApi.articles.create(updateData)
         showSuccess('Article created successfully!')
-        
+        if (newArticle.author_name) {
+          setAuthorDisplayName(String(newArticle.author_name))
+        } else if (profile?.full_name) {
+          setAuthorDisplayName(profile.full_name)
+        }
+
         // Update the article data to the newly created article so user can continue editing
         setEditData((prev) => ({
           ...prev,
@@ -926,6 +961,9 @@ export default function EnhancedArticleEditor({
         // Update existing article
         const updated: any = await newsApi.articles.patch(article.id, updateData)
         showSuccess('Article updated successfully!')
+        if (updated?.author_name) {
+          setAuthorDisplayName(String(updated.author_name))
+        }
         if (updated && typeof updated === 'object') {
           setEditData((prev) => ({
             ...prev,
@@ -2239,6 +2277,10 @@ export default function EnhancedArticleEditor({
             <div className="bg-[rgb(var(--color-surface-raised)/0.5)] rounded-lg p-4">
               <h3 className="font-medium text-text mb-2">Publishing Summary</h3>
               <div className="space-y-1 text-sm text-text-muted">
+                <p>
+                  <span className="font-medium">Author:</span>{' '}
+                  {authorDisplayName || profile?.full_name || 'Staff Writer'}
+                </p>
                 <p><span className="font-medium">Status:</span> {editData.status}</p>
                 <p><span className="font-medium">Category:</span> {categories.find(c => c.id === editData.category_id)?.name || 'None'}</p>
                 <p><span className="font-medium">Tags:</span> {selectedTags.length > 0 ? selectedTags.map(t => t.name).join(', ') : 'None'}</p>
@@ -2271,11 +2313,17 @@ export default function EnhancedArticleEditor({
                   className="inline-flex items-center gap-2 px-4 py-2 bg-[#0A66C2] text-white text-sm font-medium rounded-lg hover:bg-[#095195] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Linkedin className="w-4 h-4" aria-hidden />
-                  Post to LinkedIn
+                  {mustPostToLinkedInCompanyPage
+                    ? 'Post to 3 Pillars Company Page'
+                    : 'Post to LinkedIn'}
                 </button>
                 {!slugForShare ? (
                   <p className="text-xs text-amber-700 dark:text-amber-300 mt-2">Add a title (and save) so we can build the article URL.</p>
-                ) : null}
+                ) : (
+                  <p className="text-xs text-text-muted mt-2">
+                    Not the floating Share button on the public article — that only shares a link.
+                  </p>
+                )}
               </div>
             ) : null}
           </div>
