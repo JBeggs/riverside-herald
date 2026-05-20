@@ -6,6 +6,7 @@ import { BusinessEditButton } from '@/components/businesses/BusinessEditButton'
 import ProductGallery from '@/components/businesses/ProductGallery'
 import BusinessHeroCover from '@/components/businesses/BusinessHeroCover'
 import { getBusinessImageUrl as getBusinessImageUrlUtil, ARTICLE_IMAGE_PLACEHOLDER } from '@/lib/image-utils'
+import { resolveBusinessLogo } from '@/lib/business-media'
 import { loadSiteSettingsMap, siteLabelFromMap } from '@/lib/site-settings'
 
 function formatPhone(phone?: string): string {
@@ -170,10 +171,7 @@ async function getBusiness(slug: string) {
       created_at: business.created_at,
       owner_id: business.owner,
       owner_name: business.owner_name || '',
-      logo: business.logo ? {
-        file_url: business.logo.file_url,
-        alt_text: `${business.name} logo`
-      } : business.logo_url ? { file_url: business.logo_url, alt_text: `${business.name} logo` } : null,
+      logo: resolveBusinessLogo(business),
       cover_image: business.cover_image?.file_url
         ? {
             file_url: business.cover_image.file_url,

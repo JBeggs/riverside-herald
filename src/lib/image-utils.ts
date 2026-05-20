@@ -1,6 +1,7 @@
 /**
  * Utility functions for handling image URLs
  */
+import { resolveBusinessLogo } from './business-media'
 
 /** Public-site placeholder when an article has no featured image (River Lodge branding). */
 export const ARTICLE_IMAGE_PLACEHOLDER = '/image-placeholder.png'
@@ -80,16 +81,17 @@ export function getArticleOpenGraphImageUrls(
  * Get image URL for a business logo or cover image
  */
 export function getBusinessImageUrl(
-  business?: { 
+  business?: {
+    name?: string
     logo?: { file_url?: string | null } | null
     cover_image?: { file_url?: string | null } | null
     logo_url?: string | null
   },
-  type: 'logo' | 'cover' = 'cover'
+  type: 'logo' | 'cover' = 'cover',
 ): string {
   if (type === 'logo') {
-    if (business?.logo?.file_url) return getAbsoluteImageUrl(business.logo.file_url)
-    if ((business as any)?.logo_url) return getAbsoluteImageUrl((business as any).logo_url)
+    const resolved = resolveBusinessLogo(business)
+    if (resolved?.file_url) return getAbsoluteImageUrl(resolved.file_url)
   }
   if (type === 'cover' && business?.cover_image?.file_url) {
     return getAbsoluteImageUrl(business.cover_image.file_url)

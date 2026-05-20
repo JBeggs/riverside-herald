@@ -3,7 +3,8 @@
 import Link from 'next/link'
 import { MapPin, Star, Phone, Mail, Globe, CheckCircle } from 'lucide-react'
 import SafeImage from '@/components/ui/SafeImage'
-import { getAbsoluteImageUrl } from '@/lib/image-utils'
+import { getAbsoluteImageUrl, getBusinessImageUrl } from '@/lib/image-utils'
+import { resolveProductImage } from '@/lib/business-media'
 
 const ShoppingBag = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -86,7 +87,7 @@ export default function FeaturedBusinessCard({
     }
   }
 
-  const logoUrl = resolveImageUrl(business.logo?.file_url || (business as any).logo_url)
+  const logoUrl = getBusinessImageUrl(business, 'logo') || null
   const coverUrl = resolveImageUrl(business.cover_image?.file_url)
   const hasProducts = business.products && business.products.length > 0
 
@@ -164,7 +165,9 @@ export default function FeaturedBusinessCard({
             </div>
             <div className="grid grid-cols-2 gap-2">
               {business.products!.slice(0, 4).map((product) => {
-                const productImageUrl = resolveImageUrl(product.image?.file_url)
+                const productImageUrl = resolveImageUrl(
+                  resolveProductImage(product)?.file_url,
+                )
                 return (
                   <div key={product.id} className="group cursor-pointer">
                     <div className="aspect-square bg-[rgb(var(--color-surface-raised)/0.85)] rounded-lg overflow-hidden mb-1 relative">

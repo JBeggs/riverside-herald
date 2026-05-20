@@ -303,8 +303,12 @@ export const serverNewsApi = {
           const enhancedBusinesses = await Promise.all(
             businessesArray.map(async (business: any) => {
               try {
-                // Try to fetch products for this business using direct API call
-                const products = await serverApi.get(`/v1/public/${business.slug}/products/`, { skipTenant: true, skipAuth: true })
+                const productSlug =
+                  String(business.ecommerce_slug || business.slug || '').trim() || business.slug
+                const products = await serverApi.get(
+                  `/v1/public/${productSlug}/products/`,
+                  { skipTenant: true, skipAuth: true },
+                )
                 return {
                   ...business,
                   products: Array.isArray(products) ? products.slice(0, 4) : ((products as any)?.results || []).slice(0, 4) // Limit to 4 products for homepage

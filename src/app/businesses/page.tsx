@@ -2,6 +2,7 @@ import { serverNewsApi } from '@/lib/api-server'
 import type { Metadata } from 'next'
 import { BusinessSearchAndFilter } from '@/components/businesses/BusinessSearchAndFilter'
 import { loadSiteSettingsMap, siteLabelFromMap } from '@/lib/site-settings'
+import { getEcommerceCompanySlug, resolveBusinessLogo } from '@/lib/business-media'
 
 export async function generateMetadata(): Promise<Metadata> {
   const map = await loadSiteSettingsMap()
@@ -23,15 +24,15 @@ async function getBusinesses() {
 
     await Promise.all(
       businesses.map(async (business: any) => {
-        const slug = String(business?.slug || '').trim()
-        if (!slug) return
+        const heroSlug = getEcommerceCompanySlug(business)
+        if (!heroSlug) return
         try {
           const response = await fetch(
             `${apiBaseUrl}/news/page-heroes/?page_slug=home&enabled=true`,
             {
               headers: {
                 'Content-Type': 'application/json',
-                'X-Company-Slug': slug,
+                'X-Company-Slug': heroSlug,
               },
               cache: 'no-store',
             }
@@ -41,7 +42,7 @@ async function getBusinesses() {
           const rows = Array.isArray(data) ? data : (data?.results || [])
           const imageUrl = rows?.[0]?.image?.file_url
           if (typeof imageUrl === 'string' && imageUrl.length > 0) {
-            bannerBySlug.set(slug, imageUrl)
+            bannerBySlug.set(String(business.slug || heroSlug), imageUrl)
           }
         } catch {
           // Ignore per-business banner fetch failures.
@@ -81,10 +82,7 @@ async function getBusinesses() {
         social_links: business.social_links || {},
         created_at: business.created_at,
         owner_id: business.owner,
-        logo: business.logo ? {
-          file_url: business.logo.file_url,
-          alt_text: `${business.name} logo`
-        } : business.logo_url ? { file_url: business.logo_url, alt_text: `${business.name} logo` } : null,
+        logo: resolveBusinessLogo(business),
         cover_image: business.cover_image?.file_url
           ? {
               file_url: business.cover_image.file_url,

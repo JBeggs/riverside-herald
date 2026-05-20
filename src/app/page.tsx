@@ -9,6 +9,11 @@ import {
 } from '@/components/home/HomeArticleBlocks'
 import HomeFeaturedBusinessesSlideshow from '@/components/home/HomeFeaturedBusinessesSlideshow'
 import { getArticleImageUrl } from '@/lib/image-utils'
+import {
+  getEcommerceCompanySlug,
+  resolveBusinessLogo,
+  resolveProductImage,
+} from '@/lib/business-media'
 
 interface Article {
   id: string
@@ -159,15 +164,15 @@ async function getHomepageData() {
     const businessHomeBannerBySlug = new Map<string, string>()
     await Promise.all(
       businessesArray.map(async (business: any) => {
-        const slug = String(business?.slug || '').trim()
-        if (!slug) return
+        const heroSlug = getEcommerceCompanySlug(business)
+        if (!heroSlug) return
         try {
           const response = await fetch(
             `${apiBaseUrl}/news/page-heroes/?page_slug=home&enabled=true`,
             {
               headers: {
                 'Content-Type': 'application/json',
-                'X-Company-Slug': slug,
+                'X-Company-Slug': heroSlug,
               },
               cache: 'no-store',
             }
@@ -177,7 +182,7 @@ async function getHomepageData() {
           const rows = Array.isArray(heroData) ? heroData : (heroData?.results || [])
           const imageUrl = rows?.[0]?.image?.file_url
           if (typeof imageUrl === 'string' && imageUrl.length > 0) {
-            businessHomeBannerBySlug.set(slug, imageUrl)
+            businessHomeBannerBySlug.set(String(business.slug || heroSlug), imageUrl)
           }
         } catch {
           // Ignore individual banner fetch errors so homepage still renders.
@@ -187,15 +192,10 @@ async function getHomepageData() {
 
     const businesses: Business[] = businessesArray.map((business: any) => {
       const mappedProducts = Array.isArray(business.products)
-        ? business.products.map((product: any) => ({
-            ...product,
-            image:
-              product?.image?.file_url
-                ? product.image
-                : product?.image
-                  ? { file_url: product.image }
-                  : undefined,
-          }))
+        ? business.products.map((product: any) => {
+            const image = resolveProductImage(product)
+            return image ? { ...product, image } : product
+          })
         : []
       const bannerFromHomeHero = businessHomeBannerBySlug.get(String(business.slug || ''))
 
@@ -212,9 +212,8 @@ async function getHomepageData() {
         phone: business.phone,
         email: business.email,
         is_verified: business.is_verified,
-        logo: business.logo ? {
-          file_url: business.logo.file_url
-        } : business.logo_url ? { file_url: business.logo_url } : undefined,
+        logo: resolveBusinessLogo(business) ?? undefined,
+        ecommerce_slug: business.ecommerce_slug || undefined,
         cover_image: business.cover_image?.file_url
           ? { file_url: business.cover_image.file_url }
           : bannerFromHomeHero
