@@ -72,6 +72,23 @@ import { newsApi, apiClient } from '@/lib/api'
 import ShareToLinkedInDialog from '@/components/social/ShareToLinkedInDialog'
 import { buildArticlePublicUrl, buildLinkedInPostText } from '@/lib/linkedin-share'
 import {
+  cmsEditorBar,
+  cmsEditorFooter,
+  cmsEditorShell,
+  cmsField,
+  cmsFieldSm,
+  cmsIconBtn,
+  cmsInfoBanner,
+  cmsLabel,
+  cmsModal,
+  cmsStepBtnActive,
+  cmsStepBtnDone,
+  cmsStepBtnIdle,
+  cmsTagSelected,
+  cmsTextarea,
+  cmsWarningBanner,
+} from '@/lib/cms-ui-classes'
+import {
   toLocalDateTimeInput,
   nowLocalDateTimeInput,
   parseLocalDateTimeToIso,
@@ -824,12 +841,19 @@ export default function EnhancedArticleEditor({
         updateData.read_time_minutes = editData.read_time_minutes
       }
       
-      // published_at only when publishing / scheduling (avoid draft + default picker sending bad dates)
+      // published_at: for published, empty picker means "now" (matches Publish tab helper text).
+      // For scheduled, use explicit publish date or fall back to scheduled_for — never imply "now".
       const st = editData.status || 'draft'
-      if (st === 'published' || st === 'scheduled') {
+      if (st === 'published') {
         const pubIso = parseLocalDateTimeToIso(editData.published_at)
+        updateData.published_at = pubIso ?? new Date().toISOString()
+      } else if (st === 'scheduled') {
+        const pubIso = parseLocalDateTimeToIso(editData.published_at)
+        const schedAsPub = parseLocalDateTimeToIso(editData.scheduled_for)
         if (pubIso) {
           updateData.published_at = pubIso
+        } else if (schedAsPub) {
+          updateData.published_at = schedAsPub
         }
       }
       const schedIso = parseLocalDateTimeToIso(editData.scheduled_for)
@@ -850,11 +874,14 @@ export default function EnhancedArticleEditor({
         showSuccess('Article created successfully!')
         
         // Update the article data to the newly created article so user can continue editing
-        setEditData(prev => ({
+        setEditData((prev) => ({
           ...prev,
           id: newArticle.id,
           created_at: newArticle.created_at,
-          updated_at: newArticle.updated_at
+          updated_at: newArticle.updated_at,
+          status:
+            newArticle.status === 'featured' ? 'published' : newArticle.status || prev.status,
+          published_at: toLocalDateTimeInput(newArticle.published_at),
         }))
         
         // Update article prop by calling onSave with the new article
@@ -869,10 +896,14 @@ export default function EnhancedArticleEditor({
         const updated: any = await newsApi.articles.patch(article.id, updateData)
         showSuccess('Article updated successfully!')
         if (updated && typeof updated === 'object') {
-          setEditData(prev => ({
+          setEditData((prev) => ({
             ...prev,
             category_id: updated.category?.id || '',
             updated_at: updated.updated_at ?? prev.updated_at,
+            status:
+              updated.status === 'featured' ? 'published' : updated.status || prev.status,
+            published_at: toLocalDateTimeInput(updated.published_at),
+            scheduled_for: toLocalDateTimeInput(updated.scheduled_for),
           }))
         }
         // If onSave callback provided, use it
@@ -1239,7 +1270,7 @@ export default function EnhancedArticleEditor({
         <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-3">
           <button
             onClick={() => setIsEditing(true)}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors w-full sm:w-auto justify-center"
+            className="btn btn-primary flex items-center gap-2 min-h-[44px] transition-colors w-full sm:w-auto justify-center"
           >
             <Edit3 className="w-4 h-4" />
             <span>Edit Article</span>
@@ -1257,24 +1288,24 @@ export default function EnhancedArticleEditor({
         {/* Delete Confirmation Modal */}
         {showDeleteConfirm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center px-4">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+            <div className={`${cmsModal} shadow-card`}>
               <div className="p-6">
                 <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
                   <AlertTriangle className="w-6 h-6 text-red-600" />
                 </div>
                 
-                <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">
+                <h3 className="text-lg font-semibold text-text text-center mb-2">
                   Delete Article
                 </h3>
                 
-                <p className="text-gray-600 text-center mb-6">
+                <p className="text-text-muted text-center mb-6">
                   Are you sure you want to delete "{article.title}"? This action cannot be undone.
                 </p>
                 
                 <div className="flex items-center space-x-3">
                   <button
                     onClick={() => setShowDeleteConfirm(false)}
-                    className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg transition-colors"
+                    className="flex-1 px-4 py-2 bg-[rgb(var(--color-surface-raised))] text-text hover:bg-[rgb(var(--color-surface-raised))] rounded-lg transition-colors"
                   >
                     Cancel
                   </button>
@@ -1311,39 +1342,39 @@ export default function EnhancedArticleEditor({
         return (
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={cmsLabel}>
                 Article Title *
               </label>
               <input
                 type="text"
                 value={editData.title}
                 onChange={(e) => setEditData(prev => ({ ...prev, title: e.target.value }))}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg font-semibold"
+                className={`${cmsField} text-lg font-semibold`}
                 placeholder="Enter article title..."
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={cmsLabel}>
                 Subtitle
               </label>
               <input
                 type="text"
                 value={editData.subtitle}
                 onChange={(e) => setEditData(prev => ({ ...prev, subtitle: e.target.value }))}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={cmsField}
                 placeholder="Enter article subtitle..."
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={cmsLabel}>
                 Category
               </label>
               <select
                 value={editData.category_id}
                 onChange={(e) => setEditData(prev => ({ ...prev, category_id: e.target.value }))}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={cmsField}
               >
                 <option value="">Select a category...</option>
                 {categories.map(category => (
@@ -1355,13 +1386,13 @@ export default function EnhancedArticleEditor({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={cmsLabel}>
                 Content Type
               </label>
               <select
                 value={editData.content_type}
                 onChange={(e) => setEditData(prev => ({ ...prev, content_type: e.target.value }))}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={cmsField}
               >
                 <option value="article">Article</option>
                 <option value="gallery">Gallery</option>
@@ -1372,14 +1403,14 @@ export default function EnhancedArticleEditor({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={cmsLabel}>
                 Article Excerpt
               </label>
               <textarea
                 value={editData.excerpt}
                 onChange={(e) => setEditData(prev => ({ ...prev, excerpt: e.target.value }))}
                 rows={3}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y"
+                className={cmsTextarea}
                 placeholder="Brief summary of the article..."
               />
             </div>
@@ -1390,23 +1421,23 @@ export default function EnhancedArticleEditor({
         return (
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={cmsLabel}>
                 Article Content *
               </label>
               <textarea
                 value={editData.content}
                 onChange={(e) => setEditData(prev => ({ ...prev, content: e.target.value }))}
                 rows={16}
-                className="w-full min-h-[12rem] sm:min-h-[16rem] px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y font-mono text-sm"
+                className={`${cmsTextarea} min-h-[12rem] sm:min-h-[16rem] font-mono text-sm`}
                 placeholder="Write your article content here..."
               />
-              <p className="mt-2 text-sm text-gray-500">
+              <p className="mt-2 text-sm text-text-muted">
                 💡 You can use HTML tags like &lt;p&gt;, &lt;h2&gt;, &lt;strong&gt;, &lt;em&gt; for formatting.
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={cmsLabel}>
                 Reading Time (minutes)
               </label>
               <input
@@ -1415,20 +1446,20 @@ export default function EnhancedArticleEditor({
                 max="120"
                 value={editData.read_time_minutes || ''}
                 onChange={(e) => setEditData(prev => ({ ...prev, read_time_minutes: e.target.value ? parseInt(e.target.value) : null }))}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={cmsField}
                 placeholder="Estimated reading time..."
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={cmsLabel}>
                 Location (Optional)
               </label>
               <input
                 type="text"
                 value={editData.location_name}
                 onChange={(e) => setEditData(prev => ({ ...prev, location_name: e.target.value }))}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={cmsField}
                 placeholder="e.g. Cape Town, South Africa"
               />
             </div>
@@ -1439,7 +1470,7 @@ export default function EnhancedArticleEditor({
         return (
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={cmsLabel}>
                 Featured Image
               </label>
               
@@ -1449,7 +1480,7 @@ export default function EnhancedArticleEditor({
                     <img
                       src={editData.featured_image_url}
                       alt="Featured image preview"
-                      className="w-full max-w-sm h-48 object-cover rounded-lg border border-gray-300"
+                      className="w-full max-w-sm h-48 object-cover rounded-lg border border-border-default"
                       onError={(e) => {
                         e.currentTarget.src = 'https://via.placeholder.com/800x600?text=Image+Not+Found'
                       }}
@@ -1469,7 +1500,7 @@ export default function EnhancedArticleEditor({
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isUploading}
-                  className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors disabled:opacity-50 w-full sm:w-auto justify-center"
+                  className="btn btn-primary flex items-center gap-2 min-h-[44px] transition-colors disabled:opacity-50 w-full sm:w-auto justify-center"
                 >
                   {isUploading ? (
                     <>
@@ -1484,14 +1515,14 @@ export default function EnhancedArticleEditor({
                   )}
                 </button>
                 
-                <span className="text-sm text-gray-500">or</span>
+                <span className="text-sm text-text-muted">or</span>
               </div>
 
               <input
                 type="url"
                 value={editData.featured_image_url}
                 onChange={(e) => setEditData(prev => ({ ...prev, featured_image_url: e.target.value }))}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={cmsField}
                 placeholder="Enter image URL..."
               />
               
@@ -1507,7 +1538,7 @@ export default function EnhancedArticleEditor({
             {/* Gallery Section - Available to all authors and business owners */}
             <div className="mt-8">
               <div className="flex items-center justify-between mb-4">
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-text">
                   Article Gallery {article.id !== 'new' && `(${galleryImages.length} images)`}
                 </label>
                 {article.id !== 'new' && (
@@ -1515,7 +1546,7 @@ export default function EnhancedArticleEditor({
                     type="button"
                     onClick={() => galleryFileInputRef.current?.click()}
                     disabled={isUploading}
-                    className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                    className="btn btn-primary flex items-center gap-2 min-h-[44px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                   >
                     {isUploading ? (
                       <>
@@ -1541,26 +1572,26 @@ export default function EnhancedArticleEditor({
               </div>
               
               {article.id === 'new' ? (
-                <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
-                  <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-sm font-medium text-gray-700 mb-2">Gallery Images</p>
-                  <p className="text-sm text-gray-500 mb-4">
+                <div className="text-center py-8 border-2 border-dashed border-border-default rounded-lg bg-[rgb(var(--color-surface-raised)/0.5)]">
+                  <ImageIcon className="w-12 h-12 text-text-muted mx-auto mb-3" />
+                  <p className="text-sm font-medium text-text mb-2">Gallery Images</p>
+                  <p className="text-sm text-text-muted mb-4">
                     Save your article first, then you can add multiple images to the gallery.
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-text-muted">
                     You can upload multiple images at once after saving.
                   </p>
                 </div>
               ) : isLoadingGallery ? (
                 <div className="text-center py-8">
-                  <Loader2 className="w-6 h-6 animate-spin mx-auto text-gray-400" />
-                  <p className="text-sm text-gray-500 mt-2">Loading gallery...</p>
+                  <Loader2 className="w-6 h-6 animate-spin mx-auto text-text-muted" />
+                  <p className="text-sm text-text-muted mt-2">Loading gallery...</p>
                 </div>
               ) : galleryImages.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {galleryImages.map((item: any) => (
                     <div key={item.id || item.media?.id} className="relative group">
-                      <div className="relative aspect-square overflow-hidden rounded-lg border border-gray-300">
+                      <div className="relative aspect-square overflow-hidden rounded-lg border border-border-default">
                         {item.media?.file_url && (
                           <img
                             src={item.media.file_url}
@@ -1590,21 +1621,21 @@ export default function EnhancedArticleEditor({
                         </button>
                       </div>
                       {item.caption && (
-                        <p className="text-xs text-gray-600 mt-1 line-clamp-2">{item.caption}</p>
+                        <p className="text-xs text-text-muted mt-1 line-clamp-2">{item.caption}</p>
                       )}
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
-                  <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-sm text-gray-500 mb-3">No images in gallery yet.</p>
-                  <p className="text-xs text-gray-400 mb-4">You can upload multiple images at once.</p>
+                <div className="text-center py-8 border-2 border-dashed border-border-default rounded-lg">
+                  <ImageIcon className="w-12 h-12 text-text-muted mx-auto mb-3" />
+                  <p className="text-sm text-text-muted mb-3">No images in gallery yet.</p>
+                  <p className="text-xs text-text-muted mb-4">You can upload multiple images at once.</p>
                   <button
                     type="button"
                     onClick={() => galleryFileInputRef.current?.click()}
                     disabled={isUploading}
-                    className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed mx-auto"
+                    className="btn btn-primary flex items-center gap-2 min-h-[44px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed mx-auto"
                   >
                     {isUploading ? (
                       <>
@@ -1636,35 +1667,35 @@ export default function EnhancedArticleEditor({
         return (
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={cmsLabel}>
                 Article Status
               </label>
               <select
                 value={editData.status}
                 onChange={(e) => setEditData(prev => ({ ...prev, status: e.target.value }))}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={cmsField}
               >
                 <option value="draft">Draft</option>
                 <option value="published">Published</option>
                 <option value="scheduled">Scheduled</option>
                 <option value="archived">Archived</option>
               </select>
-              <p className="mt-2 text-sm text-gray-500">
+              <p className="mt-2 text-sm text-text-muted">
                 Use <span className="font-medium">Published</span> for live articles. To highlight on the homepage hero, enable &quot;Feature on homepage&quot; below (do not use a separate &quot;featured&quot; status).
               </p>
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">Article Flags</h3>
+              <h3 className="text-lg font-medium text-text">Article Flags</h3>
               
               <label className="flex items-center space-x-3">
                 <input
                   type="checkbox"
                   checked={editData.is_premium}
                   onChange={(e) => setEditData(prev => ({ ...prev, is_premium: e.target.checked }))}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-primary focus:ring-[rgb(var(--color-ring))] border-border-default rounded"
                 />
-                <span className="text-sm font-medium text-gray-700">Premium Content</span>
+                <span className="text-sm font-medium text-text">Premium Content</span>
               </label>
 
               <label className="flex items-center space-x-3">
@@ -1672,9 +1703,9 @@ export default function EnhancedArticleEditor({
                   type="checkbox"
                   checked={editData.is_breaking_news}
                   onChange={(e) => setEditData(prev => ({ ...prev, is_breaking_news: e.target.checked }))}
-                  className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-red-600 focus:ring-red-500 border-border-default rounded"
                 />
-                <span className="text-sm font-medium text-gray-700">Breaking News</span>
+                <span className="text-sm font-medium text-text">Breaking News</span>
               </label>
 
               <label className="flex items-center space-x-3">
@@ -1682,9 +1713,9 @@ export default function EnhancedArticleEditor({
                   type="checkbox"
                   checked={editData.is_trending}
                   onChange={(e) => setEditData(prev => ({ ...prev, is_trending: e.target.checked }))}
-                  className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-border-default rounded"
                 />
-                <span className="text-sm font-medium text-gray-700">Trending</span>
+                <span className="text-sm font-medium text-text">Trending</span>
               </label>
 
               <label className="flex items-start space-x-3">
@@ -1692,11 +1723,11 @@ export default function EnhancedArticleEditor({
                   type="checkbox"
                   checked={editData.is_featured}
                   onChange={(e) => setEditData(prev => ({ ...prev, is_featured: e.target.checked }))}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded mt-0.5"
+                  className="h-4 w-4 text-primary focus:ring-[rgb(var(--color-ring))] border-border-default rounded mt-0.5"
                 />
                 <span>
-                  <span className="text-sm font-medium text-gray-700">Feature on homepage</span>
-                  <span className="block text-xs text-gray-500 mt-0.5">
+                  <span className="text-sm font-medium text-text">Feature on homepage</span>
+                  <span className="block text-xs text-text-muted mt-0.5">
                     Eligible for the main hero on the public site (up to six slots; published articles only).
                   </span>
                 </span>
@@ -1704,7 +1735,7 @@ export default function EnhancedArticleEditor({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={cmsLabel}>
                 Tags
               </label>
               
@@ -1714,7 +1745,7 @@ export default function EnhancedArticleEditor({
                     <button
                       key={tag.id}
                       onClick={() => toggleTag(tag)}
-                      className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full hover:bg-blue-200 transition-colors"
+                      className={cmsTagSelected}
                     >
                       {tag.name}
                       <X className="w-3 h-3 ml-1" />
@@ -1729,25 +1760,25 @@ export default function EnhancedArticleEditor({
                   value={newTagName}
                   onChange={(e) => setNewTagName(e.target.value)}
                   placeholder="Add new tag..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className={`${cmsFieldSm} flex-1`}
                   onKeyPress={(e) => e.key === 'Enter' && addTag()}
                 />
                 <button
                   onClick={addTag}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center"
+                  className="btn btn-primary px-4 py-2 min-h-[44px] flex items-center justify-center"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
               </div>
               
               {availableTags.length > 0 && (
-                <div className="max-h-32 overflow-y-auto border border-gray-200 rounded-md p-2">
+                <div className="max-h-32 overflow-y-auto border border-border-default rounded-md p-2">
                   <div className="flex flex-wrap gap-1">
                     {availableTags.filter(tag => !selectedTags.find(st => st.id === tag.id)).map(tag => (
                       <button
                         key={tag.id}
                         onClick={() => toggleTag(tag)}
-                        className="inline-flex items-center px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded hover:bg-gray-200 transition-colors"
+                        className="inline-flex items-center px-2 py-1 bg-[rgb(var(--color-surface-raised))] text-text text-xs font-medium rounded hover:bg-[rgb(var(--color-surface-raised))] transition-colors"
                       >
                         {tag.name}
                       </button>
@@ -1763,31 +1794,31 @@ export default function EnhancedArticleEditor({
         return (
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={cmsLabel}>
                 SEO Title
               </label>
               <input
                 type="text"
                 value={editData.seo_title}
                 onChange={(e) => setEditData(prev => ({ ...prev, seo_title: e.target.value }))}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={cmsField}
                 placeholder="Custom title for search engines..."
               />
-              <p className="mt-1 text-sm text-gray-500">Leave empty to use article title</p>
+              <p className="mt-1 text-sm text-text-muted">Leave empty to use article title</p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={cmsLabel}>
                 SEO Description
               </label>
               <textarea
                 value={editData.seo_description}
                 onChange={(e) => setEditData(prev => ({ ...prev, seo_description: e.target.value }))}
                 rows={3}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y"
+                className={cmsTextarea}
                 placeholder="Description for search engine results..."
               />
-              <p className="mt-1 text-sm text-gray-500">Recommended: 150-160 characters</p>
+              <p className="mt-1 text-sm text-text-muted">Recommended: 150-160 characters</p>
             </div>
           </div>
         )
@@ -1795,7 +1826,7 @@ export default function EnhancedArticleEditor({
       case 'research':
         if (!canManageArticleResearch) {
           return (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            <div className={cmsWarningBanner}>
               Only the Riverside Herald company owner or a news admin can run AI research.
             </div>
           )
@@ -1803,7 +1834,7 @@ export default function EnhancedArticleEditor({
         if (article.id === 'new') {
           return (
             <div className="space-y-4">
-              <p className="text-gray-700">
+              <p className="text-text">
                 Save the article first, then open this tab to run Cursor-backed research on the headline and subtitle.
               </p>
             </div>
@@ -1821,14 +1852,14 @@ export default function EnhancedArticleEditor({
           const agentUrl = researchInfo?.agent_url as string | undefined
           return (
             <div className="space-y-6">
-              <div className="rounded-lg border border-blue-100 bg-blue-50/80 p-4 text-sm text-blue-900">
-                <p className="font-medium mb-1">AI research (Cursor Cloud Agent)</p>
-                <p className="text-blue-800/90">
+              <div className={cmsInfoBanner}>
+                <p className="font-medium mb-1 text-text">AI research (Cursor Cloud Agent)</p>
+                <p className="text-text-muted">
                   Uses the article title and subtitle from Basic Info. Add an optional editor brief below. Status refreshes every few seconds while the run is active.
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={cmsLabel}>
                   Editor brief for the researcher (optional)
                 </label>
                 <textarea
@@ -1836,21 +1867,21 @@ export default function EnhancedArticleEditor({
                   onChange={(e) => setResearchBrief(e.target.value)}
                   rows={4}
                   disabled={busy}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y text-sm"
+                  className={`${cmsTextarea} text-sm`}
                   placeholder="Angles, sources to check, local context, spellings, etc."
                 />
               </div>
-              <label className="flex items-start gap-2 cursor-pointer text-gray-800 max-w-xl">
+              <label className="flex items-start gap-2 cursor-pointer text-text max-w-xl">
                 <input
                   type="checkbox"
                   checked={researchTextOnly}
                   onChange={(e) => setResearchTextOnly(e.target.checked)}
                   disabled={busy}
-                  className="mt-1 rounded border-gray-300"
+                  className="mt-1 rounded border-border-default"
                 />
                 <span className="text-sm">
                   <span className="font-medium">Text only</span> — when the run finishes, update subtitle, excerpt,
-                  and body from the new <code className="text-xs bg-gray-100 px-1 rounded">research/&lt;slug&gt;.md</code>
+                  and body from the new <code className="text-xs bg-[rgb(var(--color-surface-raised))] px-1 rounded">research/&lt;slug&gt;.md</code>
                   only. Leave the featured hero image unchanged (gallery is never touched by research apply).
                 </span>
               </label>
@@ -1859,7 +1890,7 @@ export default function EnhancedArticleEditor({
                   type="button"
                   onClick={handleStartResearch}
                   disabled={isStartingResearch || busy}
-                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  className="btn btn-primary inline-flex items-center px-4 py-2 min-h-[44px] disabled:opacity-50"
                 >
                   {isStartingResearch ? (
                     <>
@@ -1877,7 +1908,7 @@ export default function EnhancedArticleEditor({
                   type="button"
                   onClick={handleStopResearch}
                   disabled={isStoppingResearch || !busy}
-                  className="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 disabled:opacity-50"
+                  className="btn btn-secondary inline-flex items-center px-4 py-2 min-h-[44px] disabled:opacity-50"
                 >
                   {isStoppingResearch ? (
                     <>
@@ -1891,17 +1922,17 @@ export default function EnhancedArticleEditor({
                 <button
                   type="button"
                   onClick={handleRefreshResearch}
-                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                  className="btn btn-secondary inline-flex items-center px-4 py-2 min-h-[44px]"
                 >
                   Refresh status
                 </button>
               </div>
-              <div className="rounded-lg border border-gray-200 p-4 bg-gray-50 text-sm space-y-2">
+              <div className="rounded-lg border border-border-default p-4 bg-[rgb(var(--color-surface-raised)/0.5)] text-sm space-y-2">
                 <p>
-                  <span className="font-medium text-gray-700">Status:</span>{' '}
+                  <span className="font-medium text-text">Status:</span>{' '}
                   <span className="capitalize">{st || 'none'}</span>
                   {researchPoll && busy && (
-                    <span className="ml-2 text-gray-500">(polling…)</span>
+                    <span className="ml-2 text-text-muted">(polling…)</span>
                   )}
                 </p>
                 {researchInfo?.error ? (
@@ -1910,7 +1941,7 @@ export default function EnhancedArticleEditor({
                   </p>
                 ) : null}
                 {heroRegenBusy ? (
-                  <p className="text-indigo-800 font-medium">Hero regeneration running in Cursor…</p>
+                  <p className="text-primary font-medium">Hero regeneration running in Cursor…</p>
                 ) : null}
                 {researchInfo?.hero_regen_error ? (
                   <p className="text-red-700">
@@ -1919,7 +1950,7 @@ export default function EnhancedArticleEditor({
                   </p>
                 ) : null}
                 {galleryGenBusy ? (
-                  <p className="text-teal-900 font-medium">
+                  <p className="text-primary font-medium">
                     Gallery image Cursor run in progress (one new file when it finishes)…
                   </p>
                 ) : null}
@@ -1935,32 +1966,32 @@ export default function EnhancedArticleEditor({
                       href={agentUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 underline font-medium"
+                      className="text-primary underline font-medium"
                     >
                       Open Cursor agent
                     </a>
                   </p>
                 ) : null}
                 {researchInfo?.artifact_path ? (
-                  <p className="text-gray-600">
+                  <p className="text-text-muted">
                     <span className="font-medium">Artifact:</span> {String(researchInfo.artifact_path)}
                   </p>
                 ) : null}
                 {researchInfo?.applied_at ? (
-                  <p className="text-gray-600">
+                  <p className="text-text-muted">
                     <span className="font-medium">Applied:</span> {String(researchInfo.applied_at)}
                   </p>
                 ) : null}
               </div>
-              <div className="rounded-lg border border-gray-200 p-4 bg-white text-sm space-y-4">
-                <p className="font-medium text-gray-800">Featured / hero image</p>
-                <p className="text-gray-600">
-                  Lead image from <strong className="text-gray-800">research/&lt;slug&gt;-hero.png</strong> or{' '}
-                  <strong className="text-gray-800">.jpg</strong> (GitHub / agent), from the gallery, or start a{' '}
-                  <strong className="text-gray-800">new</strong> Cursor run that replaces the hero file (below).
+              <div className="rounded-lg border border-border-default p-4 bg-surface text-sm space-y-4">
+                <p className="font-medium text-text">Featured / hero image</p>
+                <p className="text-text-muted">
+                  Lead image from <strong className="text-text">research/&lt;slug&gt;-hero.png</strong> or{' '}
+                  <strong className="text-text">.jpg</strong> (GitHub / agent), from the gallery, or start a{' '}
+                  <strong className="text-text">new</strong> Cursor run that replaces the hero file (below).
                 </p>
                 {heroRegenBusy ? (
-                  <p className="text-sm text-indigo-800">
+                  <p className="text-sm text-text-muted">
                     Cursor is generating a new hero — preview will update when the run finishes.
                   </p>
                 ) : null}
@@ -1969,48 +2000,48 @@ export default function EnhancedArticleEditor({
                     <img
                       src={editData.featured_image_url}
                       alt=""
-                      className="h-16 w-28 object-cover rounded border border-gray-200"
+                      className="h-16 w-28 object-cover rounded border border-border-default"
                     />
-                    <span className="text-xs text-gray-500">Current featured image</span>
+                    <span className="text-xs text-text-muted">Current featured image</span>
                   </div>
                 ) : null}
                 <div className="flex flex-wrap gap-6">
-                  <label className="flex items-center gap-2 cursor-pointer text-gray-800">
+                  <label className="flex items-center gap-2 cursor-pointer text-text">
                     <input
                       type="radio"
                       name="heroImageMode"
                       checked={heroImageMode === 'generate'}
                       onChange={() => setHeroImageMode('generate')}
-                      className="rounded-full border-gray-300"
+                      className="rounded-full border-border-default"
                     />
                     Pull latest hero file
                   </label>
-                  <label className="flex items-center gap-2 cursor-pointer text-gray-800">
+                  <label className="flex items-center gap-2 cursor-pointer text-text">
                     <input
                       type="radio"
                       name="heroImageMode"
                       checked={heroImageMode === 'gallery'}
                       onChange={() => setHeroImageMode('gallery')}
-                      className="rounded-full border-gray-300"
+                      className="rounded-full border-border-default"
                     />
                     Use gallery image
                   </label>
                 </div>
                 {heroImageMode === 'generate' ? (
-                  <p className="text-sm text-gray-600">
-                    Re-downloads <code className="text-xs bg-gray-100 px-1 rounded">research/&lt;slug&gt;-hero.*</code> from
+                  <p className="text-sm text-text-muted">
+                    Re-downloads <code className="text-xs bg-[rgb(var(--color-surface-raised))] px-1 rounded">research/&lt;slug&gt;-hero.*</code> from
                     the agent or GitHub. If that file was not changed, the picture will look the same — use{' '}
-                    <strong className="font-medium text-gray-800">New hero image</strong> below for a fresh visual.
+                    <strong className="font-medium text-text">New hero image</strong> below for a fresh visual.
                   </p>
                 ) : (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-text mb-1">
                       Image from article gallery
                     </label>
                     <select
                       value={heroGalleryMediaId}
                       onChange={(e) => setHeroGalleryMediaId(e.target.value)}
-                      className="w-full max-w-md px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      className={`${cmsFieldSm} max-w-md`}
                     >
                       <option value="">— Select an image —</option>
                       {galleryImages.map((item: any) => {
@@ -2024,7 +2055,7 @@ export default function EnhancedArticleEditor({
                       })}
                     </select>
                     {galleryImages.length === 0 ? (
-                      <p className="mt-2 text-xs text-amber-800 bg-amber-50 border border-amber-100 rounded px-2 py-1">
+                      <p className="mt-2 text-xs text-amber-800 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/50 rounded px-2 py-1">
                         No gallery images yet. Add some on the Media tab first.
                       </p>
                     ) : null}
@@ -2034,7 +2065,7 @@ export default function EnhancedArticleEditor({
                   type="button"
                   onClick={handleUpdateFeaturedHero}
                   disabled={isUpdatingHeroImage || heroRegenBusy}
-                  className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                  className="btn btn-primary inline-flex items-center px-4 py-2 min-h-[44px] disabled:opacity-50"
                 >
                   {isUpdatingHeroImage ? (
                     <>
@@ -2049,7 +2080,7 @@ export default function EnhancedArticleEditor({
                   type="button"
                   onClick={handleRegenerateHero}
                   disabled={isRegeneratingHero || heroRegenBusy || busy}
-                  className="inline-flex items-center px-4 py-2 ml-0 sm:ml-2 mt-2 sm:mt-0 bg-violet-700 text-white rounded-lg hover:bg-violet-800 disabled:opacity-50"
+                  className="btn btn-secondary inline-flex items-center px-4 py-2 min-h-[44px] ml-0 sm:ml-2 mt-2 sm:mt-0 disabled:opacity-50"
                 >
                   {isRegeneratingHero ? (
                     <>
@@ -2061,18 +2092,18 @@ export default function EnhancedArticleEditor({
                   )}
                 </button>
               </div>
-              <div className="rounded-lg border border-gray-200 p-4 bg-white text-sm space-y-3">
-                <p className="font-medium text-gray-800">Article gallery (Cursor)</p>
-                <p className="text-gray-600">
-                  Nothing is added automatically. Use the buttons below only when <strong className="text-gray-800">you</strong>{' '}
-                  choose: <strong className="text-gray-800">Generate one gallery image</strong> starts a Cursor run (one
-                  new <code className="text-xs bg-gray-100 px-1 rounded">research/&lt;slug&gt;-gallery-N.*</code> per
+              <div className="rounded-lg border border-border-default p-4 bg-surface text-sm space-y-3">
+                <p className="font-medium text-text">Article gallery (Cursor)</p>
+                <p className="text-text-muted">
+                  Nothing is added automatically. Use the buttons below only when <strong className="text-text">you</strong>{' '}
+                  choose: <strong className="text-text">Generate one gallery image</strong> starts a Cursor run (one
+                  new <code className="text-xs bg-[rgb(var(--color-surface-raised))] px-1 rounded">research/&lt;slug&gt;-gallery-N.*</code> per
                   click). When that run finishes, the new file is imported automatically. Or use{' '}
-                  <strong className="text-gray-800">Import from GitHub / agent</strong> to pull every gallery file that
+                  <strong className="text-text">Import from GitHub / agent</strong> to pull every gallery file that
                   already exists on the branch or in artifacts — still only when you click.
                 </p>
                 {galleryGenBusy ? (
-                  <p className="text-sm text-teal-900">
+                  <p className="text-sm text-text-muted">
                     Cursor is creating one gallery image — the list below will refresh when the run completes.
                   </p>
                 ) : null}
@@ -2081,7 +2112,7 @@ export default function EnhancedArticleEditor({
                     type="button"
                     onClick={handleGenerateGalleryCursor}
                     disabled={isGeneratingGallery || galleryGenBusy || busy}
-                    className="inline-flex items-center px-4 py-2 bg-teal-800 text-white rounded-lg hover:bg-teal-900 disabled:opacity-50"
+                    className="btn btn-primary inline-flex items-center px-4 py-2 min-h-[44px] disabled:opacity-50"
                   >
                     {isGeneratingGallery ? (
                       <>
@@ -2096,7 +2127,7 @@ export default function EnhancedArticleEditor({
                     type="button"
                     onClick={handleSyncCursorGallery}
                     disabled={isSyncingCursorGallery || galleryGenBusy}
-                    className="inline-flex items-center px-4 py-2 bg-teal-700 text-white rounded-lg hover:bg-teal-800 disabled:opacity-50"
+                    className="btn btn-secondary inline-flex items-center px-4 py-2 min-h-[44px] disabled:opacity-50"
                   >
                     {isSyncingCursorGallery ? (
                       <>
@@ -2117,52 +2148,72 @@ export default function EnhancedArticleEditor({
         return (
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={cmsLabel}>
+                Article status
+              </label>
+              <select
+                value={editData.status}
+                onChange={(e) => setEditData((prev) => ({ ...prev, status: e.target.value }))}
+                className={cmsField}
+              >
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="archived">Archived</option>
+              </select>
+              <p className="mt-2 text-sm text-text-muted">
+                Same as on the Settings step — set to <span className="font-medium">Published</span> to go live. Empty
+                publish date defaults to now when saving as published.
+              </p>
+            </div>
+
+            <div>
+              <label className={cmsLabel}>
                 Publish Date
               </label>
               <input
                 type="datetime-local"
                 value={editData.published_at}
                 onChange={(e) => setEditData(prev => ({ ...prev, published_at: e.target.value }))}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={cmsField}
               />
-              <p className="mt-1 text-sm text-gray-500">Leave empty for current date when publishing</p>
+              <p className="mt-1 text-sm text-text-muted">Leave empty for current date when publishing</p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={cmsLabel}>
                 Schedule For Later
               </label>
               <input
                 type="datetime-local"
                 value={editData.scheduled_for}
                 onChange={(e) => setEditData(prev => ({ ...prev, scheduled_for: e.target.value }))}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={cmsField}
               />
-              <p className="mt-1 text-sm text-gray-500">Set a future date to schedule publishing</p>
+              <p className="mt-1 text-sm text-text-muted">Set a future date to schedule publishing</p>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="font-medium text-gray-900 mb-2">Publishing Summary</h3>
-              <div className="space-y-1 text-sm text-gray-600">
+            <div className="bg-[rgb(var(--color-surface-raised)/0.5)] rounded-lg p-4">
+              <h3 className="font-medium text-text mb-2">Publishing Summary</h3>
+              <div className="space-y-1 text-sm text-text-muted">
                 <p><span className="font-medium">Status:</span> {editData.status}</p>
                 <p><span className="font-medium">Category:</span> {categories.find(c => c.id === editData.category_id)?.name || 'None'}</p>
                 <p><span className="font-medium">Tags:</span> {selectedTags.length > 0 ? selectedTags.map(t => t.name).join(', ') : 'None'}</p>
                 <p><span className="font-medium">Content Type:</span> {editData.content_type}</p>
-                {editData.is_premium && <p className="text-amber-600">⭐ Premium Content</p>}
+                {editData.is_premium && <p className="text-amber-600 dark:text-amber-400">⭐ Premium Content</p>}
                 {editData.is_breaking_news && <p className="text-red-600">🚨 Breaking News</p>}
                 {editData.is_trending && <p className="text-orange-600">📈 Trending</p>}
-                {editData.is_featured && <p className="text-indigo-600">⭐ Homepage hero (featured)</p>}
+                {editData.is_featured && <p className="text-primary">⭐ Homepage hero (featured)</p>}
               </div>
             </div>
 
             {canPostToLinkedIn && article.id !== 'new' ? (
-              <div className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
-                <h3 className="font-medium text-gray-900 mb-2 flex items-center gap-2">
+              <div className="border border-border-default rounded-lg p-4 bg-surface shadow-sm">
+                <h3 className="font-medium text-text mb-2 flex items-center gap-2">
                   <Linkedin className="w-4 h-4 text-[#0A66C2]" aria-hidden />
                   LinkedIn
                 </h3>
-                <p className="text-sm text-gray-600 mb-3">
+                <p className="text-sm text-text-muted mb-3">
                   Post a text update to your personal profile or your LinkedIn Company Page. Requires one-time
                   connection and (for pages) organization ID in Django Admin.
                 </p>
@@ -2179,7 +2230,7 @@ export default function EnhancedArticleEditor({
                   Post to LinkedIn
                 </button>
                 {!slugForShare ? (
-                  <p className="text-xs text-amber-700 mt-2">Add a title (and save) so we can build the article URL.</p>
+                  <p className="text-xs text-amber-700 dark:text-amber-300 mt-2">Add a title (and save) so we can build the article URL.</p>
                 ) : null}
               </div>
             ) : null}
@@ -2192,14 +2243,13 @@ export default function EnhancedArticleEditor({
   }
 
   return (
-    <div className={`w-full flex flex-col bg-white text-gray-900 ${rootLayoutClass}`}>
+    <div className={`${cmsEditorShell} ${rootLayoutClass}`}>
       {/* Step Navigation */}
-      <div
-        className={`px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200 bg-gray-50 sticky z-20 shadow-sm ${stepStickyTopClass}`}
+      <div className={`${cmsEditorBar} ${stepStickyTopClass}`}
       >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <div className="flex sm:hidden items-center justify-between gap-2">
-            <p className="text-sm font-semibold text-gray-800 truncate min-w-0 pr-2">
+            <p className="text-sm font-semibold text-text truncate min-w-0 pr-2">
               {steps[currentStepIndex]?.label ?? 'Step'}
             </p>
             <div className="flex items-center gap-1 flex-shrink-0">
@@ -2207,19 +2257,19 @@ export default function EnhancedArticleEditor({
                 type="button"
                 onClick={() => canGoPrev && setCurrentStep(steps[currentStepIndex - 1].id)}
                 disabled={!canGoPrev}
-                className="p-2.5 rounded-lg bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200 shadow-sm min-w-[44px] min-h-[44px] flex items-center justify-center"
+                className={cmsIconBtn}
                 aria-label="Previous step"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
-              <span className="text-xs font-bold text-gray-500 tabular-nums px-1 min-w-[3rem] text-center">
+              <span className="text-xs font-bold text-text-muted tabular-nums px-1 min-w-[3rem] text-center">
                 {currentStepIndex + 1}/{steps.length}
               </span>
               <button
                 type="button"
                 onClick={() => canGoNext && setCurrentStep(steps[currentStepIndex + 1].id)}
                 disabled={!canGoNext}
-                className="p-2.5 rounded-lg bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200 shadow-sm min-w-[44px] min-h-[44px] flex items-center justify-center"
+                className={cmsIconBtn}
                 aria-label="Next step"
               >
                 <ChevronRight className="w-5 h-5" />
@@ -2241,10 +2291,10 @@ export default function EnhancedArticleEditor({
                     onClick={() => setCurrentStep(step.id)}
                     className={`flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-lg transition-all text-xs sm:text-sm font-bold whitespace-nowrap flex-shrink-0 min-h-[44px] ${
                       isActive
-                        ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-200'
+                        ? cmsStepBtnActive
                         : isCompleted
-                          ? 'bg-green-100 text-green-700 hover:bg-green-200 border border-green-200'
-                          : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                          ? cmsStepBtnDone
+                          : cmsStepBtnIdle
                     }`}
                   >
                     <StepIcon className="w-4 h-4 flex-shrink-0" />
@@ -2260,7 +2310,7 @@ export default function EnhancedArticleEditor({
                 type="button"
                 onClick={() => setCurrentStep(steps[currentStepIndex - 1].id)}
                 disabled={!canGoPrev}
-                className="p-2.5 rounded-lg bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200 shadow-sm"
+                className={cmsIconBtn}
                 aria-label="Previous step"
               >
                 <ChevronLeft className="w-5 h-5" />
@@ -2269,7 +2319,7 @@ export default function EnhancedArticleEditor({
                 type="button"
                 onClick={() => setCurrentStep(steps[currentStepIndex + 1].id)}
                 disabled={!canGoNext}
-                className="p-2.5 rounded-lg bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200 shadow-sm"
+                className={cmsIconBtn}
                 aria-label="Next step"
               >
                 <ChevronRight className="w-5 h-5" />
@@ -2286,7 +2336,7 @@ export default function EnhancedArticleEditor({
       
       {/* Footer with Save/Cancel buttons — non-sticky on small screens so it does not cover inputs / keyboard */}
       <div
-        className={`px-4 sm:px-6 py-4 sm:py-6 border-t border-gray-200 bg-gray-50 z-20 shrink-0 max-md:pb-[max(1.25rem,env(safe-area-inset-bottom))] ${
+        className={`${cmsEditorFooter} ${
           chrome === 'modal'
             ? ''
             : 'md:sticky md:bottom-0'
@@ -2299,7 +2349,7 @@ export default function EnhancedArticleEditor({
             e.stopPropagation()
             handleCancel()
           }}
-          className="flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl transition-all font-bold shadow-sm active:scale-95 w-full sm:w-auto order-2 sm:order-1"
+          className="btn btn-secondary flex items-center justify-center gap-2 px-6 py-3 min-h-[44px] rounded-xl font-bold shadow-sm active:scale-95 w-full sm:w-auto order-2 sm:order-1"
         >
           <X className="w-5 h-5" />
           <span>Cancel & Exit</span>
@@ -2308,7 +2358,7 @@ export default function EnhancedArticleEditor({
           type="button"
           onClick={handleSave}
           disabled={isSaving || !validateArticle().valid}
-          className="flex items-center justify-center gap-3 px-8 sm:px-12 py-3.5 sm:py-4 bg-green-600 text-white hover:bg-green-700 rounded-xl transition-all font-black text-base sm:text-lg shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95 w-full sm:w-auto order-1 sm:order-2"
+          className="btn btn-primary flex items-center justify-center gap-3 px-8 sm:px-12 py-3.5 sm:py-4 min-h-[44px] rounded-xl font-black text-base sm:text-lg shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95 w-full sm:w-auto order-1 sm:order-2"
           title={!validateArticle().valid ? validateArticle().message : 'Save article'}
         >
           {isSaving ? (

@@ -166,7 +166,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   const readingTime = article.read_time_minutes || calculateReadingTime(article.content || '')
   const heroSrc = getArticleImageUrl(article)
-  const dateLabel = formatArticleDate(article.published_at, {
+  const publishedDateSource =
+    article.published_at ||
+    (article.status === 'published' ? article.created_at : null)
+  const dateLabel = formatArticleDate(publishedDateSource, {
     locale: pageSettings.defaultLocale,
     draftLabel: 'Unpublished',
     emptyLabel: '—',

@@ -64,8 +64,8 @@ export default function ArticleEditPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-pulse text-gray-600">Loading article...</div>
+      <div className="min-h-screen bg-bg flex items-center justify-center">
+        <div className="animate-pulse text-text-muted">Loading article...</div>
       </div>
     )
   }

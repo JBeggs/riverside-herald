@@ -11,8 +11,8 @@ export default function AddArticlePage() {
 
   if (loading || !profile) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-pulse text-gray-600">Loading...</div>
+      <div className="min-h-screen bg-bg flex items-center justify-center">
+        <div className="animate-pulse text-text-muted">Loading...</div>
       </div>
     )
   }
