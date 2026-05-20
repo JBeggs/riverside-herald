@@ -21,6 +21,8 @@ import { parseSiteSettingsRows, defaultThemeFromMap, type SiteSettingsMap } from
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import AuthMessage from '@/components/auth/AuthMessage'
+import { getCompany } from '@/lib/company'
+import { CompanyProvider } from '@/contexts/CompanyContext'
 
 export const dynamic = 'force-dynamic'
 
@@ -142,6 +144,7 @@ export default async function RootLayout({
 
   const initialTheme = readInitialTheme(themeCookie, settingsMap)
   const fontClassNames = `${inter.variable} ${playfair.variable}`
+  const company = await getCompany()
 
   return (
     <html
@@ -158,20 +161,22 @@ export default async function RootLayout({
       </head>
       <body className={`${inter.className} antialiased bg-bg text-text`}>
         <ThemeProvider initialTheme={initialTheme}>
-          <ToastProvider>
-            <ConfirmDialogProvider>
-              <AuthProvider>
-                <div className="min-h-screen flex flex-col">
-                  <Header />
-                  <main className="flex min-h-0 flex-1 flex-col">{children}</main>
-                  <Footer />
-                </div>
-                <Suspense fallback={null}>
-                  <AuthMessage />
-                </Suspense>
-              </AuthProvider>
-            </ConfirmDialogProvider>
-          </ToastProvider>
+          <CompanyProvider company={company}>
+            <ToastProvider>
+              <ConfirmDialogProvider>
+                <AuthProvider>
+                  <div className="min-h-screen flex flex-col">
+                    <Header />
+                    <main className="flex min-h-0 flex-1 flex-col">{children}</main>
+                    <Footer />
+                  </div>
+                  <Suspense fallback={null}>
+                    <AuthMessage />
+                  </Suspense>
+                </AuthProvider>
+              </ConfirmDialogProvider>
+            </ToastProvider>
+          </CompanyProvider>
         </ThemeProvider>
         <SpeedInsights />
       </body>

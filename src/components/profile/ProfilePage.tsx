@@ -65,7 +65,7 @@ type TabType = 'personal' | 'content' | 'businesses' | 'admin' | 'subscriber' | 
 
 export default function ProfilePage({ user: initialUser, profile: initialProfile, additionalData }: ProfilePageProps) {
   const router = useRouter()
-  const { profile: authProfile, user: authUser } = useAuth()
+  const { profile: authProfile, user: authUser, isCompanyOwner } = useAuth()
   const [activeTab, setActiveTab] = useState<TabType>('personal')
 
   const profile = authProfile || initialProfile
@@ -109,7 +109,7 @@ export default function ProfilePage({ user: initialUser, profile: initialProfile
     ...(additionalData.ownedBusinesses && additionalData.ownedBusinesses.length > 0
         ? [{ id: 'businesses' as TabType, label: 'My Businesses', icon: Building2 }]
         : []),
-    ...(profile.role === 'admin' || profile.role === 'editor'
+    ...(profile.role === 'admin' || profile.role === 'editor' || isCompanyOwner
         ? [{ id: 'admin' as TabType, label: 'Administration', icon: Shield }]
         : []),
     ...(profile.role === 'subscriber' || profile.role === 'premium_subscriber'

@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { Profile } from '@/lib/types'
+import { useAuth } from '@/contexts/AuthContext'
 import { 
   User, 
   FileText, 
@@ -90,6 +91,7 @@ function safeStat(stats: AdminSectionProps['systemStats'], key: 'totalArticles' 
 }
 
 export default function AdminSection({ profile, systemStats }: AdminSectionProps) {
+  const { isCompanyOwner } = useAuth()
   const adminTools = [
     {
       title: 'User Management',
@@ -149,6 +151,7 @@ export default function AdminSection({ profile, systemStats }: AdminSectionProps
 
   const canAccess = (tool: string) => {
     if (profile.role === 'admin') return true
+    if (tool === 'Site Settings' && isCompanyOwner) return true
     if (profile.role === 'editor') {
       return ['Content Management', 'Analytics', 'Newsletter'].includes(tool)
     }
@@ -165,7 +168,13 @@ export default function AdminSection({ profile, systemStats }: AdminSectionProps
         <div>
           <h2 className="text-xl md:text-2xl font-bold text-gray-900">Administration Panel</h2>
           <p className="text-sm text-gray-600">
-            {profile.role === 'admin' ? 'Full system administration access' : 'Content management access'}
+            {profile.role === 'admin'
+              ? 'Full system administration access'
+              : profile.role === 'editor'
+                ? 'Content management access'
+                : isCompanyOwner
+                  ? 'Site owner — configure branding and settings'
+                  : 'Restricted access'}
           </p>
         </div>
       </div>

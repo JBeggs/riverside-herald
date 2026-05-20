@@ -1,17 +1,21 @@
 import StaticInfoPage from '@/components/site/StaticInfoPage'
+import { getCompany } from '@/lib/company'
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  const company = await getCompany()
+  const contactEmail = company.contact.email.trim() || 'admin@riversideherald.co.za'
+
   return (
     <StaticInfoPage
       title="Terms of Service"
-      intro="The terms that govern use of Riverside Herald services and content."
+      intro={`The terms that govern use of ${company.name} services and content.`}
     >
       <p>
         By using this platform, you agree to use it lawfully and respect content ownership, moderation rules, and
         community standards.
       </p>
       <p>
-        If you need clarification, contact <a href="mailto:admin@riversideherald.co.za">admin@riversideherald.co.za</a>.
+        If you need clarification, contact <a href={`mailto:${contactEmail}`}>{contactEmail}</a>.
       </p>
     </StaticInfoPage>
   )

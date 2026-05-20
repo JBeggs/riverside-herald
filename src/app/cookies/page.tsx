@@ -1,13 +1,16 @@
 import StaticInfoPage from '@/components/site/StaticInfoPage'
+import { getCompany } from '@/lib/company'
 
-export default function CookiesPage() {
+export default async function CookiesPage() {
+  const company = await getCompany()
+
   return (
     <StaticInfoPage
       title="Cookie Policy"
       intro="How cookies are used for authentication, preferences, and site performance."
     >
       <p>
-        Riverside Herald uses essential cookies for secure login and session continuity, plus preference cookies such
+        {company.name} uses essential cookies for secure login and session continuity, plus preference cookies such
         as theme selection.
       </p>
       <p>

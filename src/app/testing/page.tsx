@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useCompany } from '@/contexts/CompanyContext'
 
 const TEST_FLOW_STEPS = [
   {
@@ -108,6 +109,7 @@ function CoverageDisplay({ data }: { data: Record<string, unknown> | null }) {
 }
 
 export default function TestingPage() {
+  const { name: siteName } = useCompany()
   const [coverage, setCoverage] = useState<Record<string, unknown> | null>(null)
   const [coverageLoading, setCoverageLoading] = useState(true)
 
@@ -131,7 +133,7 @@ export default function TestingPage() {
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Testing</h1>
           <p className="text-gray-600 mb-10">
-            How we ensure quality and reliability across the Riverside Herald codebase.
+            How we ensure quality and reliability across the {siteName} codebase.
           </p>
 
           <section className="mb-12">

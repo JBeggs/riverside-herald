@@ -26,7 +26,7 @@ const SETTING_GROUPS: { label: string; keys: { key: string; label: string; place
   {
     label: 'General',
     keys: [
-      { key: 'site_name', label: 'Site Name', placeholder: 'The Riverside Herald' },
+      { key: 'site_name', label: 'Site Name', placeholder: 'Your site name' },
       { key: 'site_tagline', label: 'Tagline', placeholder: 'Your Local News Source' },
       { key: 'site_description', label: 'Description', placeholder: 'Your trusted source for local news' },
       { key: 'site_logo', label: 'Logo URL', placeholder: 'https://...' },
@@ -50,8 +50,12 @@ const SETTING_GROUPS: { label: string; keys: { key: string; label: string; place
   },
 ]
 
+function canManageSiteSettings(profileRole: string | undefined, isOwner: boolean): boolean {
+  return profileRole === 'admin' || isOwner
+}
+
 export default function AdminSettingsPage() {
-  const { user, profile, loading: authLoading } = useAuth()
+  const { user, profile, loading: authLoading, isCompanyOwner } = useAuth()
   const router = useRouter()
   const [settings, setSettings] = useState<Record<string, SiteSetting>>({})
   const [values, setValues] = useState<Record<string, string>>({})
@@ -60,16 +64,19 @@ export default function AdminSettingsPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!authLoading && (!user || !profile || profile.role !== 'admin')) {
+    if (
+      !authLoading &&
+      (!user || !profile || !canManageSiteSettings(profile.role, isCompanyOwner))
+    ) {
       router.push('/dashboard')
     }
-  }, [user, profile, authLoading, router])
+  }, [user, profile, authLoading, router, isCompanyOwner])
 
   useEffect(() => {
-    if (profile?.role === 'admin') {
+    if (profile && canManageSiteSettings(profile.role, isCompanyOwner)) {
       loadSettings()
     }
-  }, [profile?.role])
+  }, [profile?.role, isCompanyOwner])
 
   const loadSettings = async () => {
     setLoading(true)
@@ -146,12 +153,14 @@ export default function AdminSettingsPage() {
     )
   }
 
-  if (!user || !profile || profile.role !== 'admin') {
+  if (!user || !profile || !canManageSiteSettings(profile.role, isCompanyOwner)) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
         <div className="text-center max-w-md">
           <h1 className="text-xl font-bold text-gray-900 mb-2">Access Restricted</h1>
-          <p className="text-gray-600 mb-4">You need admin access to view this page.</p>
+          <p className="text-gray-600 mb-4">
+            You need admin access or to be the site owner to view this page.
+          </p>
           <button
             onClick={() => router.push('/dashboard')}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"

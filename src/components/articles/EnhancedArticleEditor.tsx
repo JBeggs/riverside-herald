@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useCompany } from '@/contexts/CompanyContext'
 import { useToast } from '@/contexts/ToastContext'
 import {
   Edit3, Save, X, Loader2, Calendar, Search, Linkedin,
@@ -160,6 +161,7 @@ export default function EnhancedArticleEditor({
   chrome = 'default',
 }: ArticleEditorProps) {
   const { user, profile, isCompanyOwner } = useAuth()
+  const { name: siteBrandName } = useCompany()
   const { showError, showSuccess } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const galleryFileInputRef = useRef<HTMLInputElement>(null)
@@ -792,7 +794,7 @@ export default function EnhancedArticleEditor({
         throw new Error('Author ID is required. Please ensure you are logged in.')
       }
       
-      // Note: Company ID is not required - backend will automatically set it to Riverside Herald
+      // Note: Company ID is not required - backend attaches the tenant news company automatically.
       // for business owners and other users creating articles
 
       // Generate slug if creating new article
@@ -819,7 +821,7 @@ export default function EnhancedArticleEditor({
         location_name: editData.location_name || '',
       }
 
-      // Note: Company is automatically set by backend to Riverside Herald in perform_create
+      // Note: Company is set by the backend to the news platform tenant in perform_create.
       // No need to send company from frontend
 
       // Category: PATCH always include so we can set or clear FK (create omits when empty)
@@ -1827,7 +1829,7 @@ export default function EnhancedArticleEditor({
         if (!canManageArticleResearch) {
           return (
             <div className={cmsWarningBanner}>
-              Only the Riverside Herald company owner or a news admin can run AI research.
+              Only the {siteBrandName} company owner or a news admin can run AI research.
             </div>
           )
         }

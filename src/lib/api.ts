@@ -659,12 +659,12 @@ export const authApi = {
   /**
    * Register new user and company
    * If company_name is provided, creates business registration (new company)
-   * Otherwise, creates user registration (connects to Riverside Herald)
+   * Otherwise, creates user registration (links to the configured news platform tenant)
    */
   async register(data: {
     email: string
     password: string
-    company_name?: string  // Optional - if provided, creates business; otherwise connects to Riverside Herald
+    company_name?: string  // Optional - if provided, creates business; otherwise links to the news platform tenant
     company_email?: string
     company_phone?: string
     first_name?: string    // Preferred - first name
@@ -897,14 +897,14 @@ export const newsApi = {
       apiClient.post(`/news/articles/${id}/media/`, { media_id: mediaId, caption: caption || '' }),
     removeMedia: (id: string, mediaId: string) => 
       apiClient.delete(`/news/articles/${id}/media/`, { media_id: mediaId }),
-    /** Cursor AI research (Riverside owner / news admin only) */
+    /** Cursor AI research (company owner / news admin only) */
     researchStart: (
       id: string,
       data?: { context?: string; apply_text_only?: boolean }
     ) => apiClient.post(`/news/articles/${id}/research-start/`, data || {}),
     researchStatus: (id: string) => apiClient.get(`/news/articles/${id}/research/`),
     researchStop: (id: string) => apiClient.post(`/news/articles/${id}/research-stop/`, {}),
-    /** Hero image from Cursor agent/GitHub only, or attach existing gallery media (Riverside owner/admin). */
+    /** Hero image from Cursor agent/GitHub only, or attach existing gallery media (owner/admin). */
     researchFeaturedImage: (
       id: string,
       data: {
@@ -912,13 +912,13 @@ export const newsApi = {
         media_id?: string
       }
     ) => apiClient.post(`/news/articles/${id}/research-featured-image/`, data),
-    /** New Cursor run to produce a fresh research/{slug}-hero.* (Riverside owner/admin). Poll GET research. */
+    /** New Cursor run to produce a fresh research/{slug}-hero.* (owner/admin). Poll GET research. */
     researchRegenerateHero: (id: string) =>
       apiClient.post(`/news/articles/${id}/research-regenerate-hero/`, {}),
-    /** Start one Cursor run to add research/{slug}-gallery-N.* (Riverside owner/admin). Poll GET research. */
+    /** Start one Cursor run to add research/{slug}-gallery-N.* (owner/admin). Poll GET research. */
     researchGenerateGallery: (id: string) =>
       apiClient.post(`/news/articles/${id}/research-generate-gallery/`, {}),
-    /** Append gallery images from Cursor research/{slug}-gallery-* artifacts (Riverside owner/admin). */
+    /** Append gallery images from Cursor research/{slug}-gallery-* artifacts (owner/admin). */
     researchCursorGallery: (id: string) =>
       apiClient.post(`/news/articles/${id}/research-cursor-gallery/`, {}),
   },

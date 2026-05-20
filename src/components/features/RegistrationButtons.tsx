@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { FileText } from 'lucide-react'
+import { useCompany } from '@/contexts/CompanyContext'
 
 const ArrowRight = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -10,6 +11,7 @@ const ArrowRight = ({ className }: { className?: string }) => (
 )
 
 export function RegistrationButtons() {
+  const { name: siteName } = useCompany()
   return (
     <>
       <div className="card-elevated p-8 border-2 border-green-100 hover:border-green-300 transition-colors">
@@ -41,7 +43,7 @@ export function RegistrationButtons() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
             <div>
-              <p className="font-semibold text-gray-900">Connected to Riverside Herald</p>
+              <p className="font-semibold text-gray-900">Connected to {siteName}</p>
               <p className="text-sm text-gray-600">Automatically connected to our main platform</p>
             </div>
           </div>

@@ -3,11 +3,13 @@
 import { useEffect, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
+import { useCompany } from '@/contexts/CompanyContext'
 import { authApi } from '@/lib/api'
 import SignUpForm from '@/components/auth/SignUpForm'
 
 export default function RegisterPage() {
   const { user, profile, loading } = useAuth()
+  const { name: siteName } = useCompany()
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -52,7 +54,7 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-bg flex items-center justify-center py-12 px-4 font-body">
       <div className="max-w-md w-full">
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-playfair font-semibold text-text mb-2">Join Riverside Herald</h1>
+          <h1 className="text-3xl font-playfair font-semibold text-text mb-2">Join {siteName}</h1>
           <p className="text-text-muted text-sm">Create an account to read, write, and connect</p>
         </div>
         <SignUpForm defaultUserType={defaultUserType} onSuccess={() => router.push('/profile')} />

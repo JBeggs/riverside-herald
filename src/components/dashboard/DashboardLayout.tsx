@@ -64,7 +64,7 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [brandMark, setBrandMark] = useState('•')
   const pathname = usePathname()
-  const { signOut } = useAuth()
+  const { signOut, isCompanyOwner } = useAuth()
 
   useEffect(() => {
     let cancelled = false
@@ -144,7 +144,16 @@ export default function DashboardLayout({ children, profile }: DashboardLayoutPr
     }
   }
 
-  const navigation = getNavigationForRole(profile?.role || 'subscriber')
+  let navigation = getNavigationForRole(profile?.role || 'subscriber')
+  if (
+    isCompanyOwner &&
+    !navigation.some((item) => item.href === '/admin/settings')
+  ) {
+    navigation = [
+      ...navigation,
+      { name: 'Settings', href: '/admin/settings', icon: Settings },
+    ]
+  }
 
   const isActive = (href: string) => {
     if (href === '/dashboard') {

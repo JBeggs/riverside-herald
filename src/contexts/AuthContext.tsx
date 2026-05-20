@@ -16,7 +16,7 @@ interface AuthContextType {
   user: User | null
   profile: Profile | null
   companyId: string | null
-  /** True when logged-in user is owner of the active company (e.g. Riverside Herald on login). */
+  /** True when logged-in user is owner of the active company (news tenant on login). */
   isCompanyOwner: boolean
   loading: boolean
   signIn: (

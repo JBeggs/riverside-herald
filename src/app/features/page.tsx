@@ -9,6 +9,7 @@ import {
   CheckCircle
 } from 'lucide-react'
 import { RegistrationButtons } from '@/components/features/RegistrationButtons'
+import { getCompany } from '@/lib/company'
 
 // Custom icon component for missing lucide-react icon
 const MessageSquare = ({ className }: { className?: string }) => (
@@ -17,12 +18,19 @@ const MessageSquare = ({ className }: { className?: string }) => (
   </svg>
 )
 
-export const metadata: Metadata = {
-  title: 'Features & Registration | The Riverside Herald',
-  description: 'Learn about The Riverside Herald platform features and how to register as a user or business owner.',
+export async function generateMetadata(): Promise<Metadata> {
+  const company = await getCompany()
+  const name = company.name
+  return {
+    title: `Features & Registration | ${name}`,
+    description: `Learn about ${name} platform features and how to register as a user or business owner.`,
+  }
 }
 
-export default function FeaturesPage() {
+export default async function FeaturesPage() {
+  const company = await getCompany()
+  const siteName = company.name
+
   return (
     <div className="bg-white">
       {/* Hero Section */}
@@ -30,7 +38,7 @@ export default function FeaturesPage() {
         <div className="container-wide">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="heading-xl mb-4 text-gray-900">
-              Welcome to The Riverside Herald
+              Welcome to {siteName}
             </h1>
             <p className="text-xl text-gray-600 mb-8">
               Your local news platform connecting communities, businesses, and readers
@@ -69,7 +77,7 @@ export default function FeaturesPage() {
           <div className="text-center mb-12">
             <h2 className="heading-lg mb-4 text-gray-900">Platform Features</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Discover everything The Riverside Herald has to offer
+              Discover everything {siteName} has to offer
             </p>
           </div>
 
@@ -191,7 +199,7 @@ export default function FeaturesPage() {
           <div className="text-center mb-12">
             <h2 className="heading-lg mb-4 text-gray-900">How It Works</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Getting started is simple. Follow these steps to join The Riverside Herald community.
+              Getting started is simple. Follow these steps to join the {siteName} community.
             </p>
           </div>
 
@@ -224,7 +232,7 @@ export default function FeaturesPage() {
                   <h3 className="heading-sm mb-2 text-gray-900">Sign Up</h3>
                   <p className="body-sm text-gray-600 mb-4">
                     <strong>Regular Users:</strong> Enter your email, password, and full name. Leave the company 
-                    name field blank. You'll be automatically connected to The Riverside Herald.
+                    name field blank. You&apos;ll be automatically connected to {siteName}.
                   </p>
                   <p className="body-sm text-gray-600">
                     <strong>Business Owners:</strong> Enter your email, password, full name, and company name. 
@@ -452,7 +460,7 @@ export default function FeaturesPage() {
           <div className="text-center max-w-3xl mx-auto">
             <h2 className="heading-lg mb-4 text-white">Ready to Get Started?</h2>
             <p className="text-xl text-green-50 mb-8">
-              Join The Riverside Herald community today. Whether you're a reader or a business owner, 
+              Join the {siteName} community today. Whether you're a reader or a business owner, 
               we have the perfect account type for you.
             </p>
             <div className="flex justify-center space-x-4">
