@@ -154,7 +154,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signIn = async (username: string, password: string) => {
-    setLoading(true)
     try {
       const response = await authApi.login(username, password)
       
@@ -217,8 +216,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         verificationEmailSent: details?.verification_email_sent === true,
         verificationEmailCooldown: details?.verification_email_cooldown === true,
       }
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -231,7 +228,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     companyName?: string,  // Optional - if provided, creates business; otherwise regular user
     userType?: 'author' | 'business_owner'  // User type: author or business_owner
   ) => {
-    setLoading(true)
     try {
       const trimmedPhone = phone.trim()
       const response = await authApi.register({
@@ -320,8 +316,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       return { error: errorMessage, ...(fieldErrors && Object.keys(fieldErrors).length ? { fieldErrors } : {}) }
-    } finally {
-      setLoading(false)
     }
   }
 
