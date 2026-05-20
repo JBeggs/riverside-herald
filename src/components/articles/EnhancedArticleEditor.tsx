@@ -135,6 +135,10 @@ interface ArticleEditorProps {
       file_url: string
     } | null
     featured_media_id?: string
+    social_image?: {
+      id?: string
+      file_url?: string | null
+    } | null
     author_id: string
     category?: {
       id: string
