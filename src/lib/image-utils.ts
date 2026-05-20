@@ -29,12 +29,30 @@ export function getAbsoluteImageUrl(url: string | undefined | null): string {
 }
 
 /**
- * Get image URL for an article card or hero (featured media, or site placeholder).
+ * Prefer dedicated social/card image for shares, then hero/featured media.
  */
-export function getArticleImageUrl(article?: { featured_media?: { file_url?: string | null } | null }): string {
-  if (article?.featured_media?.file_url) {
-    return getAbsoluteImageUrl(article.featured_media.file_url)
-  }
+function pickArticleShareImageRaw(article?: {
+  social_image?: { file_url?: string | null } | null
+  featured_media?: { file_url?: string | null } | null
+} | null): string | null {
+  const social = article?.social_image?.file_url?.trim()
+  if (social) return social
+  const featured = article?.featured_media?.file_url?.trim()
+  if (featured) return featured
+  return null
+}
+
+/**
+ * Get image URL for an article card or hero (social image, featured media, or site placeholder).
+ */
+export function getArticleImageUrl(
+  article?: {
+    social_image?: { file_url?: string | null } | null
+    featured_media?: { file_url?: string | null } | null
+  } | null,
+): string {
+  const raw = pickArticleShareImageRaw(article || undefined)
+  if (raw) return getAbsoluteImageUrl(raw)
   return ARTICLE_IMAGE_PLACEHOLDER
 }
 
@@ -42,10 +60,14 @@ export function getArticleImageUrl(article?: { featured_media?: { file_url?: str
  * Open Graph image URLs (absolute). Uses placeholder only when NEXT_PUBLIC_SITE_URL is set.
  */
 export function getArticleOpenGraphImageUrls(
-  article?: { featured_media?: { file_url?: string | null } | null },
+  article?: {
+    social_image?: { file_url?: string | null } | null
+    featured_media?: { file_url?: string | null } | null
+  } | null,
 ): string[] {
-  if (article?.featured_media?.file_url) {
-    return [getAbsoluteImageUrl(article.featured_media.file_url)]
+  const raw = pickArticleShareImageRaw(article || undefined)
+  if (raw) {
+    return [getAbsoluteImageUrl(raw)]
   }
   const site = (process.env.NEXT_PUBLIC_SITE_URL || '').replace(/\/$/, '')
   if (site) {

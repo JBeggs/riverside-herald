@@ -56,6 +56,10 @@ export default function ShareToLinkedInDialog({
     }
   }, [isOpen])
 
+  useEffect(() => {
+    if (isOpen) setText(initialText)
+  }, [isOpen, initialText])
+
   const openConnect = async () => {
     try {
       const res = await linkedinApi.authUrl()
@@ -193,7 +197,10 @@ export default function ShareToLinkedInDialog({
               rows={8}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
-            <p className="mt-1 text-xs text-gray-500">Maximum 3,000 characters on LinkedIn.</p>
+            <p className="mt-1 text-xs text-gray-500">
+              Maximum 3,000 characters on LinkedIn. Posts are sent as text; if you include the article link, the preview
+              image and headline come from your public article page (refresh with LinkedIn Post Inspector after edits).
+            </p>
           </div>
         </div>
 

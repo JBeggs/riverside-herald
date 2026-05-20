@@ -2382,7 +2382,7 @@ export default function EnhancedArticleEditor({
         isOpen={linkedinDialogOpen}
         onClose={() => setLinkedinDialogOpen(false)}
         initialText={buildLinkedInPostText({
-          title: editData.title,
+          title: (editData.seo_title || editData.title || '').trim(),
           excerpt: editData.excerpt || editData.subtitle,
           url: buildArticlePublicUrl(slugForShare) || undefined,
         })}

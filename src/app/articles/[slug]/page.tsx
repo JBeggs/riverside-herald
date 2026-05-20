@@ -18,6 +18,8 @@ import {
   stringFromMap,
 } from '@/lib/site-settings'
 
+export const dynamic = 'force-dynamic'
+
 interface ArticlePageProps {
   params: Promise<{
     slug: string
@@ -69,6 +71,7 @@ async function getArticleData(slug: string) {
       excerpt: article.excerpt,
       content: article.content || '',
       featured_media: article.featured_media,
+      social_image: article.social_image,
       published_at: article.published_at,
       views: article.views || 0,
       likes: article.likes || 0,
@@ -117,6 +120,7 @@ async function getArticleDataBuildTime(slug: string) {
       seo_title: article.seo_title,
       seo_description: article.seo_description,
       featured_media: article.featured_media,
+      social_image: article.social_image,
       published_at: article.published_at,
       author: {
         full_name: article.author_name
@@ -140,12 +144,19 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
     }
   }
 
+  const displayTitle = (article.seo_title || article.title || '').trim()
+  const ogDescription = (
+    article.seo_description ||
+    article.excerpt ||
+    ''
+  ).trim()
+
   return {
-    title: article.seo_title || article.title,
-    description: article.seo_description || article.excerpt || '',
+    title: displayTitle || article.title,
+    description: ogDescription,
     openGraph: {
-      title: article.title,
-      description: article.excerpt || '',
+      title: displayTitle || article.title,
+      description: ogDescription,
       images: getArticleOpenGraphImageUrls(article),
       publishedTime: article.published_at,
       authors: [article.author?.full_name || 'Staff Writer'],

@@ -28,3 +28,16 @@ Do **not** put LinkedIn client secrets in Next.js env; secrets stay in Django Ad
 4. Edit post text if needed → **Post**.
 
 See also: [LINKEDIN_SETUP.md](../../django-crm/docs/linkedin/LINKEDIN_SETUP.md) in the Django repo.
+
+## Important: what the API post does (and what it does not)
+
+- **Server `POST /api/linkedin/share/`** creates a **text-only** UGC post (`shareMediaCategory: NONE`). LinkedIn does **not** receive your hero image through this API — there is no attachment.
+- If the post body includes your **article URL**, LinkedIn **may** show a **link preview card** (title, description, image). That card is built by LinkedIn **scraping** your live article page **Open Graph** tags (`og:title`, `og:image`, etc.), not from the editor hero field directly.
+- **Stale previews**: LinkedIn caches link previews aggressively. After changing title, SEO fields, or hero/social image, use **[LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/)** (inspect your article URL) to refresh the cache before judging the result.
+- **`NEXT_PUBLIC_SITE_URL`** must match the URL you share; wrong origin breaks absolute `og:image` URLs and preview fetches.
+
+### Getting the hero into the preview
+
+- Prefer a **Featured image** backed by **`featured_media`** (upload or library) so Django returns `file_url` for OG tags.
+- If you use Django’s **`social_image`** on the article, the site now prefers that image for **`og:image`** over `featured_media` when both exist.
+- The article route is **`force-dynamic`** so metadata is not served from a stale static cache after edits.
