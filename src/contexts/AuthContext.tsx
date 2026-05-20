@@ -36,6 +36,7 @@ interface AuthContextType {
     phone: string,
     companyName?: string,
     userType?: 'author' | 'business_owner',
+    options?: { linkOnly?: boolean },
   ) => Promise<{
     error: string | null
     fieldErrors?: Record<string, string>
@@ -233,25 +234,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     lastName: string,
     phone: string,
     companyName?: string,  // Optional - if provided, creates business; otherwise regular user
-    userType?: 'author' | 'business_owner'  // User type: author or business_owner
+    userType?: 'author' | 'business_owner',  // User type: author or business_owner
+    options?: { linkOnly?: boolean },
   ) => {
     try {
       const trimmedPhone = phone.trim()
-      const response = await authApi.register({
-        email,
-        password,
-        password_confirm: password,
-        first_name: firstName,
-        last_name: lastName,
-        phone: trimmedPhone,
-        role: userType === 'business_owner' ? undefined : 'author', // Set role for authors
-        // Only include company fields if companyName is provided (business registration)
-        ...(companyName ? {
-          company_name: companyName,
-          company_email: email,
-          company_phone: trimmedPhone,
-        } : {}),
-      })
+      const response = options?.linkOnly
+        ? await authApi.linkTenantAccount({ email, password })
+        : await authApi.register({
+            email,
+            password,
+            password_confirm: password,
+            first_name: firstName,
+            last_name: lastName,
+            phone: trimmedPhone,
+            role: userType === 'business_owner' ? undefined : 'author', // Set role for authors
+            // Only include company fields if companyName is provided (business registration)
+            ...(companyName ? {
+              company_name: companyName,
+              company_email: email,
+              company_phone: trimmedPhone,
+            } : {}),
+          })
 
       const needsVerify =
         'email_verification_required' in response &&

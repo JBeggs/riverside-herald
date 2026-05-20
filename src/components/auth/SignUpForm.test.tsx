@@ -6,6 +6,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import SignUpForm from './SignUpForm';
 
 const mockSignUp = vi.fn();
+const mockCheckRegistrationEmail = vi.fn();
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
@@ -26,6 +27,11 @@ vi.mock('@/contexts/ToastContext', () => ({
     showSuccess: vi.fn(),
   }),
 }));
+vi.mock('@/lib/api', () => ({
+  authApi: {
+    checkRegistrationEmail: (...args: unknown[]) => mockCheckRegistrationEmail(...args),
+  },
+}));
 
 function fillRequiredFields() {
   fireEvent.change(screen.getByLabelText('First Name'), { target: { value: 'John' } });
@@ -41,6 +47,7 @@ function fillRequiredFields() {
 describe('SignUpForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockCheckRegistrationEmail.mockResolvedValue({ status: 'available' });
   });
 
   it('renders signup form', () => {
@@ -119,6 +126,7 @@ describe('SignUpForm', () => {
         '5551234567',
         undefined,
         'author',
+        undefined,
       );
     });
     await waitFor(() => {
@@ -137,5 +145,54 @@ describe('SignUpForm', () => {
     await waitFor(() => {
       expect(screen.getByText('This phone number is invalid.')).toBeInTheDocument();
     });
+  });
+
+  it('author link mode hides profile fields and calls signUp with linkOnly', async () => {
+    mockCheckRegistrationEmail.mockResolvedValue({ status: 'existing_can_link' });
+    mockSignUp.mockResolvedValue({ error: null, accountLinked: true });
+
+    render(<SignUpForm />);
+
+    fireEvent.change(screen.getByLabelText('Email Address'), { target: { value: 'existing@test.com' } });
+    fireEvent.blur(screen.getByLabelText('Email Address'));
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Link Your Account' })).toBeInTheDocument();
+    });
+    expect(screen.queryByLabelText('First Name')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Cellphone/iu)).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText('Password', { selector: '#register-password' }), {
+      target: { value: 'password123' },
+    });
+    fireEvent.change(screen.getByLabelText('Confirm Password'), { target: { value: 'password123' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Link Account' }));
+
+    await waitFor(() => {
+      expect(mockSignUp).toHaveBeenCalledWith(
+        'existing@test.com',
+        'password123',
+        '',
+        '',
+        '',
+        undefined,
+        'author',
+        { linkOnly: true },
+      );
+    });
+  });
+
+  it('shows already-linked message for author accounts', async () => {
+    mockCheckRegistrationEmail.mockResolvedValue({ status: 'already_linked' });
+
+    render(<SignUpForm />);
+    fillRequiredFields();
+    fireEvent.change(screen.getByLabelText('Email Address'), { target: { value: 'linked@test.com' } });
+    fireEvent.blur(screen.getByLabelText('Email Address'));
+
+    await waitFor(() => {
+      expect(screen.getByText(/already linked to Riverside Herald/i)).toBeInTheDocument();
+    });
+    expect(screen.getByRole('button', { name: 'Create Account' })).toBeDisabled();
   });
 });

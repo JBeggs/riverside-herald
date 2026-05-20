@@ -99,27 +99,31 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
   }
 
   const validateForm = (): { message?: string; focusId?: string } => {
-    if (!formData.firstName.trim()) {
-      return { message: 'Please enter your first name', focusId: 'register-first-name' }
-    }
+    const skipProfile = userType === 'author' && linkMode
 
-    if (!formData.lastName.trim()) {
-      return { message: 'Please enter your last name', focusId: 'register-last-name' }
+    if (!skipProfile) {
+      if (!formData.firstName.trim()) {
+        return { message: 'Please enter your first name', focusId: 'register-first-name' }
+      }
+
+      if (!formData.lastName.trim()) {
+        return { message: 'Please enter your last name', focusId: 'register-last-name' }
+      }
+
+      const phoneTrim = formData.phone.trim()
+      if (!phoneTrim) {
+        return { message: 'Please enter your cellphone number', focusId: 'register-phone' }
+      }
+      if (countDigits(phoneTrim) < 8) {
+        return {
+          message: 'Cellphone must include at least 8 digits',
+          focusId: 'register-phone',
+        }
+      }
     }
 
     if (userType === 'business_owner' && !formData.companyName.trim()) {
       return { message: 'Please enter your company name', focusId: 'register-company-name' }
-    }
-
-    const phoneTrim = formData.phone.trim()
-    if (!phoneTrim) {
-      return { message: 'Please enter your cellphone number', focusId: 'register-phone' }
-    }
-    if (countDigits(phoneTrim) < 8) {
-      return {
-        message: 'Cellphone must include at least 8 digits',
-        focusId: 'register-phone',
-      }
     }
 
     if (!formData.email.trim()) {
@@ -177,6 +181,8 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
         return
       }
 
+      const isLink = userType === 'author' && (linkMode || checkStatus === 'existing_can_link')
+
       const {
         error: signUpError,
         fieldErrors: serverFieldErrors,
@@ -186,11 +192,12 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
       } = await signUp(
         formData.email,
         formData.password,
-        formData.firstName,
-        formData.lastName,
-        formData.phone.trim(),
+        isLink ? '' : formData.firstName,
+        isLink ? '' : formData.lastName,
+        isLink ? '' : formData.phone.trim(),
         userType === 'business_owner' ? formData.companyName.trim() : undefined,
         userType,
+        isLink ? { linkOnly: true } : undefined,
       )
 
       if (signUpError) {
@@ -376,6 +383,7 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
         ) : null}
 
         <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+          {!(userType === 'author' && linkMode) ? (
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="register-first-name" className="block text-sm font-medium text-text mb-2">
@@ -423,6 +431,7 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
               {fe.last_name ? <p className="mt-1 text-xs text-red-600">{fe.last_name}</p> : null}
             </div>
           </div>
+          ) : null}
 
           {userType === 'business_owner' ? (
             <div>
@@ -449,6 +458,7 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
             </div>
           ) : null}
 
+          {!(userType === 'author' && linkMode) ? (
           <div>
             <label htmlFor="register-phone" className="block text-sm font-medium text-text mb-2">
               Cellphone <span className="text-red-600">*</span>
@@ -473,6 +483,7 @@ export default function SignUpForm({ onSuccess, onSwitchToLogin, className = '',
             {fe.phone ? <p className="mt-1 text-xs text-red-600">{fe.phone}</p> : null}
             <p className="mt-1 text-xs text-text-muted">Used for your profile and sign-in verification where required.</p>
           </div>
+          ) : null}
 
           <div>
             <label htmlFor="register-email" className="block text-sm font-medium text-text mb-2">
