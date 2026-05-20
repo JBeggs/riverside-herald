@@ -94,6 +94,14 @@ import {
   nowLocalDateTimeInput,
   parseLocalDateTimeToIso,
 } from '@/lib/date-utils'
+import {
+  DEFAULT_ARTICLE_HTML,
+  DEFAULT_ARTICLE_TITLE,
+  DEFAULT_ARTICLE_EXCERPT,
+  isArticleContentEmpty,
+} from '@/lib/article-default-content'
+import { sanitizeHtml } from '@/lib/sanitize-html-client'
+import ArticleHtmlEditor from '@/components/articles/ArticleHtmlEditor'
 
 interface Category {
   id: string
@@ -202,12 +210,20 @@ export default function EnhancedArticleEditor({
   const [galleryImages, setGalleryImages] = useState<any[]>([])
   const [isLoadingGallery] = useState(false)
   
+  const isNewArticle = article.id === 'new'
   const [editData, setEditData] = useState({
     id: article.id,
-    title: article.title,
+    title:
+      isNewArticle && !article.title?.trim() ? DEFAULT_ARTICLE_TITLE : article.title,
     subtitle: article.subtitle || '',
-    content: article.content,
-    excerpt: article.excerpt || '',
+    content:
+      isNewArticle && isArticleContentEmpty(article.content)
+        ? DEFAULT_ARTICLE_HTML
+        : article.content,
+    excerpt:
+      isNewArticle && !article.excerpt?.trim()
+        ? DEFAULT_ARTICLE_EXCERPT
+        : article.excerpt || '',
     featured_image_url: article.featured_media?.file_url || article.featured_image_url || '',
     featured_media_id: article.featured_media?.id || article.featured_media_id || '',
     category_id: article.category_id || '',
@@ -784,7 +800,7 @@ export default function EnhancedArticleEditor({
     }
 
     const title = editData.title?.trim()
-    const content = editData.content?.trim()
+    const content = sanitizeHtml(editData.content?.trim() || '')
 
     setIsSaving(true)
     
@@ -1422,19 +1438,31 @@ export default function EnhancedArticleEditor({
         return (
           <div className="space-y-6">
             <div>
-              <label className={cmsLabel}>
-                Article Content *
-              </label>
-              <textarea
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                <label className={cmsLabel + ' mb-0'}>
+                  Article Content *
+                </label>
+                <button
+                  type="button"
+                  disabled={isSaving}
+                  onClick={() =>
+                    setEditData((prev) => ({
+                      ...prev,
+                      content: DEFAULT_ARTICLE_HTML,
+                      excerpt: prev.excerpt?.trim() ? prev.excerpt : DEFAULT_ARTICLE_EXCERPT,
+                      title: prev.title?.trim() ? prev.title : DEFAULT_ARTICLE_TITLE,
+                    }))
+                  }
+                  className="text-sm font-medium text-primary hover:opacity-90 underline-offset-2 hover:underline"
+                >
+                  Reset to template
+                </button>
+              </div>
+              <ArticleHtmlEditor
                 value={editData.content}
-                onChange={(e) => setEditData(prev => ({ ...prev, content: e.target.value }))}
-                rows={16}
-                className={`${cmsTextarea} min-h-[12rem] sm:min-h-[16rem] font-mono text-sm`}
-                placeholder="Write your article content here..."
+                onChange={(html) => setEditData((prev) => ({ ...prev, content: html }))}
+                disabled={isSaving}
               />
-              <p className="mt-2 text-sm text-text-muted">
-                💡 You can use HTML tags like &lt;p&gt;, &lt;h2&gt;, &lt;strong&gt;, &lt;em&gt; for formatting.
-              </p>
             </div>
 
             <div>

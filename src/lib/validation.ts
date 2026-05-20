@@ -1,18 +1,15 @@
 import { z } from 'zod'
 import DOMPurify from 'dompurify'
 import { JSDOM } from 'jsdom'
+import { SANITIZE_HTML_OPTIONS } from './sanitize-html-config'
 
 // Create DOMPurify instance for server-side use
 const window = new JSDOM('').window
 const purify = DOMPurify(window as any)
 
-// XSS Protection utility
+// XSS Protection utility (server / tests — uses jsdom)
 export function sanitizeHtml(html: string): string {
-  return purify.sanitize(html, {
-    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote'],
-    ALLOWED_ATTR: [],
-    FORBID_TAGS: ['script', 'object', 'embed', 'base', 'link'],
-  })
+  return purify.sanitize(html, SANITIZE_HTML_OPTIONS)
 }
 
 export function sanitizeText(text: string): string {
