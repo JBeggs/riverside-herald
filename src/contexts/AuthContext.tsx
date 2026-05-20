@@ -41,6 +41,7 @@ interface AuthContextType {
     fieldErrors?: Record<string, string>
     verificationRequired?: boolean
     email?: string
+    accountLinked?: boolean
   }>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
@@ -225,7 +226,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const signUp = async (
+  const signUp: AuthContextType['signUp'] = async (
     email: string,
     password: string,
     firstName: string,
