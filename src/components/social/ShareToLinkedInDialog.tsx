@@ -20,6 +20,8 @@ interface ShareToLinkedInDialogProps {
   canonicalUrl?: string | null
   /** Hero / social image for preview (absolute URL). LinkedIn link card uses live page OG tags. */
   shareImageUrl?: string | null
+  /** Site admin or business owner — may choose Company Page destination */
+  canPostToCompanyPage?: boolean
 }
 
 export default function ShareToLinkedInDialog({
@@ -28,6 +30,7 @@ export default function ShareToLinkedInDialog({
   initialText,
   canonicalUrl,
   shareImageUrl,
+  canPostToCompanyPage = false,
 }: ShareToLinkedInDialogProps) {
   const { showError, showSuccess } = useToast()
   const [text, setText] = useState(initialText)
@@ -38,6 +41,10 @@ export default function ShareToLinkedInDialog({
   const [orgConfigured, setOrgConfigured] = useState(false)
   const [orgPostingReady, setOrgPostingReady] = useState(false)
   const [organizationId, setOrganizationId] = useState<string | null>(null)
+  const [serverAllowsCompanyPage, setServerAllowsCompanyPage] = useState(false)
+
+  const mayUseCompanyPage = canPostToCompanyPage && serverAllowsCompanyPage
+  const companyPageSelectable = mayUseCompanyPage && orgConfigured
 
   const charCount = text.length
   const overLimit = charCount > LINKEDIN_POST_MAX_CHARS
@@ -54,6 +61,7 @@ export default function ShareToLinkedInDialog({
           setOrgConfigured(Boolean(s.organization_configured))
           setOrgPostingReady(Boolean(s.organization_posting_ready))
           setOrganizationId(s.organization_id ?? null)
+          setServerAllowsCompanyPage(Boolean(s.can_post_to_company_page))
         }
       } catch {
         if (!cancelled) {
@@ -61,6 +69,7 @@ export default function ShareToLinkedInDialog({
           setOrgConfigured(false)
           setOrgPostingReady(false)
           setOrganizationId(null)
+          setServerAllowsCompanyPage(false)
         }
       } finally {
         if (!cancelled) setStatusLoading(false)
@@ -73,8 +82,16 @@ export default function ShareToLinkedInDialog({
   }, [isOpen])
 
   useEffect(() => {
-    if (isOpen) setText(initialText)
+    if (!isOpen) return
+    setText(initialText)
+    setTarget('profile')
   }, [isOpen, initialText])
+
+  useEffect(() => {
+    if (!companyPageSelectable && target === 'page') {
+      setTarget('profile')
+    }
+  }, [companyPageSelectable, target])
 
   const openConnect = async () => {
     try {
@@ -92,6 +109,10 @@ export default function ShareToLinkedInDialog({
     const body = trimForLinkedInPost(text)
     if (!body) {
       showError('Post text is empty')
+      return
+    }
+    if (target === 'page' && !mayUseCompanyPage) {
+      showError('Only a site admin or business owner may post to the LinkedIn Company Page.')
       return
     }
     if (target === 'page' && !orgConfigured) {
@@ -113,7 +134,15 @@ export default function ShareToLinkedInDialog({
         target,
         url: canonicalUrl || undefined,
       })
-      showSuccess(out.id ? `Posted to LinkedIn (id: ${out.id})` : 'Posted to LinkedIn')
+      showSuccess(
+        out.id
+          ? target === 'page'
+            ? `Posted to your LinkedIn Company Page (id: ${out.id})`
+            : `Posted to your LinkedIn profile (id: ${out.id})`
+          : target === 'page'
+            ? 'Posted to your LinkedIn Company Page'
+            : 'Posted to your LinkedIn profile',
+      )
       onClose()
     } catch (e) {
       showError(getApiErrorMessage(e, 'LinkedIn share failed'))
@@ -121,6 +150,12 @@ export default function ShareToLinkedInDialog({
       setPosting(false)
     }
   }
+
+  const postDisabled =
+    posting ||
+    !text.trim() ||
+    !connected ||
+    (target === 'page' && (!companyPageSelectable || !orgPostingReady))
 
   if (!isOpen) return null
 
@@ -202,33 +237,39 @@ export default function ShareToLinkedInDialog({
                 onChange={() => setTarget('profile')}
                 className="text-blue-600"
               />
-              <span className="text-sm text-gray-800">Personal profile</span>
+              <span className="text-sm text-gray-800">Personal profile (default)</span>
             </label>
-            <label
-              className={`flex items-center gap-2 ${orgConfigured ? 'cursor-pointer' : 'opacity-50'}`}
-            >
-              <input
-                type="radio"
-                name="li-target"
-                checked={target === 'page'}
-                onChange={() => setTarget('page')}
-                disabled={!orgConfigured}
-                className="text-blue-600"
-              />
-              <span className="text-sm text-gray-800">Company page (e.g. 3 Pillars)</span>
-            </label>
-            {!orgConfigured ? (
+            {mayUseCompanyPage ? (
+              <label
+                className={`flex items-center gap-2 ${companyPageSelectable ? 'cursor-pointer' : 'opacity-50'}`}
+              >
+                <input
+                  type="radio"
+                  name="li-target"
+                  checked={target === 'page'}
+                  onChange={() => setTarget('page')}
+                  disabled={!companyPageSelectable}
+                  className="text-blue-600"
+                />
+                <span className="text-sm text-gray-800">Company page (3 Pillars)</span>
+              </label>
+            ) : (
+              <p className="text-xs text-gray-500 pl-6">
+                Company page posting is limited to site admins and business owners.
+              </p>
+            )}
+            {mayUseCompanyPage && !orgConfigured ? (
               <p className="text-xs text-gray-500 pl-6">
                 Set <code className="bg-gray-100 px-1 rounded">default_organization_id</code> in Django
-                Admin → LinkedIn Global Settings (numeric ID from your Company Page URL, not the URN).
+                Admin → LinkedIn Global Settings (numeric ID from your Company Page URL).
               </p>
-            ) : !orgPostingReady ? (
+            ) : mayUseCompanyPage && orgConfigured && !orgPostingReady ? (
               <p className="text-xs text-amber-800 pl-6">
-                Organization ID {organizationId ? `“${organizationId}”` : ''} is saved but this token may
-                lack <code className="bg-gray-100 px-1 rounded">w_organization_social</code>. Use Connect
-                LinkedIn again after enabling that permission in your LinkedIn app.
+                Page ID {organizationId ? `“${organizationId}”` : ''} is saved but this token may lack{' '}
+                <code className="bg-gray-100 px-1 rounded">w_organization_social</code>. Use Connect LinkedIn
+                again after enabling that permission.
               </p>
-            ) : organizationId ? (
+            ) : mayUseCompanyPage && orgConfigured && organizationId ? (
               <p className="text-xs text-gray-500 pl-6">Organization ID: {organizationId}</p>
             ) : null}
           </fieldset>
@@ -262,12 +303,12 @@ export default function ShareToLinkedInDialog({
           </button>
           <button
             type="button"
-            disabled={posting || !text.trim() || !connected}
+            disabled={postDisabled}
             onClick={() => void handleShare()}
             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#0A66C2] rounded-lg hover:bg-[#095195] disabled:opacity-50"
           >
             {posting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Linkedin className="w-4 h-4" />}
-            Post
+            {target === 'page' ? 'Post to Company Page' : 'Post to Profile'}
           </button>
         </div>
       </div>

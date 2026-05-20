@@ -24,13 +24,14 @@ Do **not** put LinkedIn client secrets in Next.js env; secrets stay in Django Ad
 
 1. Edit article → **Publish** step → **Post to LinkedIn**.
 2. If not connected, **Connect LinkedIn** (new tab), then try again.
-3. Choose **Personal profile** or **Company page** (page requires `default_organization_id` on server).
+3. **Personal profile** is the default. **Company page** is only shown for **site admin**, **business owner** profile, or **company owner** (requires `default_organization_id` on server).
 4. The dialog pre-fills **title + full article body** (including a References section if it is in your HTML) and the public URL — edit freely before posting.
 5. A **preview image** at the top of the dialog shows the hero/social image used for link previews (not uploaded as a separate LinkedIn attachment).
 6. **Post** (text longer than 3,000 characters is trimmed on submit).
 
 ### Posting as **3 Pillars** (Company page)
 
+- Only **site admin**, **business owner**, or **company owner** may select Company page (editors post to their personal profile only; enforced in API).
 - `default_organization_id` must be the **numeric** LinkedIn Company Page ID (from the page URL), e.g. `12345678` — not `urn:li:organization:…` (Admin accepts either; the server normalizes).
 - Your LinkedIn app must include **`w_organization_social`**; use **Connect LinkedIn** again after adding it.
 - The authorizing user must be an **admin** of that Company Page in LinkedIn.

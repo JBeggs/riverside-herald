@@ -206,6 +206,11 @@ export default function EnhancedArticleEditor({
   
   const canManageArticleResearch = Boolean(profile?.role === 'admin' || isCompanyOwner)
   const canPostToLinkedIn = Boolean(profile?.role === 'admin' || profile?.role === 'editor')
+  const canPostToLinkedInCompanyPage = Boolean(
+    profile?.role === 'admin' ||
+      profile?.role === 'business_owner' ||
+      isCompanyOwner,
+  )
   // Data states
   const [categories, setCategories] = useState<Category[]>([])
   const [availableTags, setAvailableTags] = useState<Tag[]>([])
@@ -2247,8 +2252,8 @@ export default function EnhancedArticleEditor({
                   LinkedIn
                 </h3>
                 <p className="text-sm text-text-muted mb-3">
-                  Post a text update to your personal profile or your LinkedIn Company Page. Requires one-time
-                  connection and (for pages) organization ID in Django Admin.
+                  Post to your personal LinkedIn profile by default. Site admins and business owners can
+                  optionally post to the 3 Pillars Company Page instead.
                 </p>
                 <button
                   type="button"
@@ -2412,6 +2417,7 @@ export default function EnhancedArticleEditor({
         key={linkedinDialogKey}
         isOpen={linkedinDialogOpen}
         onClose={() => setLinkedinDialogOpen(false)}
+        canPostToCompanyPage={canPostToLinkedInCompanyPage}
         initialText={buildLinkedInPostText({
           title: (editData.seo_title || editData.title || '').trim(),
           subtitle: editData.subtitle,
