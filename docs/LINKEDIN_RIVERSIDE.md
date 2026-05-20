@@ -24,14 +24,14 @@ Do **not** put LinkedIn client secrets in Next.js env; secrets stay in Django Ad
 
 1. Edit article → **Publish** step → **Post to LinkedIn**.
 2. If not connected, **Connect LinkedIn** (new tab), then try again.
-3. **Personal profile** is the default. **Company page** is only shown for **site admin**, **business owner** profile, or **company owner** (requires `default_organization_id` on server).
+3. **Editors** post to their **personal profile**. **Site admin**, **business owner**, and **company owner** must post to the **3 Pillars Company Page** (requires `default_organization_id` on server).
 4. The dialog pre-fills **title + full article body** (including a References section if it is in your HTML) and the public URL — edit freely before posting.
 5. A **preview image** at the top of the dialog shows the hero/social image used for link previews (not uploaded as a separate LinkedIn attachment).
 6. **Post** (text longer than 3,000 characters is trimmed on submit).
 
 ### Posting as **3 Pillars** (Company page)
 
-- Only **site admin**, **business owner**, or **company owner** may select Company page (editors post to their personal profile only; enforced in API).
+- **Site admin**, **business owner**, and **company owner** always post to the Company page (API ignores `target=profile` for those roles). Editors cannot post to the Company page.
 - `default_organization_id` must be the **numeric** LinkedIn Company Page ID (from the page URL), e.g. `12345678` — not `urn:li:organization:…` (Admin accepts either; the server normalizes).
 - Your LinkedIn app must include **`w_organization_social`**; use **Connect LinkedIn** again after adding it.
 - The authorizing user must be an **admin** of that Company Page in LinkedIn.
@@ -41,8 +41,8 @@ See also: [LINKEDIN_SETUP.md](../../django-crm/docs/linkedin/LINKEDIN_SETUP.md) 
 
 ## Important: what the API post does (and what it does not)
 
-- **Server `POST /api/linkedin/share/`** creates a **text-only** UGC post (`shareMediaCategory: NONE`). LinkedIn does **not** receive your hero image through this API — there is no attachment.
-- If the post body includes your **article URL**, LinkedIn **may** show a **link preview card** (title, description, image). That card is built by LinkedIn **scraping** your live article page **Open Graph** tags (`og:title`, `og:image`, etc.), not from the editor hero field directly.
+- **Server `POST /api/linkedin/share/`** sends your **full commentary text** plus an **ARTICLE** link card when `url` is provided (`shareMediaCategory: ARTICLE`). The article URL is **not** duplicated inside the commentary (that pattern caused link-only posts with no visible text).
+- **`title`**, **`description`**, and **`image_url`** on the share request populate the link card; `image_url` must be an absolute `https://` URL (hero/social image from the API).
 - **Stale previews**: LinkedIn caches link previews aggressively. After changing title, SEO fields, or hero/social image, use **[LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/)** (inspect your article URL) to refresh the cache before judging the result.
 - **`NEXT_PUBLIC_SITE_URL`** must match the URL you share; wrong origin breaks absolute `og:image` URLs and preview fetches.
 

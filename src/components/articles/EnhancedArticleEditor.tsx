@@ -75,6 +75,7 @@ import {
   buildArticlePublicUrl,
   buildLinkedInPostText,
   resolveLinkedInShareImageUrl,
+  resolveLinkedInShareThumbnailUrl,
 } from '@/lib/linkedin-share'
 import {
   cmsEditorBar,
@@ -206,7 +207,7 @@ export default function EnhancedArticleEditor({
   
   const canManageArticleResearch = Boolean(profile?.role === 'admin' || isCompanyOwner)
   const canPostToLinkedIn = Boolean(profile?.role === 'admin' || profile?.role === 'editor')
-  const canPostToLinkedInCompanyPage = Boolean(
+  const mustPostToLinkedInCompanyPage = Boolean(
     profile?.role === 'admin' ||
       profile?.role === 'business_owner' ||
       isCompanyOwner,
@@ -2252,8 +2253,9 @@ export default function EnhancedArticleEditor({
                   LinkedIn
                 </h3>
                 <p className="text-sm text-text-muted mb-3">
-                  Post to your personal LinkedIn profile by default. Site admins and business owners can
-                  optionally post to the 3 Pillars Company Page instead.
+                  {mustPostToLinkedInCompanyPage
+                    ? 'Posts to the 3 Pillars LinkedIn Company Page (required for your role).'
+                    : 'Posts to your personal LinkedIn profile.'}
                 </p>
                 <button
                   type="button"
@@ -2417,7 +2419,7 @@ export default function EnhancedArticleEditor({
         key={linkedinDialogKey}
         isOpen={linkedinDialogOpen}
         onClose={() => setLinkedinDialogOpen(false)}
-        canPostToCompanyPage={canPostToLinkedInCompanyPage}
+        mustPostToCompanyPage={mustPostToLinkedInCompanyPage}
         initialText={buildLinkedInPostText({
           title: (editData.seo_title || editData.title || '').trim(),
           subtitle: editData.subtitle,
@@ -2426,11 +2428,21 @@ export default function EnhancedArticleEditor({
           url: buildArticlePublicUrl(slugForShare) || undefined,
         })}
         canonicalUrl={buildArticlePublicUrl(slugForShare)}
+        shareTitle={(editData.seo_title || editData.title || '').trim()}
+        shareDescription={(editData.excerpt || editData.seo_description || '').trim()}
         shareImageUrl={resolveLinkedInShareImageUrl({
           featured_media: editData.featured_image_url
             ? { file_url: editData.featured_image_url }
             : article.featured_media,
           featured_image_url: editData.featured_image_url || article.featured_image_url,
+          social_image: article.social_image,
+        })}
+        shareThumbnailUrl={resolveLinkedInShareThumbnailUrl({
+          featured_media: editData.featured_image_url
+            ? { file_url: editData.featured_image_url }
+            : article.featured_media,
+          featured_image_url: editData.featured_image_url || article.featured_image_url,
+          social_image: article.social_image,
         })}
       />
     </div>

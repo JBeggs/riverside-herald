@@ -1126,13 +1126,20 @@ export const linkedinApi = {
       organization_configured: boolean
       organization_id: string | null
       organization_posting_ready: boolean
+      must_post_to_company_page: boolean
       can_post_to_company_page: boolean
       token_company_id: string | null
     }>('/linkedin/status/'),
   authUrl: () =>
     apiClient.get<{ auth_url: string; redirect_uri?: string; state?: string }>('/linkedin/auth-url/'),
-  share: (data: { text: string; target: 'profile' | 'page'; url?: string }) =>
-    apiClient.post<{ id: string; target: string }>('/linkedin/share/', data),
+  share: (data: {
+    text: string
+    target: 'profile' | 'page'
+    url?: string
+    title?: string
+    description?: string
+    image_url?: string
+  }) => apiClient.post<{ id: string; target: string }>('/linkedin/share/', data),
 }
 
 export default apiClient

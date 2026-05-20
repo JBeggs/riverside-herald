@@ -66,6 +66,23 @@ export function buildLinkedInPostText(params: {
   return parts.join('\n\n')
 }
 
+/** Absolute image URL for LinkedIn ARTICLE thumbnail (empty if none). */
+export function resolveLinkedInShareThumbnailUrl(article?: {
+  social_image?: { file_url?: string | null } | null
+  featured_media?: { file_url?: string | null } | null
+  featured_image_url?: string | null
+} | null): string {
+  const url = resolveLinkedInShareImageUrl(article)
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url
+  }
+  const site = getPublicSiteUrl()
+  if (site && url.startsWith('/')) {
+    return `${site}${url}`
+  }
+  return ''
+}
+
 export function resolveLinkedInShareImageUrl(article?: {
   social_image?: { file_url?: string | null } | null
   featured_media?: { file_url?: string | null } | null
