@@ -3,15 +3,22 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Profile } from '@/lib/types'
-import { 
-  FileText, 
-  Eye, 
+import {
+  FileText,
+  Eye,
   TrendingUp,
   Edit3,
   Calendar,
 } from 'lucide-react'
+import {
+  cmsCard,
+  cmsCardPad,
+  cmsPageSubtitle,
+  cmsRaisedPanel,
+  cmsSectionTitle,
+  cmsSelect,
+} from '@/lib/cms-ui-classes'
 
-// Custom SVG icons for missing lucide-react icons
 const Heart = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
@@ -56,15 +63,15 @@ export default function AuthorDashboard({ articles, profile: _profile, onNewArti
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'published':
-        return 'bg-green-100 text-green-800'
+        return 'bg-green-100 text-green-800 dark:bg-green-950/40 dark:text-green-200'
       case 'draft':
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-[rgb(var(--color-surface-raised))] text-text-muted'
       case 'scheduled':
-        return 'bg-blue-100 text-blue-800'
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-200'
       case 'archived':
-        return 'bg-yellow-100 text-yellow-800'
+        return 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-200'
       default:
-        return 'bg-gray-100 text-gray-600'
+        return 'bg-[rgb(var(--color-surface-raised))] text-text-muted'
     }
   }
 
@@ -72,128 +79,98 @@ export default function AuthorDashboard({ articles, profile: _profile, onNewArti
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     })
   }
 
   const totalViews = articles.reduce((sum, article) => sum + (article.views || 0), 0)
   const totalLikes = articles.reduce((sum, article) => sum + (article.likes || 0), 0)
-  const publishedCount = articles.filter(article => article.status === 'published').length
-  const draftCount = articles.filter(article => article.status === 'draft').length
+  const publishedCount = articles.filter((article) => article.status === 'published').length
+  const draftCount = articles.filter((article) => article.status === 'draft').length
+
+  const statCards = [
+    { label: 'Total', value: articles.length, icon: FileText },
+    { label: 'Published', value: publishedCount, icon: TrendingUp, accent: 'text-primary' },
+    { label: 'Views', value: totalViews.toLocaleString(), icon: Eye },
+    { label: 'Likes', value: totalLikes.toLocaleString(), icon: Heart },
+  ]
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Content Dashboard</h2>
-          <p className="text-sm sm:text-base text-gray-600 mt-1">Manage your articles and track performance</p>
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div className="min-w-0">
+          <h2 className={cmsSectionTitle}>Content Dashboard</h2>
+          <p className={cmsPageSubtitle}>Manage your articles and track performance</p>
         </div>
-        <div className="flex items-center w-full sm:w-auto">
-          <Link
-            href="/admin/articles/add"
-            className="flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto"
-          >
-            <Plus className="w-4 h-4" />
-            <span>New Article</span>
-          </Link>
-        </div>
+        <Link href="/admin/articles/add" className="btn btn-primary w-full sm:w-auto flex items-center justify-center gap-2 min-h-[44px]">
+          <Plus className="w-4 h-4" />
+          <span>New Article</span>
+        </Link>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs sm:text-sm font-medium text-gray-600">Total</p>
-              <p className="text-xl sm:text-3xl font-bold text-gray-900">{articles.length}</p>
-            </div>
-            <div className="p-2 sm:p-3 bg-blue-100 rounded-full">
-              <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs sm:text-sm font-medium text-gray-600">Published</p>
-              <p className="text-xl sm:text-3xl font-bold text-green-600">{publishedCount}</p>
-            </div>
-            <div className="p-2 sm:p-3 bg-green-100 rounded-full">
-              <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+        {statCards.map(({ label, value, icon: Icon, accent }) => (
+          <div key={label} className={cmsCardPad}>
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-text-muted">{label}</p>
+                <p className={`text-xl sm:text-3xl font-bold truncate ${accent || 'text-text'}`}>{value}</p>
+              </div>
+              <div className="p-2 sm:p-3 bg-primary/10 rounded-full shrink-0">
+                <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+              </div>
             </div>
           </div>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs sm:text-sm font-medium text-gray-600">Views</p>
-              <p className="text-xl sm:text-3xl font-bold text-purple-600">{totalViews.toLocaleString()}</p>
-            </div>
-            <div className="p-2 sm:p-3 bg-purple-100 rounded-full">
-              <Eye className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs sm:text-sm font-medium text-gray-600">Likes</p>
-              <p className="text-xl sm:text-3xl font-bold text-red-600">{totalLikes.toLocaleString()}</p>
-            </div>
-            <div className="p-2 sm:p-3 bg-red-100 rounded-full">
-              <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-red-600" />
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Quick Actions */}
-      <div className="bg-gray-50 rounded-lg p-4 sm:p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className={`${cmsRaisedPanel} p-4 sm:p-6`}>
+        <h3 className="text-lg font-medium text-text mb-4">Quick Actions</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
           <Link
             href="/admin/articles/add"
-            className="flex items-center space-x-3 p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors w-full text-left"
+            className={`${cmsCard} flex items-center gap-3 p-4 hover:bg-[rgb(var(--color-surface-raised)/0.5)] transition-colors w-full text-left min-h-[44px]`}
           >
-            <Plus className="w-5 h-5 text-blue-600" />
-            <div>
-              <p className="font-medium text-gray-900">Create New</p>
-              <p className="text-xs text-gray-600">Start writing</p>
+            <Plus className="w-5 h-5 text-primary shrink-0" />
+            <div className="min-w-0">
+              <p className="font-medium text-text">Create New</p>
+              <p className="text-xs text-text-muted">Start writing</p>
             </div>
           </Link>
 
-          <div className="flex items-center space-x-3 p-4 bg-white border border-gray-200 rounded-lg opacity-50 cursor-not-allowed">
-            <Edit3 className="w-5 h-5 text-yellow-600" />
-            <div>
-              <p className="font-medium text-gray-900">Drafts</p>
-              <p className="text-xs text-gray-600">{draftCount} waiting</p>
+          <Link
+            href="/admin/articles"
+            className={`${cmsCard} flex items-center gap-3 p-4 hover:bg-[rgb(var(--color-surface-raised)/0.5)] transition-colors w-full text-left min-h-[44px]`}
+          >
+            <Edit3 className="w-5 h-5 text-primary shrink-0" />
+            <div className="min-w-0">
+              <p className="font-medium text-text">My Articles</p>
+              <p className="text-xs text-text-muted">{draftCount} drafts</p>
             </div>
-          </div>
+          </Link>
 
-          <div className="flex items-center space-x-3 p-4 bg-white border border-gray-200 rounded-lg opacity-50 cursor-not-allowed">
-            <BarChart3 className="w-5 h-5 text-green-600" />
-            <div>
-              <p className="font-medium text-gray-900">Analytics</p>
-              <p className="text-xs text-gray-600">Track performance</p>
+          <div className={`${cmsCard} flex items-center gap-3 p-4 opacity-50 cursor-not-allowed min-h-[44px]`}>
+            <BarChart3 className="w-5 h-5 text-text-muted shrink-0" />
+            <div className="min-w-0">
+              <p className="font-medium text-text">Analytics</p>
+              <p className="text-xs text-text-muted">Coming soon</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Recent Articles */}
       <div>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-          <h3 className="text-lg font-medium text-gray-900">Recent Articles</h3>
-          <div className="flex items-center space-x-2">
-            <label className="text-sm text-gray-600 whitespace-nowrap">Sort by:</label>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+          <h3 className="text-lg font-medium text-text">Recent Articles</h3>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <label htmlFor="author-sort" className="text-sm text-text-muted whitespace-nowrap">
+              Sort by:
+            </label>
             <select
+              id="author-sort"
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
-              className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full sm:w-auto"
+              onChange={(e) => setSortBy(e.target.value as 'recent' | 'popular' | 'views')}
+              className={`${cmsSelect} w-full sm:w-auto`}
             >
               <option value="recent">Most Recent</option>
               <option value="popular">Most Liked</option>
@@ -203,14 +180,11 @@ export default function AuthorDashboard({ articles, profile: _profile, onNewArti
         </div>
 
         {sortedArticles.length === 0 ? (
-          <div className="text-center py-12 bg-white border border-gray-200 rounded-lg px-4">
-            <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No articles yet</h3>
-            <p className="text-gray-600 mb-6">Start by creating your first article</p>
-            <Link
-              href="/admin/articles/add"
-              className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
+          <div className={`${cmsCardPad} text-center`}>
+            <FileText className="w-12 h-12 text-text-muted mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-text mb-2">No articles yet</h3>
+            <p className="text-text-muted mb-6">Start by creating your first article</p>
+            <Link href="/admin/articles/add" className="btn btn-primary inline-flex items-center gap-2">
               <Plus className="w-4 h-4" />
               <span>Create Article</span>
             </Link>
@@ -218,13 +192,13 @@ export default function AuthorDashboard({ articles, profile: _profile, onNewArti
         ) : (
           <div className="space-y-4">
             {sortedArticles.map((article) => (
-              <div key={article.id} className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 hover:shadow-md transition-shadow">
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+              <div key={article.id} className={`${cmsCardPad} hover:shadow-md transition-shadow`}>
+                <div className="flex flex-col gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-2">
                       <Link
-                        href={article.status === 'published' ? `/articles/${article.slug}` : '#'}
-                        className="text-lg font-semibold text-gray-900 hover:text-blue-600 truncate max-w-full"
+                        href={article.status === 'published' ? `/articles/${article.slug}` : `/admin/articles/${article.slug || article.id}`}
+                        className="text-lg font-semibold text-text hover:text-primary truncate max-w-full"
                       >
                         {article.title}
                       </Link>
@@ -232,29 +206,26 @@ export default function AuthorDashboard({ articles, profile: _profile, onNewArti
                         {article.status}
                       </span>
                     </div>
-                    
-                    <div className="flex flex-wrap items-center gap-y-2 gap-x-4 text-xs sm:text-sm text-gray-600">
-                      <div className="flex items-center space-x-1">
+
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs sm:text-sm text-text-muted">
+                      <div className="flex items-center gap-1">
                         <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         <span>{formatDate(article.created_at)}</span>
                       </div>
-                      
-                      {article.category && (
-                        <div className="flex items-center space-x-1">
-                          <div 
-                            className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full"
-                            style={{ backgroundColor: article.category.color }}
-                          />
+
+                      {article.category ? (
+                        <div className="flex items-center gap-1">
+                          <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full" style={{ backgroundColor: article.category.color }} />
                           <span>{article.category.name}</span>
                         </div>
-                      )}
-                      
-                      <div className="flex items-center space-x-4">
-                        <div className="flex items-center space-x-1">
+                      ) : null}
+
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-1">
                           <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                           <span>{article.views || 0}</span>
                         </div>
-                        <div className="flex items-center space-x-1">
+                        <div className="flex items-center gap-1">
                           <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                           <span>{article.likes || 0}</span>
                         </div>

@@ -18,6 +18,7 @@ import BusinessOwnerSection from './BusinessOwnerSection'
 import AdminSection from './AdminSection'
 import SubscriberSection from './SubscriberSection'
 import NotificationSettings from './NotificationSettings'
+import { cmsCard, cmsTabActive, cmsTabInactive } from '@/lib/cms-ui-classes'
 
 interface User {
   id: string
@@ -67,22 +68,14 @@ export default function ProfilePage({ user: initialUser, profile: initialProfile
   const { profile: authProfile, user: authUser } = useAuth()
   const [activeTab, setActiveTab] = useState<TabType>('personal')
 
-  // Use auth profile if available, otherwise fallback to initial data from server
   const profile = authProfile || initialProfile
   const user = authUser || initialUser
-
-  console.log('[DEBUG] ProfilePage rendering with profile:', {
-    user: profile?.user,
-    first_name: profile?.first_name,
-    last_name: profile?.last_name,
-    full_name: profile?.full_name
-  })
 
   if (!profile) {
     return (
       <div className="container-wide py-8">
         <div className="text-center">
-          <p className="text-gray-600">Profile not found. Please contact support.</p>
+          <p className="text-text-muted">Profile not found. Please contact support.</p>
         </div>
       </div>
     )
@@ -91,124 +84,102 @@ export default function ProfilePage({ user: initialUser, profile: initialProfile
   const getRoleIcon = (role: string) => {
     switch (role) {
       case 'admin':
-        return <Crown className="w-5 h-5 text-yellow-600" />
+        return <Crown className="w-5 h-5 text-primary" />
       case 'editor':
-        return <Edit3 className="w-5 h-5 text-blue-600" />
+        return <Edit3 className="w-5 h-5 text-primary" />
       case 'author':
-        return <FileText className="w-5 h-5 text-green-600" />
+        return <FileText className="w-5 h-5 text-primary" />
       case 'premium_subscriber':
-        return <Star className="w-5 h-5 text-purple-600" />
+        return <Star className="w-5 h-5 text-primary" />
       case 'subscriber':
-        return <Award className="w-5 h-5 text-gray-600" />
+        return <Award className="w-5 h-5 text-text-muted" />
       default:
-        return <UserIcon className="w-5 h-5 text-gray-500" />
+        return <UserIcon className="w-5 h-5 text-text-muted" />
     }
   }
 
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'admin':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-300'
-      case 'editor':
-        return 'bg-blue-100 text-blue-800 border-blue-300'
-      case 'author':
-        return 'bg-green-100 text-green-800 border-green-300'
-      case 'premium_subscriber':
-        return 'bg-purple-100 text-purple-800 border-purple-300'
-      case 'subscriber':
-        return 'bg-gray-100 text-gray-800 border-gray-300'
-      default:
-        return 'bg-gray-100 text-gray-600 border-gray-300'
-    }
-  }
+  const getRoleColor = (_role: string) =>
+    'bg-[rgb(var(--color-surface-raised))] text-text border-border-default'
 
   const tabs = [
     { id: 'personal' as TabType, label: 'Personal Info', icon: UserIcon },
-    ...(profile.role === 'author' || profile.role === 'admin' || profile.role === 'editor' || profile.role === 'business_owner' 
-        ? [{ id: 'content' as TabType, label: 'My Content', icon: FileText }] 
+    ...(profile.role === 'author' || profile.role === 'admin' || profile.role === 'editor' || profile.role === 'business_owner'
+        ? [{ id: 'content' as TabType, label: 'My Content', icon: FileText }]
         : []),
-    ...(additionalData.ownedBusinesses && additionalData.ownedBusinesses.length > 0 
-        ? [{ id: 'businesses' as TabType, label: 'My Businesses', icon: Building2 }] 
+    ...(additionalData.ownedBusinesses && additionalData.ownedBusinesses.length > 0
+        ? [{ id: 'businesses' as TabType, label: 'My Businesses', icon: Building2 }]
         : []),
-    ...(profile.role === 'admin' || profile.role === 'editor' 
-        ? [{ id: 'admin' as TabType, label: 'Administration', icon: Shield }] 
+    ...(profile.role === 'admin' || profile.role === 'editor'
+        ? [{ id: 'admin' as TabType, label: 'Administration', icon: Shield }]
         : []),
-    ...(profile.role === 'subscriber' || profile.role === 'premium_subscriber' 
-        ? [{ id: 'subscriber' as TabType, label: 'Subscription', icon: Crown }] 
+    ...(profile.role === 'subscriber' || profile.role === 'premium_subscriber'
+        ? [{ id: 'subscriber' as TabType, label: 'Subscription', icon: Crown }]
         : []),
     { id: 'notifications' as TabType, label: 'Notifications', icon: Bell },
   ]
 
   return (
-    <div className="container-wide py-8" data-cy="profile-content">
-      {/* Profile Header */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
+    <div className="container-wide py-6 sm:py-8 font-body" data-cy="profile-content">
+      <div className={`${cmsCard} mb-6 sm:mb-8 overflow-hidden`}>
         <div className="px-4 py-6 sm:px-6 sm:py-8">
           <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left">
-            {/* Avatar */}
             <div className="flex-shrink-0">
               {profile.avatar_url ? (
-                <img 
-                  src={profile.avatar_url} 
-                  alt={profile.full_name || 'Profile'} 
-                  className="w-24 h-24 rounded-full object-cover border-2 border-gray-100 shadow-sm"
+                <img
+                  src={profile.avatar_url}
+                  alt={profile.full_name || 'Profile'}
+                  className="w-24 h-24 rounded-full object-cover border-2 border-border-default shadow-sm"
                 />
               ) : (
-                <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center border-2 border-gray-100 shadow-sm">
-                  <UserIcon className="w-12 h-12 text-gray-500" />
+                <div className="w-24 h-24 bg-[rgb(var(--color-surface-raised))] rounded-full flex items-center justify-center border-2 border-border-default shadow-sm">
+                  <UserIcon className="w-12 h-12 text-text-muted" />
                 </div>
               )}
             </div>
-            
-            {/* Profile Info */}
+
             <div className="flex-1 min-w-0 w-full">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 mb-2 space-y-2 sm:space-y-0">
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">
-                  {profile.first_name || profile.last_name 
-                    ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() 
+              <div className="flex flex-col sm:flex-row sm:items-center sm:flex-wrap sm:gap-x-3 mb-2 space-y-2 sm:space-y-0">
+                <h1 className="text-2xl sm:text-3xl font-playfair font-semibold text-text truncate">
+                  {profile.first_name || profile.last_name
+                    ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
                     : profile.full_name || 'Anonymous User'}
                 </h1>
-                <div className="flex justify-center sm:justify-start">
+                <div className="flex justify-center sm:justify-start flex-wrap gap-2">
                   <div className={`flex items-center space-x-1 px-3 py-1 rounded-full border text-sm font-medium ${getRoleColor(profile.role)}`}>
                     {getRoleIcon(profile.role)}
-                    <span className="capitalize">
-                      {profile.role.replace('_', ' ')}
-                    </span>
+                    <span className="capitalize">{profile.role.replace('_', ' ')}</span>
                   </div>
-                </div>
-                {profile.is_verified && (
-                  <div className="flex justify-center sm:justify-start">
-                    <div className="flex items-center space-x-1 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                      <Shield className="w-3 h-3" />
+                  {profile.is_verified ? (
+                    <div className="flex items-center space-x-1 px-2 py-1 bg-[rgb(var(--color-surface-raised))] text-text border border-border-default rounded-full text-xs font-medium">
+                      <Shield className="w-3 h-3 text-primary" />
                       <span>Verified</span>
                     </div>
-                  </div>
-                )}
+                  ) : null}
+                </div>
               </div>
-              
-              <p className="text-gray-600 mb-2 break-all">{user.email}</p>
+
+              <p className="text-text-muted mb-2 break-all">{user.email}</p>
               {profile.pending_email ? (
-                <p className="text-sm text-amber-800 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 mb-2 max-w-2xl">
+                <p className="text-sm text-text bg-[rgb(var(--color-surface-raised)/0.6)] border border-border-default rounded-lg px-3 py-2 mb-2 max-w-2xl">
                   New email <strong className="break-all">{profile.pending_email}</strong> is pending — check your inbox to confirm.
                   Until then, sign in with <strong className="break-all">{profile.email}</strong>.
                 </p>
               ) : null}
-              
-              {profile.bio && (
-                <p className="text-gray-700 max-w-2xl mx-auto sm:mx-0">{profile.bio}</p>
-              )}
-              
-              {profile.username && (
-                <p className="text-sm text-gray-500 mt-2">@{profile.username}</p>
-              )}
+
+              {profile.bio ? (
+                <p className="text-text max-w-2xl mx-auto sm:mx-0">{profile.bio}</p>
+              ) : null}
+
+              {profile.username ? (
+                <p className="text-sm text-text-muted mt-2">@{profile.username}</p>
+              ) : null}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8 overflow-hidden">
-        <div className="border-b border-gray-200 overflow-x-auto scrollbar-hide">
+      <div className={`${cmsCard} mb-6 sm:mb-8 overflow-hidden`}>
+        <div className="border-b border-border-default overflow-x-auto scrollbar-hide">
           <nav className="flex space-x-4 sm:space-x-8 px-4 sm:px-6 min-w-max" aria-label="Tabs">
             {tabs.map((tab) => {
               const Icon = tab.icon
@@ -216,11 +187,10 @@ export default function ProfilePage({ user: initialUser, profile: initialProfile
               return (
                 <button
                   key={tab.id}
+                  type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors ${
-                    isActive
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors min-h-[44px] ${
+                    isActive ? cmsTabActive : cmsTabInactive
                   }`}
                 >
                   <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -231,41 +201,23 @@ export default function ProfilePage({ user: initialUser, profile: initialProfile
           </nav>
         </div>
 
-        {/* Tab Content */}
         <div className="p-4 sm:p-6">
-          {activeTab === 'personal' && (
-            <PersonalInfoSection user={user} profile={profile} />
-          )}
-          
-          {activeTab === 'content' && (
-            <AuthorDashboard 
-              articles={additionalData.articles || []} 
+          {activeTab === 'personal' ? <PersonalInfoSection user={user} profile={profile} /> : null}
+          {activeTab === 'content' ? (
+            <AuthorDashboard
+              articles={additionalData.articles || []}
               profile={profile}
               onNewArticle={() => router.push('/admin/articles/add')}
             />
-          )}
-          
-          {activeTab === 'businesses' && (
-            <BusinessOwnerSection 
-              businesses={additionalData.ownedBusinesses || []} 
-              profile={profile}
-            />
-          )}
-          
-          {activeTab === 'admin' && (
-            <AdminSection 
-              profile={profile}
-              systemStats={additionalData.systemStats}
-            />
-          )}
-          
-          {activeTab === 'subscriber' && (
-            <SubscriberSection profile={profile} />
-          )}
-          
-          {activeTab === 'notifications' && (
-            <NotificationSettings profile={profile} />
-          )}
+          ) : null}
+          {activeTab === 'businesses' ? (
+            <BusinessOwnerSection businesses={additionalData.ownedBusinesses || []} profile={profile} />
+          ) : null}
+          {activeTab === 'admin' ? (
+            <AdminSection profile={profile} systemStats={additionalData.systemStats} />
+          ) : null}
+          {activeTab === 'subscriber' ? <SubscriberSection profile={profile} /> : null}
+          {activeTab === 'notifications' ? <NotificationSettings profile={profile} /> : null}
         </div>
       </div>
     </div>

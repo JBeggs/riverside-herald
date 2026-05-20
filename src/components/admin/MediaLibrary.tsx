@@ -11,6 +11,17 @@ const ImageIcon = ({ className }: { className?: string }) => (
 import { newsApi } from '@/lib/api'
 import { useToast } from '@/contexts/ToastContext'
 import { useConfirm } from '@/contexts/ConfirmDialogContext'
+import {
+  cmsCard,
+  cmsCardPad,
+  cmsInfoBanner,
+  cmsInputWithIcon,
+  cmsPageSubtitle,
+  cmsPageTitle,
+  cmsRaisedPanel,
+  cmsTabActive,
+  cmsTabInactive,
+} from '@/lib/cms-ui-classes'
 
 const Plus = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -166,9 +177,9 @@ export default function MediaLibrary({ profile }: MediaLibraryProps) {
 
   const getFileIcon = (type: string) => {
     return type.startsWith('image/') ? (
-      <ImageIcon className="w-5 h-5 text-blue-500" />
+      <ImageIcon className="w-5 h-5 text-primary" />
     ) : (
-      <FileText className="w-5 h-5" />
+      <FileText className="w-5 h-5 text-text-muted" />
     )
   }
 
@@ -195,12 +206,11 @@ export default function MediaLibrary({ profile }: MediaLibraryProps) {
   })()
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Media Library</h1>
-          <p className="text-gray-600 mt-1">
+    <div className="space-y-6 font-body">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className={cmsPageTitle}>Media Library</h1>
+          <p className={cmsPageSubtitle}>
             {isBusinessOwner
               ? 'Browse shared images or upload private images only you can use.'
               : 'Upload and manage images for articles and businesses'}
@@ -211,10 +221,10 @@ export default function MediaLibrary({ profile }: MediaLibraryProps) {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            className="btn btn-primary flex items-center justify-center gap-2 min-h-[44px] w-full sm:w-auto disabled:opacity-50"
           >
             {uploading ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[rgb(var(--color-on-accent))]" />
             ) : (
               <Plus className="w-5 h-5" />
             )}
@@ -224,14 +234,12 @@ export default function MediaLibrary({ profile }: MediaLibraryProps) {
       </div>
 
       {isBusinessOwner ? (
-        <div className="flex flex-wrap gap-2 border-b border-gray-200 pb-1">
+        <div className="flex flex-wrap gap-2 border-b border-border-default pb-1 overflow-x-auto scrollbar-hide">
           <button
             type="button"
             onClick={() => setOwnerTab('shared')}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg border-b-2 transition-colors ${
-              ownerTab === 'shared'
-                ? 'border-blue-600 text-blue-700 bg-white'
-                : 'border-transparent text-gray-600 hover:text-gray-900'
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg border-b-2 transition-colors min-h-[44px] whitespace-nowrap ${
+              ownerTab === 'shared' ? cmsTabActive : cmsTabInactive
             }`}
           >
             Shared library
@@ -239,10 +247,8 @@ export default function MediaLibrary({ profile }: MediaLibraryProps) {
           <button
             type="button"
             onClick={() => setOwnerTab('private')}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg border-b-2 transition-colors ${
-              ownerTab === 'private'
-                ? 'border-blue-600 text-blue-700 bg-white'
-                : 'border-transparent text-gray-600 hover:text-gray-900'
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg border-b-2 transition-colors min-h-[44px] whitespace-nowrap ${
+              ownerTab === 'private' ? cmsTabActive : cmsTabInactive
             }`}
           >
             My private images
@@ -250,30 +256,27 @@ export default function MediaLibrary({ profile }: MediaLibraryProps) {
         </div>
       ) : null}
 
-      {/* Upload Area */}
       {allowUpload ? (
-        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+        <div className={cmsCardPad}>
           <div
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click()
             }}
-            className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors cursor-pointer"
+            className="border-2 border-dashed border-border-default rounded-lg p-6 sm:p-8 text-center hover:border-primary/50 transition-colors cursor-pointer"
             onClick={() => fileInputRef.current?.click()}
           >
-            <Plus className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <Plus className="w-12 h-12 text-text-muted mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-text mb-2">
               {isBusinessOwner && ownerTab === 'private' ? 'Upload private images' : 'Upload Images'}
             </h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-text-muted mb-4 text-sm sm:text-base">
               {isBusinessOwner && ownerTab === 'private'
                 ? 'These images are visible only to you in this library. They are not shared with everyone by default.'
                 : 'Click to browse or drag and drop. Images are saved to the library and can be used in articles and business profiles.'}
             </p>
-            <p className="text-sm text-gray-500">
-              Supported: JPG, PNG, GIF, WebP (max 10MB each)
-            </p>
+            <p className="text-sm text-text-muted">Supported: JPG, PNG, GIF, WebP (max 10MB each)</p>
           </div>
           <input
             ref={fileInputRef}
@@ -285,36 +288,35 @@ export default function MediaLibrary({ profile }: MediaLibraryProps) {
           />
         </div>
       ) : (
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-gray-700 text-sm">
-          <p className="font-medium text-gray-900 mb-1">Shared library is read-only</p>
+        <div className={`${cmsRaisedPanel} p-4 sm:p-6 text-sm text-text-muted`}>
+          <p className="font-medium text-text mb-1">Shared library is read-only</p>
           <p>
             You can view and open shared images to use in your content. New shared assets are added by the editorial team.
-            Switch to <strong>My private images</strong> to upload your own files.
+            Switch to <strong className="text-text">My private images</strong> to upload your own files.
           </p>
         </div>
       )}
 
-      {/* Search and Controls */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+      <div className={`${cmsCard} p-4`}>
+        <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
+          <div className="relative flex-1 min-w-0 max-w-full md:max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted pointer-events-none" />
             <input
-              type="text"
+              type="search"
               placeholder="Search files..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className={cmsInputWithIcon}
             />
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2 self-end md:self-auto">
             <button
               type="button"
               onClick={() => setViewMode('grid')}
-              className={`px-3 py-2 text-sm rounded-lg transition-colors ${
+              className={`px-3 py-2 text-sm rounded-lg transition-colors min-h-[44px] ${
                 viewMode === 'grid'
-                  ? 'bg-blue-100 text-blue-600'
-                  : 'text-gray-400 hover:text-gray-600'
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-text-muted hover:text-text'
               }`}
             >
               Grid
@@ -322,10 +324,10 @@ export default function MediaLibrary({ profile }: MediaLibraryProps) {
             <button
               type="button"
               onClick={() => setViewMode('list')}
-              className={`px-3 py-2 text-sm rounded-lg transition-colors ${
+              className={`px-3 py-2 text-sm rounded-lg transition-colors min-h-[44px] ${
                 viewMode === 'list'
-                  ? 'bg-blue-100 text-blue-600'
-                  : 'text-gray-400 hover:text-gray-600'
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-text-muted hover:text-text'
               }`}
             >
               List
@@ -334,28 +336,23 @@ export default function MediaLibrary({ profile }: MediaLibraryProps) {
         </div>
       </div>
 
-      {/* Files Display */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+      <div className={cmsCardPad}>
         {loading ? (
           <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading media...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
+            <p className="text-text-muted">Loading media...</p>
           </div>
         ) : filteredFiles.length === 0 ? (
-          <div className="text-center py-12">
-            <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {emptyTitle}
-            </h3>
-            <p className="text-gray-600">
-              {emptySubtitle}
-            </p>
+          <div className="text-center py-12 px-2">
+            <FileText className="w-16 h-16 text-text-muted mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-text mb-2">{emptyTitle}</h3>
+            <p className="text-text-muted text-sm sm:text-base">{emptySubtitle}</p>
           </div>
         ) : viewMode === 'grid' ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
             {filteredFiles.map((file) => (
-              <div key={file.id} className="group relative bg-gray-50 border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
-                <div className="aspect-square bg-white rounded-lg mb-2 flex items-center justify-center overflow-hidden">
+              <div key={file.id} className={`group relative ${cmsRaisedPanel} p-3 hover:shadow-md transition-shadow`}>
+                <div className="aspect-square bg-surface rounded-lg mb-2 flex items-center justify-center overflow-hidden border border-border-default">
                   {file.type.startsWith('image/') ? (
                     <img
                       src={file.url}
@@ -366,26 +363,22 @@ export default function MediaLibrary({ profile }: MediaLibraryProps) {
                       }}
                     />
                   ) : (
-                    <div className="text-gray-400">
-                      {getFileIcon(file.type)}
-                    </div>
+                    <div className="text-text-muted">{getFileIcon(file.type)}</div>
                   )}
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-medium text-gray-900 truncate" title={file.name}>
+                  <p className="text-sm font-medium text-text truncate" title={file.name}>
                     {file.name}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {formatFileSize(file.size)}
-                  </p>
+                  <p className="text-xs text-text-muted mt-1">{formatFileSize(file.size)}</p>
                 </div>
-                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="flex space-x-1">
+                <div className="absolute top-2 right-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                  <div className="flex gap-1">
                     <a
                       href={file.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-2 py-1 bg-white border border-gray-200 rounded shadow-sm hover:bg-gray-50 text-xs"
+                      className="px-2 py-1 bg-surface border border-border-default rounded shadow-sm hover:bg-[rgb(var(--color-surface-raised))] text-xs text-text min-h-[32px] flex items-center"
                       title="View"
                     >
                       View
@@ -394,7 +387,7 @@ export default function MediaLibrary({ profile }: MediaLibraryProps) {
                       <button
                         type="button"
                         onClick={() => handleDelete(file.id)}
-                        className="p-1 bg-white border border-gray-200 rounded shadow-sm hover:bg-red-50 hover:border-red-200"
+                        className="p-1 bg-surface border border-border-default rounded shadow-sm hover:bg-red-50 dark:hover:bg-red-950/30 hover:border-red-200 min-h-[32px] min-w-[32px] flex items-center justify-center"
                         title="Delete"
                       >
                         <Trash2 className="w-3 h-3 text-red-600" />
@@ -408,24 +401,22 @@ export default function MediaLibrary({ profile }: MediaLibraryProps) {
         ) : (
           <div className="space-y-2">
             {filteredFiles.map((file) => (
-              <div key={file.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
-                <div className="flex items-center space-x-3">
-                  <div className="text-gray-400">
-                    {getFileIcon(file.type)}
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{file.name}</p>
-                    <p className="text-xs text-gray-500">
+              <div key={file.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 border border-border-default rounded-lg hover:bg-[rgb(var(--color-surface-raised)/0.4)]">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="text-text-muted shrink-0">{getFileIcon(file.type)}</div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-text truncate">{file.name}</p>
+                    <p className="text-xs text-text-muted">
                       {formatFileSize(file.size)} • Uploaded {new Date(file.uploadedAt).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center gap-2 shrink-0">
                   <a
                     href={file.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-3 py-2 text-sm text-blue-600 hover:text-blue-800"
+                    className="px-3 py-2 text-sm text-primary hover:opacity-90 min-h-[44px] flex items-center"
                     title="View"
                   >
                     View
@@ -434,7 +425,7 @@ export default function MediaLibrary({ profile }: MediaLibraryProps) {
                     <button
                       type="button"
                       onClick={() => handleDelete(file.id)}
-                      className="p-2 text-gray-400 hover:text-red-600"
+                      className="p-2 text-text-muted hover:text-red-600 min-h-[44px] min-w-[44px] flex items-center justify-center"
                       title="Delete"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -447,20 +438,19 @@ export default function MediaLibrary({ profile }: MediaLibraryProps) {
         )}
       </div>
 
-      {/* Tips */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="font-medium text-blue-900 mb-2">Media Library Tips</h3>
+      <div className={cmsInfoBanner}>
+        <h3 className="font-medium text-text mb-2">Media Library Tips</h3>
         {isBusinessOwner ? (
-          <ul className="text-sm text-blue-800 space-y-1">
-            <li>• You cannot delete shared media; contact the news team if something must be removed.</li>
-            <li>• Use “My private images” for personal uploads that only you will see in the library list.</li>
-            <li>• Use “Browse Media Library” in editors to pick both shared and your private images.</li>
+          <ul className="text-sm text-text-muted space-y-1 list-disc pl-5">
+            <li>You cannot delete shared media; contact the news team if something must be removed.</li>
+            <li>Use “My private images” for personal uploads that only you will see in the library list.</li>
+            <li>Use “Browse Media Library” in editors to pick both shared and your private images.</li>
           </ul>
         ) : (
-          <ul className="text-sm text-blue-800 space-y-1">
-            <li>• Upload images here to use them in articles and business profiles</li>
-            <li>• Use the &quot;Browse Media Library&quot; option when editing articles or businesses to select existing images</li>
-            <li>• Optimize images for web to reduce file sizes and improve load times</li>
+          <ul className="text-sm text-text-muted space-y-1 list-disc pl-5">
+            <li>Upload images here to use them in articles and business profiles</li>
+            <li>Use the &quot;Browse Media Library&quot; option when editing articles or businesses to select existing images</li>
+            <li>Optimize images for web to reduce file sizes and improve load times</li>
           </ul>
         )}
       </div>

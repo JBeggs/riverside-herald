@@ -92,18 +92,18 @@ function ArticlesPageContent() {
 
   if (authLoading || !profile) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-pulse text-gray-600">Loading...</div>
+      <div className="min-h-screen bg-bg flex items-center justify-center font-body">
+        <div className="animate-pulse text-text-muted">Loading...</div>
       </div>
     )
   }
 
   if (!['admin', 'editor', 'author', 'business_owner'].includes(profile.role)) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-bg flex items-center justify-center font-body px-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
-          <p className="text-gray-600">You don&apos;t have permission to access this page.</p>
+          <h1 className="text-2xl font-playfair font-semibold text-text mb-4">Access Denied</h1>
+          <p className="text-text-muted">You don&apos;t have permission to access this page.</p>
         </div>
       </div>
     )
@@ -111,18 +111,17 @@ function ArticlesPageContent() {
 
   return (
     <DashboardLayout profile={profile}>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
+      <div className="space-y-6 font-body">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-playfair font-semibold text-text">
               {profile?.role === 'business_owner' ? 'My Articles' :
                profile?.role === 'author' ? 'My Articles' :
                profile?.role === 'editor' ? 'All Articles' :
                profile?.role === 'admin' ? 'Article Management' :
                'Articles'}
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-sm sm:text-base text-text-muted mt-1">
               {profile?.role === 'business_owner' ? 'Create and manage articles to promote your business' :
                profile?.role === 'author' ? 'Write and manage your published articles' :
                profile?.role === 'editor' ? 'Review, edit, and moderate platform content' :
@@ -130,52 +129,43 @@ function ArticlesPageContent() {
                'Manage your articles and content'}
             </p>
           </div>
-          <div className="flex items-center space-x-3">
-            {profile?.role === 'business_owner' && (
-              <Link
-                href="/businesses/create"
-                className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-              >
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto shrink-0">
+            {profile?.role === 'business_owner' ? (
+              <Link href="/businesses/create" className="btn btn-secondary flex items-center justify-center gap-2 min-h-[44px]">
                 <Building2 className="w-5 h-5" />
                 <span>Create Business</span>
               </Link>
-            )}
-            <Link
-              href="/admin/articles/add"
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
+            ) : null}
+            <Link href="/admin/articles/add" className="btn btn-primary flex items-center justify-center gap-2 min-h-[44px]">
               <Plus className="w-5 h-5" />
               <span>{profile?.role === 'business_owner' ? 'Write Article' : 'New Article'}</span>
             </Link>
           </div>
         </div>
 
-        {/* Business Owner Help Section */}
-        {profile?.role === 'business_owner' && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <div className="flex items-start space-x-3">
-              <Building2 className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-              <div>
-                <h3 className="font-medium text-blue-900 mb-2">Promote Your Business with Articles</h3>
-                <p className="text-sm text-blue-800 mb-3">
+        {profile?.role === 'business_owner' ? (
+          <div className="rounded-lg border border-border-default bg-[rgb(var(--color-surface-raised)/0.6)] p-4">
+            <div className="flex items-start gap-3">
+              <Building2 className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+              <div className="min-w-0">
+                <h3 className="font-medium text-text mb-2">Promote Your Business with Articles</h3>
+                <p className="text-sm text-text-muted mb-3">
                   Use articles to showcase your expertise, announce special offers, share customer stories, and connect with your community.
                 </p>
-                <div className="text-sm text-blue-800">
-                  <strong>Ideas for business articles:</strong> Service spotlights, behind-the-scenes stories, customer testimonials, seasonal promotions, community involvement
-                </div>
+                <p className="text-sm text-text-muted">
+                  <strong className="text-text">Ideas for business articles:</strong> Service spotlights, behind-the-scenes stories, customer testimonials, seasonal promotions, community involvement
+                </p>
               </div>
             </div>
           </div>
-        )}
+        ) : null}
 
-        {/* Filters */}
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="bg-surface border border-border-default rounded-lg shadow-card p-4">
           <div className="flex flex-col md:flex-row gap-4">
-            {/* Search */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <div className="flex-1 relative min-w-0">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted pointer-events-none" />
               <input
-                type="text"
+                type="search"
                 placeholder={
                   profile?.role === 'business_owner' ? 'Search your articles...' :
                   profile?.role === 'author' ? 'Search your articles...' :
@@ -183,17 +173,16 @@ function ArticlesPageContent() {
                 }
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 min-h-[44px] border border-border-default rounded-lg bg-[rgb(var(--color-surface))] text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-ring))]"
               />
             </div>
 
-            {/* Status Filter */}
-            <div className="flex items-center space-x-2">
-              <Filter className="w-5 h-5 text-gray-400" />
+            <div className="flex items-center gap-2 w-full md:w-auto">
+              <Filter className="w-5 h-5 text-text-muted shrink-0" />
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full md:w-auto px-4 py-2 min-h-[44px] border border-border-default rounded-lg bg-[rgb(var(--color-surface))] text-text focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-ring))]"
               >
                 <option value="all">All Status</option>
                 <option value="published">Published</option>
@@ -221,8 +210,8 @@ function ArticlesPageContent() {
 export default function ArticlesPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-pulse text-gray-600">Loading...</div>
+      <div className="min-h-screen bg-bg flex items-center justify-center font-body">
+        <div className="animate-pulse text-text-muted">Loading...</div>
       </div>
     }>
       <ArticlesPageContent />

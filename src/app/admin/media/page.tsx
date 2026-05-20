@@ -42,9 +42,7 @@ export default async function MediaPage() {
 
     return (
       <DashboardLayout profile={profile}>
-        <div className="p-4 md:p-6">
-          <MediaLibrary profile={profile} />
-        </div>
+        <MediaLibrary profile={profile} />
       </DashboardLayout>
     )
   } catch (error: unknown) {

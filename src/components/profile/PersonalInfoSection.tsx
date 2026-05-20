@@ -177,11 +177,11 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
     <div className="space-y-6 sm:space-y-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Personal Information</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-text">Personal Information</h2>
         {!isEditing ? (
           <button
             onClick={() => setIsEditing(true)}
-            className="flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto"
+            className="btn btn-primary flex items-center justify-center gap-2 w-full sm:w-auto min-h-[44px]"
           >
             <Edit3 className="w-4 h-4" />
             <span>Edit Profile</span>
@@ -191,14 +191,14 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
             <button
               onClick={handleSave}
               disabled={loading}
-              className="flex-1 sm:flex-none flex items-center justify-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+              className="btn btn-primary flex-1 sm:flex-none flex items-center justify-center gap-2 disabled:opacity-50 min-h-[44px]"
             >
               <Save className="w-4 h-4" />
               <span>{loading ? 'Saving...' : 'Save'}</span>
             </button>
             <button
               onClick={handleCancel}
-              className="flex-1 sm:flex-none flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="btn btn-secondary flex-1 sm:flex-none flex items-center justify-center gap-2 min-h-[44px]"
             >
               <X className="w-4 h-4" />
               <span>Cancel</span>
@@ -208,18 +208,18 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
       </div>
 
       {/* Profile Picture */}
-      <div className="bg-gray-50 rounded-lg p-4 sm:p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Profile Picture</h3>
+      <div className="bg-[rgb(var(--color-surface-raised)/0.5)] rounded-lg p-4 sm:p-6">
+        <h3 className="text-lg font-medium text-text mb-4">Profile Picture</h3>
         <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
           {(formData.avatar_url || profile.avatar_url) ? (
             <img 
               src={formData.avatar_url || profile.avatar_url} 
               alt="Profile" 
-              className="w-20 h-20 rounded-full object-cover border-2 border-gray-200 shadow-sm"
+              className="w-20 h-20 rounded-full object-cover border-2 border-border-default shadow-sm"
             />
           ) : (
-            <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center border-2 border-gray-300 shadow-sm">
-              <UserIcon className="w-10 h-10 text-gray-500" />
+            <div className="w-20 h-20 bg-[rgb(var(--color-surface-raised))] rounded-full flex items-center justify-center border-2 border-border-default shadow-sm">
+              <UserIcon className="w-10 h-10 text-text-muted" />
             </div>
           )}
           <div className="flex flex-col items-center sm:items-start">
@@ -233,12 +233,12 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
             <button 
               onClick={handleChangePhoto}
               disabled={uploading}
-              className="flex items-center space-x-2 px-4 py-2 border border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center space-x-2 px-4 py-2 border border-border-default bg-surface rounded-lg hover:bg-[rgb(var(--color-surface-raised)/0.5)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Camera className="w-4 h-4" />
               <span>{uploading ? 'Uploading...' : 'Change Photo'}</span>
             </button>
-            <p className="text-xs text-gray-500 mt-2 text-center sm:text-left">
+            <p className="text-xs text-text-muted mt-2 text-center sm:text-left">
               JPG, PNG or GIF. Max size 5MB.
             </p>
           </div>
@@ -248,7 +248,7 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
       {/* Basic Information */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-text mb-2">
             First Name
           </label>
           {isEditing ? (
@@ -256,19 +256,19 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
               type="text"
               value={formData.first_name}
               onChange={(e) => setFormData(prev => ({ ...prev, first_name: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-border-default rounded-lg focus:ring-2 focus:ring-[rgb(var(--color-ring))] focus:border-transparent bg-[rgb(var(--color-surface))] text-text"
               placeholder="Enter your first name"
             />
           ) : (
-            <div className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg">
-              <UserIcon className="w-4 h-4 text-gray-500" />
-              <span className="text-gray-900">{profile.first_name || 'Not provided'}</span>
+            <div className="flex items-center space-x-2 p-3 bg-[rgb(var(--color-surface-raised)/0.5)] rounded-lg">
+              <UserIcon className="w-4 h-4 text-text-muted" />
+              <span className="text-text">{profile.first_name || 'Not provided'}</span>
             </div>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-text mb-2">
             Last Name
           </label>
           {isEditing ? (
@@ -276,19 +276,19 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
               type="text"
               value={formData.last_name}
               onChange={(e) => setFormData(prev => ({ ...prev, last_name: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-border-default rounded-lg focus:ring-2 focus:ring-[rgb(var(--color-ring))] focus:border-transparent bg-[rgb(var(--color-surface))] text-text"
               placeholder="Enter your last name"
             />
           ) : (
-            <div className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg">
-              <UserIcon className="w-4 h-4 text-gray-500" />
-              <span className="text-gray-900">{profile.last_name || 'Not provided'}</span>
+            <div className="flex items-center space-x-2 p-3 bg-[rgb(var(--color-surface-raised)/0.5)] rounded-lg">
+              <UserIcon className="w-4 h-4 text-text-muted" />
+              <span className="text-text">{profile.last_name || 'Not provided'}</span>
             </div>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-text mb-2">
             Username
           </label>
           {isEditing ? (
@@ -296,32 +296,32 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
               type="text"
               value={formData.username}
               onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-border-default rounded-lg focus:ring-2 focus:ring-[rgb(var(--color-ring))] focus:border-transparent bg-[rgb(var(--color-surface))] text-text"
               placeholder="Choose a username"
             />
           ) : (
-            <div className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg">
-              <span className="text-gray-500">@</span>
-              <span className="text-gray-900">{profile.username || 'Not set'}</span>
+            <div className="flex items-center space-x-2 p-3 bg-[rgb(var(--color-surface-raised)/0.5)] rounded-lg">
+              <span className="text-text-muted">@</span>
+              <span className="text-text">{profile.username || 'Not set'}</span>
             </div>
           )}
         </div>
 
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-text mb-2">
             Email Address
           </label>
-          <div className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg">
-            <Mail className="w-4 h-4 text-gray-500" />
-            <span className="text-gray-900">{user.email}</span>
-            <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded">
+          <div className="flex items-center space-x-2 p-3 bg-[rgb(var(--color-surface-raised)/0.5)] rounded-lg">
+            <Mail className="w-4 h-4 text-text-muted" />
+            <span className="text-text">{user.email}</span>
+            <span className="text-xs bg-[rgb(var(--color-surface-raised))] text-text-muted px-2 py-1 rounded">
               Cannot be changed
             </span>
           </div>
         </div>
 
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-text mb-2">
             Bio
           </label>
           {isEditing ? (
@@ -329,12 +329,12 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
               value={formData.bio}
               onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-border-default rounded-lg focus:ring-2 focus:ring-[rgb(var(--color-ring))] focus:border-transparent bg-[rgb(var(--color-surface))] text-text"
               placeholder="Tell us about yourself..."
             />
           ) : (
-            <div className="p-3 bg-gray-50 rounded-lg min-h-[80px]">
-              <p className="text-gray-900">{profile.bio || 'No bio provided'}</p>
+            <div className="p-3 bg-[rgb(var(--color-surface-raised)/0.5)] rounded-lg min-h-[80px]">
+              <p className="text-text">{profile.bio || 'No bio provided'}</p>
             </div>
           )}
         </div>
@@ -342,11 +342,11 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
 
       {/* Social Links */}
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Social Links</h3>
+        <h3 className="text-lg font-medium text-text mb-4">Social Links</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {['twitter', 'linkedin', 'instagram', 'website'].map((platform) => (
             <div key={platform}>
-              <label className="block text-sm font-medium text-gray-700 mb-2 capitalize">
+              <label className="block text-sm font-medium text-text mb-2 capitalize">
                 {platform}
               </label>
               {isEditing ? (
@@ -354,23 +354,23 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
                   type="url"
                   value={formData.social_links[platform] || ''}
                   onChange={(e) => handleSocialLinkChange(platform, e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-border-default rounded-lg focus:ring-2 focus:ring-[rgb(var(--color-ring))] focus:border-transparent bg-[rgb(var(--color-surface))] text-text"
                   placeholder={`Your ${platform} URL`}
                 />
               ) : (
-                <div className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg">
-                  <Globe className="w-4 h-4 text-gray-500" />
+                <div className="flex items-center space-x-2 p-3 bg-[rgb(var(--color-surface-raised)/0.5)] rounded-lg">
+                  <Globe className="w-4 h-4 text-text-muted" />
                   {formData.social_links[platform] ? (
                     <a 
                       href={formData.social_links[platform]} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 truncate"
+                      className="text-primary hover:opacity-90 truncate"
                     >
                       {formData.social_links[platform]}
                     </a>
                   ) : (
-                    <span className="text-gray-500">Not provided</span>
+                    <span className="text-text-muted">Not provided</span>
                   )}
                 </div>
               )}
@@ -380,26 +380,26 @@ export default function PersonalInfoSection({ user, profile }: PersonalInfoSecti
       </div>
 
       {/* Account Information */}
-      <div className="bg-gray-50 rounded-lg p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Account Information</h3>
+      <div className="bg-[rgb(var(--color-surface-raised)/0.5)] rounded-lg p-6">
+        <h3 className="text-lg font-medium text-text mb-4">Account Information</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-text mb-2">
               Member Since
             </label>
-            <div className="flex items-center space-x-2 p-3 bg-white rounded-lg">
-              <Calendar className="w-4 h-4 text-gray-500" />
-              <span className="text-gray-900">{formatDate(profile.created_at)}</span>
+            <div className="flex items-center space-x-2 p-3 bg-surface rounded-lg">
+              <Calendar className="w-4 h-4 text-text-muted" />
+              <span className="text-text">{formatDate(profile.created_at)}</span>
             </div>
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-text mb-2">
               Last Updated
             </label>
-            <div className="flex items-center space-x-2 p-3 bg-white rounded-lg">
-              <Calendar className="w-4 h-4 text-gray-500" />
-              <span className="text-gray-900">{formatDate(profile.updated_at)}</span>
+            <div className="flex items-center space-x-2 p-3 bg-surface rounded-lg">
+              <Calendar className="w-4 h-4 text-text-muted" />
+              <span className="text-text">{formatDate(profile.updated_at)}</span>
             </div>
           </div>
         </div>
