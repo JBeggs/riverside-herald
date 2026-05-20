@@ -1125,6 +1125,7 @@ export const linkedinApi = {
       scopes: string | null
       organization_configured: boolean
       organization_id: string | null
+      organization_posting_ready: boolean
       token_company_id: string | null
     }>('/linkedin/status/'),
   authUrl: () =>

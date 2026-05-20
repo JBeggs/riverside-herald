@@ -4,16 +4,22 @@ import { useEffect, useState } from 'react'
 import { X, Loader2, Linkedin, Link2 } from 'lucide-react'
 import { linkedinApi, getApiErrorMessage } from '@/lib/api'
 import { useToast } from '@/contexts/ToastContext'
+import {
+  LINKEDIN_POST_MAX_CHARS,
+  trimForLinkedInPost,
+} from '@/lib/linkedin-share'
 
 export type LinkedInShareTarget = 'profile' | 'page'
 
 interface ShareToLinkedInDialogProps {
   isOpen: boolean
   onClose: () => void
-  /** Full post body (title, excerpt, URL). Caller builds with buildLinkedInPostText. */
+  /** Full draft (title + body + URL). Caller builds with buildLinkedInPostText. */
   initialText: string
   /** Passed separately so the API can append if missing from text */
   canonicalUrl?: string | null
+  /** Hero / social image for preview (absolute URL). LinkedIn link card uses live page OG tags. */
+  shareImageUrl?: string | null
 }
 
 export default function ShareToLinkedInDialog({
@@ -21,6 +27,7 @@ export default function ShareToLinkedInDialog({
   onClose,
   initialText,
   canonicalUrl,
+  shareImageUrl,
 }: ShareToLinkedInDialogProps) {
   const { showError, showSuccess } = useToast()
   const [text, setText] = useState(initialText)
@@ -29,6 +36,11 @@ export default function ShareToLinkedInDialog({
   const [posting, setPosting] = useState(false)
   const [connected, setConnected] = useState(false)
   const [orgConfigured, setOrgConfigured] = useState(false)
+  const [orgPostingReady, setOrgPostingReady] = useState(false)
+  const [organizationId, setOrganizationId] = useState<string | null>(null)
+
+  const charCount = text.length
+  const overLimit = charCount > LINKEDIN_POST_MAX_CHARS
 
   useEffect(() => {
     if (!isOpen) return
@@ -40,11 +52,15 @@ export default function ShareToLinkedInDialog({
         if (!cancelled) {
           setConnected(Boolean(s.connected))
           setOrgConfigured(Boolean(s.organization_configured))
+          setOrgPostingReady(Boolean(s.organization_posting_ready))
+          setOrganizationId(s.organization_id ?? null)
         }
       } catch {
         if (!cancelled) {
           setConnected(false)
           setOrgConfigured(false)
+          setOrgPostingReady(false)
+          setOrganizationId(null)
         }
       } finally {
         if (!cancelled) setStatusLoading(false)
@@ -73,14 +89,20 @@ export default function ShareToLinkedInDialog({
   }
 
   const handleShare = async () => {
-    const body = text.trim()
+    const body = trimForLinkedInPost(text)
     if (!body) {
       showError('Post text is empty')
       return
     }
     if (target === 'page' && !orgConfigured) {
       showError(
-        'Company page is not configured on the server. Set default organization ID in Django Admin (LinkedIn Global Settings).',
+        'Company page is not configured. Set default_organization_id in Django Admin → LinkedIn Global Settings (numeric Company Page ID only, e.g. 12345678).',
+      )
+      return
+    }
+    if (target === 'page' && orgConfigured && !orgPostingReady) {
+      showError(
+        'LinkedIn token is missing w_organization_social or the organization ID is invalid. Re-connect LinkedIn (Connect LinkedIn) after adding that product permission, and confirm you are a Page admin.',
       )
       return
     }
@@ -109,7 +131,7 @@ export default function ShareToLinkedInDialog({
       role="presentation"
     >
       <div
-        className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col"
+        className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-labelledby="linkedin-share-title"
@@ -132,6 +154,20 @@ export default function ShareToLinkedInDialog({
         </div>
 
         <div className="p-4 space-y-4 overflow-y-auto flex-1">
+          {shareImageUrl ? (
+            <div className="rounded-lg border border-gray-200 overflow-hidden bg-gray-50">
+              <p className="text-xs font-medium text-gray-600 px-3 py-2 border-b border-gray-100">
+                Link preview image (from article hero / social image — refresh with Post Inspector after
+                publish)
+              </p>
+              <img
+                src={shareImageUrl}
+                alt=""
+                className="w-full max-h-48 object-cover"
+              />
+            </div>
+          ) : null}
+
           {statusLoading ? (
             <p className="text-sm text-gray-500 flex items-center gap-2">
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -168,7 +204,9 @@ export default function ShareToLinkedInDialog({
               />
               <span className="text-sm text-gray-800">Personal profile</span>
             </label>
-            <label className={`flex items-center gap-2 ${orgConfigured ? 'cursor-pointer' : 'opacity-50'}`}>
+            <label
+              className={`flex items-center gap-2 ${orgConfigured ? 'cursor-pointer' : 'opacity-50'}`}
+            >
               <input
                 type="radio"
                 name="li-target"
@@ -177,29 +215,39 @@ export default function ShareToLinkedInDialog({
                 disabled={!orgConfigured}
                 className="text-blue-600"
               />
-              <span className="text-sm text-gray-800">Company page</span>
+              <span className="text-sm text-gray-800">Company page (e.g. 3 Pillars)</span>
             </label>
             {!orgConfigured ? (
               <p className="text-xs text-gray-500 pl-6">
-                Server has no LinkedIn organization ID. Configure <code className="bg-gray-100 px-1 rounded">default_organization_id</code> in Admin.
+                Set <code className="bg-gray-100 px-1 rounded">default_organization_id</code> in Django
+                Admin → LinkedIn Global Settings (numeric ID from your Company Page URL, not the URN).
               </p>
+            ) : !orgPostingReady ? (
+              <p className="text-xs text-amber-800 pl-6">
+                Organization ID {organizationId ? `“${organizationId}”` : ''} is saved but this token may
+                lack <code className="bg-gray-100 px-1 rounded">w_organization_social</code>. Use Connect
+                LinkedIn again after enabling that permission in your LinkedIn app.
+              </p>
+            ) : organizationId ? (
+              <p className="text-xs text-gray-500 pl-6">Organization ID: {organizationId}</p>
             ) : null}
           </fieldset>
 
           <div>
             <label htmlFor="linkedin-post-text" className="block text-sm font-medium text-gray-700 mb-1">
-              Post text
+              Post text (full article draft — edit before posting)
             </label>
             <textarea
               id="linkedin-post-text"
               value={text}
               onChange={(e) => setText(e.target.value)}
-              rows={8}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              rows={16}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono leading-relaxed focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
-            <p className="mt-1 text-xs text-gray-500">
-              Maximum 3,000 characters on LinkedIn. Posts are sent as text; if you include the article link, the preview
-              image and headline come from your public article page (refresh with LinkedIn Post Inspector after edits).
+            <p className={`mt-1 text-xs ${overLimit ? 'text-amber-700 font-medium' : 'text-gray-500'}`}>
+              {charCount.toLocaleString()} / {LINKEDIN_POST_MAX_CHARS.toLocaleString()} characters
+              {overLimit ? ' — will be trimmed when you post' : ''}. Include the article URL at the end for
+              the LinkedIn link card; the image above comes from your public page Open Graph tags.
             </p>
           </div>
         </div>

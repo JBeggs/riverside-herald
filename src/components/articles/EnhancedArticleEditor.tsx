@@ -71,7 +71,11 @@ const ChevronRight = ({ className }: { className: string }) => (
 )
 import { newsApi, apiClient } from '@/lib/api'
 import ShareToLinkedInDialog from '@/components/social/ShareToLinkedInDialog'
-import { buildArticlePublicUrl, buildLinkedInPostText } from '@/lib/linkedin-share'
+import {
+  buildArticlePublicUrl,
+  buildLinkedInPostText,
+  resolveLinkedInShareImageUrl,
+} from '@/lib/linkedin-share'
 import {
   cmsEditorBar,
   cmsEditorFooter,
@@ -2410,10 +2414,18 @@ export default function EnhancedArticleEditor({
         onClose={() => setLinkedinDialogOpen(false)}
         initialText={buildLinkedInPostText({
           title: (editData.seo_title || editData.title || '').trim(),
-          excerpt: editData.excerpt || editData.subtitle,
+          subtitle: editData.subtitle,
+          excerpt: editData.excerpt,
+          contentHtml: editData.content,
           url: buildArticlePublicUrl(slugForShare) || undefined,
         })}
         canonicalUrl={buildArticlePublicUrl(slugForShare)}
+        shareImageUrl={resolveLinkedInShareImageUrl({
+          featured_media: editData.featured_image_url
+            ? { file_url: editData.featured_image_url }
+            : article.featured_media,
+          featured_image_url: editData.featured_image_url || article.featured_image_url,
+        })}
       />
     </div>
   )
