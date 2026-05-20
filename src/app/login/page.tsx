@@ -39,8 +39,8 @@ export default function LoginPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-gray-600">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-bg font-body">
+        <div className="animate-pulse text-text-muted">Loading...</div>
       </div>
     )
   }
@@ -50,17 +50,18 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
+    <div className="min-h-screen bg-bg flex items-center justify-center py-12 px-4 font-body">
       <div className="max-w-md w-full">
-        <div className="bg-white rounded-xl shadow-lg p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-            <p className="text-gray-600">Sign in to access your profile and dashboard</p>
-          </div>
-          <LoginForm 
-            onSuccess={() => router.push('/profile')}
-          />
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-playfair font-semibold text-text mb-2">Welcome Back</h1>
+          <p className="text-text-muted text-sm">Sign in to access your profile and dashboard</p>
         </div>
+        <LoginForm onSuccess={() => router.push('/profile')} />
+        <p className="mt-6 text-center text-sm text-text-muted">
+          <a href="/register" className="text-primary font-medium hover:opacity-90">
+            Create an account
+          </a>
+        </p>
       </div>
     </div>
   )

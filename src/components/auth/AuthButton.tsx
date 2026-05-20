@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { LogIn, LogOut, User, ChevronDown, Building2, FileText, Images } from 'lucide-react'
 import AuthModal from './AuthModal'
@@ -12,15 +12,18 @@ const ADMIN_ROLES = new Set(['admin', 'editor'])
 
 export default function AuthButton({ onAction }: { onAction?: () => void }) {
   const { user, profile, signOut, loading } = useAuth()
+  const router = useRouter()
   const [showAuthModal, setShowAuthModal] = useState(false)
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
   const [showUserMenu, setShowUserMenu] = useState(false)
 
-  const handleAuthClick = (mode: 'login' | 'signup') => {
-    console.log('Auth button clicked:', mode);
-    setAuthMode(mode)
+  const handleLoginClick = () => {
     setShowAuthModal(true)
-    if (onAction) onAction()
+    onAction?.()
+  }
+
+  const handleRegisterClick = () => {
+    router.push('/register')
+    onAction?.()
   }
 
   const handleSignOut = async () => {
@@ -186,16 +189,18 @@ export default function AuthButton({ onAction }: { onAction?: () => void }) {
       {/* Auth Buttons for non-authenticated users */}
       <div className="flex items-center space-x-3">
         <button
-          onClick={() => handleAuthClick('login')}
-          className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
+          type="button"
+          onClick={handleLoginClick}
+          className="flex items-center px-4 py-2 text-sm font-medium text-text hover:text-primary transition-colors"
         >
           <LogIn className="w-4 h-4 mr-2" />
           Sign In
         </button>
-        
+
         <button
-          onClick={() => handleAuthClick('signup')}
-          className="flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
+          type="button"
+          onClick={handleRegisterClick}
+          className="btn btn-primary flex items-center px-4 py-2 text-sm font-medium rounded-lg"
         >
           <User className="w-4 h-4 mr-2" />
           Sign Up
@@ -203,11 +208,7 @@ export default function AuthButton({ onAction }: { onAction?: () => void }) {
       </div>
 
       {/* Auth Modal */}
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        defaultMode={authMode}
-      />
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} defaultMode="login" />
     </>
   )
 }

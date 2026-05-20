@@ -1,10 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import Link from 'next/link'
 import { FileText } from 'lucide-react'
-import AuthModal from '@/components/auth/AuthModal'
 
-// Custom icons for missing lucide-react exports
 const ArrowRight = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -12,31 +10,8 @@ const ArrowRight = ({ className }: { className?: string }) => (
 )
 
 export function RegistrationButtons() {
-  const [showAuthModal, setShowAuthModal] = useState(false)
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('signup')
-  const [userType, setUserType] = useState<'author' | 'business_owner' | 'user'>('user')
-
-  const handleSignUpAsUser = () => {
-    setUserType('user')
-    setAuthMode('signup')
-    setShowAuthModal(true)
-  }
-
-  const handleSignUpAsAuthor = () => {
-    setUserType('author')
-    setAuthMode('signup')
-    setShowAuthModal(true)
-  }
-
-  const handleRegisterBusiness = () => {
-    setUserType('business_owner')
-    setAuthMode('signup')
-    setShowAuthModal(true)
-  }
-
   return (
     <>
-      {/* Regular User Registration */}
       <div className="card-elevated p-8 border-2 border-green-100 hover:border-green-300 transition-colors">
         <div className="flex items-center mb-6">
           <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
@@ -46,7 +21,7 @@ export function RegistrationButtons() {
           </div>
           <h3 className="heading-md text-gray-900">Regular User Account</h3>
         </div>
-        
+
         <p className="body-lg text-gray-700 mb-6">
           Perfect for readers who want to stay informed, engage with content, and be part of the community.
         </p>
@@ -92,22 +67,17 @@ export function RegistrationButtons() {
 
         <div className="bg-green-50 rounded-lg p-4 mb-6">
           <p className="text-sm text-gray-700">
-            <strong>How it works:</strong> Simply sign up with your email, password, and full name. 
-            Leave the company name field blank, and you'll be automatically connected to The Riverside Herald platform.
+            <strong>How it works:</strong> Sign up with your email, password, name, and cellphone. Choose Author unless you
+            are registering a business.
           </p>
         </div>
 
-        <button 
-          onClick={handleSignUpAsUser}
-          className="btn btn-primary w-full"
-          data-cy="signup-user-button"
-        >
+        <Link href="/register?type=user" className="btn btn-primary w-full inline-flex items-center justify-center" data-cy="signup-user-button">
           Sign Up as User
           <ArrowRight className="w-4 h-4 ml-2" />
-        </button>
+        </Link>
       </div>
 
-      {/* Author Registration */}
       <div className="card-elevated p-8 border-2 border-purple-100 hover:border-purple-300 transition-colors">
         <div className="flex items-center mb-6">
           <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
@@ -115,7 +85,7 @@ export function RegistrationButtons() {
           </div>
           <h3 className="heading-md text-gray-900">Author Account</h3>
         </div>
-        
+
         <p className="body-lg text-gray-700 mb-6">
           Perfect for content creators who want to write articles, share stories, and contribute to the platform.
         </p>
@@ -161,21 +131,17 @@ export function RegistrationButtons() {
 
         <div className="bg-purple-50 rounded-lg p-4 mb-6">
           <p className="text-sm text-gray-700">
-            <strong>How it works:</strong> Sign up with your email, password, and full name. 
-            Select "Author" as your account type. You'll be connected to Riverside Herald and can start creating content immediately.
+            <strong>How it works:</strong> Open the registration page, choose <strong>Author</strong>, and complete the form
+            (including cellphone).
           </p>
         </div>
 
-        <button 
-          onClick={handleSignUpAsAuthor}
-          className="btn btn-primary w-full"
-        >
+        <Link href="/register?type=author" className="btn btn-primary w-full inline-flex items-center justify-center">
           Sign Up as Author
           <ArrowRight className="w-4 h-4 ml-2" />
-        </button>
+        </Link>
       </div>
 
-      {/* Business Owner Registration */}
       <div className="card-elevated p-8 border-2 border-blue-100 hover:border-blue-300 transition-colors">
         <div className="flex items-center mb-6">
           <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
@@ -185,7 +151,7 @@ export function RegistrationButtons() {
           </div>
           <h3 className="heading-md text-gray-900">Business Owner Account</h3>
         </div>
-        
+
         <p className="body-lg text-gray-700 mb-6">
           Ideal for businesses that want to create a listing, manage content, and connect with local customers.
         </p>
@@ -231,31 +197,16 @@ export function RegistrationButtons() {
 
         <div className="bg-blue-50 rounded-lg p-4 mb-6">
           <p className="text-sm text-gray-700">
-            <strong>How it works:</strong> Sign up with your email, password, full name, and company name. 
-            Your business will be created and you'll be set up as the owner. Your account will be pending approval 
-            until our team reviews and activates it.
+            <strong>How it works:</strong> Register with your email, password, name, company name, and cellphone. Your
+            business will be created and you&apos;ll be set up as the owner.
           </p>
         </div>
 
-        <button 
-          onClick={handleRegisterBusiness}
-          className="btn btn-primary w-full"
-        >
+        <Link href="/register?type=business_owner" className="btn btn-primary w-full inline-flex items-center justify-center">
           Register Your Business
           <ArrowRight className="w-4 h-4 ml-2" />
-        </button>
+        </Link>
       </div>
-
-      {/* Auth Modal - Only render when open */}
-      {showAuthModal && (
-        <AuthModal
-          isOpen={showAuthModal}
-          onClose={() => setShowAuthModal(false)}
-          defaultMode={authMode}
-          defaultUserType={userType}
-        />
-      )}
     </>
   )
 }
-

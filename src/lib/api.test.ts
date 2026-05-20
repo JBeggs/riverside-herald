@@ -87,6 +87,7 @@ describe('authApi', () => {
         password_confirm: 'pass123',
         first_name: 'Test',
         last_name: 'User',
+        phone: '+15551234567',
       });
 
       expect(apiClient.getToken()).toBe('reg-access');

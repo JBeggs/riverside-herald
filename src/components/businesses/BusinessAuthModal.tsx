@@ -18,6 +18,7 @@ export function BusinessAuthModal({ businessId, onClose, onSuccess }: BusinessAu
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [fullName, setFullName] = useState('')
+  const [phone, setPhone] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -67,13 +68,31 @@ export function BusinessAuthModal({ businessId, onClose, onSuccess }: BusinessAu
 
         // For signup, we need company name - but this is a business owner signup
         // We'll use the business name as the company name
-        const business = await newsApi.businesses.get(businessId) as any
-        
+        const business = (await newsApi.businesses.get(businessId)) as { name?: string }
+
+        const trimmedPhone = phone.trim()
+        if (!trimmedPhone) {
+          setError('Please enter your cellphone number')
+          return
+        }
+        const digits = trimmedPhone.replace(/\D/g, '')
+        if (digits.length < 8) {
+          setError('Cellphone must include at least 8 digits')
+          return
+        }
+
+        const nameParts = fullName.trim().split(/\s+/)
+        const firstName = nameParts[0] || ''
+        const lastName = nameParts.slice(1).join(' ') || '—'
+
         const { error: signupError } = await signUp(
           email,
           password,
-          fullName,
-          business?.name || 'Business Owner'
+          firstName,
+          lastName,
+          trimmedPhone,
+          business?.name || 'Business Owner',
+          'business_owner',
         )
 
         if (signupError) {
@@ -126,19 +145,35 @@ export function BusinessAuthModal({ businessId, onClose, onSuccess }: BusinessAu
           )}
 
           {!isLogin && (
-            <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name
-              </label>
-              <input
-                id="fullName"
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required={!isLogin}
-              />
-            </div>
+            <>
+              <div>
+                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
+                  Full Name
+                </label>
+                <input
+                  id="fullName"
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  required={!isLogin}
+                />
+              </div>
+              <div>
+                <label htmlFor="signup-phone" className="block text-sm font-medium text-gray-700 mb-2">
+                  Cellphone
+                </label>
+                <input
+                  id="signup-phone"
+                  type="tel"
+                  autoComplete="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  required={!isLogin}
+                />
+              </div>
+            </>
           )}
 
           {isLogin ? (

@@ -26,7 +26,6 @@ export function MobileNav({ menuItems }: MobileNavProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { user, profile, signOut } = useAuth()
   const [showAuthModal, setShowAuthModal] = useState(false)
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
 
   const role = profile?.role
   const avatarUrl = profile?.avatar_url?.trim() || ''
@@ -35,8 +34,7 @@ export function MobileNav({ menuItems }: MobileNavProps) {
   const showContentTools = Boolean(user && role && CONTENT_ROLES.has(role))
   const showAdminPanel = Boolean(user && role && ADMIN_ROLES.has(role))
 
-  const handleAuthClick = (mode: 'login' | 'signup') => {
-    setAuthMode(mode)
+  const handleLoginClick = () => {
     setShowAuthModal(true)
   }
 
@@ -103,7 +101,7 @@ export function MobileNav({ menuItems }: MobileNavProps) {
                     <button
                       type="button"
                       onClick={() => {
-                        handleAuthClick('login')
+                        handleLoginClick()
                         setIsMenuOpen(false)
                       }}
                       className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-[rgb(var(--color-surface-raised)/0.85)] text-text font-medium hover:bg-[rgb(var(--color-surface-raised))] transition-colors min-h-[48px] border border-border-default"
@@ -111,17 +109,14 @@ export function MobileNav({ menuItems }: MobileNavProps) {
                       <LogIn className="w-5 h-5 shrink-0" />
                       Sign In
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        handleAuthClick('signup')
-                        setIsMenuOpen(false)
-                      }}
+                    <Link
+                      href="/register"
                       className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-primary text-[rgb(var(--color-on-accent))] font-medium hover:opacity-90 transition-opacity min-h-[48px]"
+                      onClick={() => setIsMenuOpen(false)}
                     >
                       <User className="w-5 h-5 shrink-0" />
                       Sign Up
-                    </button>
+                    </Link>
                   </>
                 ) : (
                   <div className="flex flex-col space-y-2">
@@ -210,11 +205,7 @@ export function MobileNav({ menuItems }: MobileNavProps) {
         </div>
       )}
       {/* Auth Modal */}
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        defaultMode={authMode}
-      />
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} defaultMode="login" />
     </>
   )
 }

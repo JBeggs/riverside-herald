@@ -33,9 +33,15 @@ interface AuthContextType {
     password: string,
     firstName: string,
     lastName: string,
+    phone: string,
     companyName?: string,
     userType?: 'author' | 'business_owner',
-  ) => Promise<{ error: string | null; verificationRequired?: boolean; email?: string }>
+  ) => Promise<{
+    error: string | null
+    fieldErrors?: Record<string, string>
+    verificationRequired?: boolean
+    email?: string
+  }>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
 }
@@ -43,6 +49,46 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 const RH_OWNER_STORAGE = 'rh_is_company_owner'
+
+const REGISTRATION_FIELD_LABELS: Record<string, string> = {
+  email: 'Email',
+  username: 'Username',
+  password: 'Password',
+  password_confirm: 'Password confirmation',
+  phone: 'Cellphone',
+  company_name: 'Company name',
+  company_email: 'Company email',
+  company_phone: 'Company phone',
+  first_name: 'First name',
+  last_name: 'Last name',
+  full_name: 'Full name',
+}
+
+function registrationFieldErrorsFromApi(errorDetails: unknown): Record<string, string> {
+  const out: Record<string, string> = {}
+  if (!errorDetails || typeof errorDetails !== 'object' || Array.isArray(errorDetails)) return out
+  for (const [field, messages] of Object.entries(errorDetails as Record<string, unknown>)) {
+    const arr = Array.isArray(messages) ? messages : [messages]
+    const first = arr.find((m) => m != null && String(m).trim() !== '')
+    if (first != null) out[field] = String(first)
+  }
+  return out
+}
+
+function formatRegistrationErrorMessage(errorDetails: unknown): string {
+  if (typeof errorDetails === 'string' && errorDetails.trim()) return errorDetails
+  if (!errorDetails || typeof errorDetails !== 'object' || Array.isArray(errorDetails)) {
+    return 'Registration failed. Please try again.'
+  }
+  const errorMessages = Object.entries(errorDetails as Record<string, unknown>).map(([field, messages]) => {
+    const fieldLabel =
+      REGISTRATION_FIELD_LABELS[field] || field.charAt(0).toUpperCase() + field.slice(1).replace(/_/g, ' ')
+    const messageArray = Array.isArray(messages) ? messages : [messages]
+    const messageText = messageArray.map((m) => String(m)).join(', ')
+    return `${fieldLabel}: ${messageText}`
+  })
+  return errorMessages.length > 0 ? errorMessages.join('. ') : 'Registration failed. Please try again.'
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -181,22 +227,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     password: string,
     firstName: string,
     lastName: string,
+    phone: string,
     companyName?: string,  // Optional - if provided, creates business; otherwise regular user
     userType?: 'author' | 'business_owner'  // User type: author or business_owner
   ) => {
     setLoading(true)
     try {
+      const trimmedPhone = phone.trim()
       const response = await authApi.register({
         email,
         password,
         password_confirm: password,
         first_name: firstName,
         last_name: lastName,
+        phone: trimmedPhone,
         role: userType === 'business_owner' ? undefined : 'author', // Set role for authors
         // Only include company fields if companyName is provided (business registration)
         ...(companyName ? {
           company_name: companyName,
           company_email: email,
+          company_phone: trimmedPhone,
         } : {}),
       })
 
@@ -239,31 +289,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       let errorMessage = 'Registration failed. Please try again.'
       
       // Backend returns {error: {field: ['message']}} structure in details
+      let fieldErrors: Record<string, string> | undefined
       if (error?.details?.error) {
         const errorDetails = error.details.error
         if (typeof errorDetails === 'string') {
           errorMessage = errorDetails
         } else if (typeof errorDetails === 'object' && errorDetails !== null) {
-          // Format field errors in a user-friendly way
-          const fieldLabels: Record<string, string> = {
-            email: 'Email',
-            username: 'Username',
-            password: 'Password',
-            password_confirm: 'Password confirmation',
-            company_name: 'Company name',
-            company_email: 'Company email',
-            first_name: 'First name',
-            last_name: 'Last name',
-            full_name: 'Full name',
-          }
-          
-          const errorMessages = Object.entries(errorDetails).map(([field, messages]: [string, any]) => {
-            const fieldLabel = fieldLabels[field] || field.charAt(0).toUpperCase() + field.slice(1).replace(/_/g, ' ')
-            const messageArray = Array.isArray(messages) ? messages : [messages]
-            const messageText = messageArray.join(', ')
-            return `${fieldLabel}: ${messageText}`
-          })
-          errorMessage = errorMessages.join('. ')
+          fieldErrors = registrationFieldErrorsFromApi(errorDetails)
+          errorMessage = formatRegistrationErrorMessage(errorDetails)
         }
       } else if (error?.details && typeof error.details === 'object') {
         // Try to extract from details object directly
@@ -272,31 +305,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else if (error.details.message) {
           errorMessage = error.details.message
         } else if (Object.keys(error.details).length > 0) {
-          // If there are field errors in details, format them
-          const fieldLabels: Record<string, string> = {
-            email: 'Email',
-            username: 'Username',
-            password: 'Password',
-            company_name: 'Company name',
-          }
-          
-          const errorMessages = Object.entries(error.details)
-            .filter(([key]) => key !== 'error' && key !== 'message' && key !== 'detail')
-            .map(([field, value]: [string, any]) => {
-              const fieldLabel = fieldLabels[field] || field.charAt(0).toUpperCase() + field.slice(1).replace(/_/g, ' ')
-              const messageText = Array.isArray(value) ? value.join(', ') : String(value)
-              return `${fieldLabel}: ${messageText}`
-            })
-          
-          if (errorMessages.length > 0) {
-            errorMessage = errorMessages.join('. ')
+          const raw = Object.fromEntries(
+            Object.entries(error.details).filter(
+              ([key]) => key !== 'error' && key !== 'message' && key !== 'detail',
+            ),
+          )
+          if (Object.keys(raw).length > 0) {
+            fieldErrors = registrationFieldErrorsFromApi(raw)
+            errorMessage = formatRegistrationErrorMessage(raw)
           }
         }
       } else if (error?.message) {
         errorMessage = error.message
       }
       
-      return { error: errorMessage }
+      return { error: errorMessage, ...(fieldErrors && Object.keys(fieldErrors).length ? { fieldErrors } : {}) }
     } finally {
       setLoading(false)
     }

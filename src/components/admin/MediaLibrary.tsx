@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { FileText, Trash2, Search } from 'lucide-react'
 
 const ImageIcon = ({ className }: { className?: string }) => (
@@ -44,9 +44,11 @@ function mapApiMediaToFile(media: any): MediaFile {
   }
 }
 
-export default function MediaLibrary({ profile: _profile }: MediaLibraryProps) {
+export default function MediaLibrary({ profile }: MediaLibraryProps) {
   const { showError, showSuccess } = useToast()
   const { confirm } = useConfirm()
+  const isBusinessOwner = profile?.role === 'business_owner'
+  const [ownerTab, setOwnerTab] = useState<'shared' | 'private'>('shared')
   const [files, setFiles] = useState<MediaFile[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
@@ -54,10 +56,14 @@ export default function MediaLibrary({ profile: _profile }: MediaLibraryProps) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const loadMedia = async () => {
+  const loadMedia = useCallback(async () => {
     setLoading(true)
     try {
-      const response: any = await newsApi.media.list({ media_type: 'image' })
+      const params: { media_type: string; is_public?: boolean } = { media_type: 'image' }
+      if (isBusinessOwner) {
+        params.is_public = ownerTab === 'shared'
+      }
+      const response: any = await newsApi.media.list(params)
       const list = Array.isArray(response) ? response : (response?.results || [])
       setFiles(list.map(mapApiMediaToFile))
     } catch (error: any) {
@@ -67,15 +73,18 @@ export default function MediaLibrary({ profile: _profile }: MediaLibraryProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [isBusinessOwner, ownerTab, showError])
 
   useEffect(() => {
     loadMedia()
-  }, [])
+  }, [loadMedia])
+
+  const allowUpload = !isBusinessOwner || ownerTab === 'private'
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = event.target.files
     if (!selectedFiles || selectedFiles.length === 0) return
+    if (isBusinessOwner && ownerTab === 'shared') return
 
     setUploading(true)
     let successCount = 0
@@ -95,10 +104,14 @@ export default function MediaLibrary({ profile: _profile }: MediaLibraryProps) {
           continue
         }
         try {
-          const mediaData = await newsApi.media.upload(file, {
+          const payload: Record<string, string> = {
             media_type: 'image',
             alt_text: file.name,
-          }) as any
+          }
+          if (isBusinessOwner && ownerTab === 'private') {
+            payload.is_public = 'false'
+          }
+          const mediaData = await newsApi.media.upload(file, payload) as any
           setFiles(prev => [mapApiMediaToFile(mediaData), ...prev])
           successCount++
         } catch (err: any) {
@@ -125,6 +138,7 @@ export default function MediaLibrary({ profile: _profile }: MediaLibraryProps) {
   }
 
   const handleDelete = async (fileId: string) => {
+    if (isBusinessOwner) return
     const ok = await confirm({
       message: 'Are you sure you want to delete this file? It may be in use by articles or businesses.',
       confirmLabel: 'Delete',
@@ -162,52 +176,123 @@ export default function MediaLibrary({ profile: _profile }: MediaLibraryProps) {
     file.name.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
+  const emptyTitle = (() => {
+    if (searchQuery) return 'No files found'
+    if (isBusinessOwner && ownerTab === 'shared') return 'No shared images yet'
+    if (isBusinessOwner && ownerTab === 'private') return 'No private images yet'
+    return 'No files uploaded yet'
+  })()
+
+  const emptySubtitle = (() => {
+    if (searchQuery) return 'Try adjusting your search terms'
+    if (isBusinessOwner && ownerTab === 'shared') {
+      return 'Shared images are managed by the news team. You can still use them when editing content. Switch to “My private images” to upload your own.'
+    }
+    if (isBusinessOwner && ownerTab === 'private') {
+      return 'Upload images below. Only you can see them in this folder; they will appear when you pick from the media library.'
+    }
+    return 'Upload your first image above to get started'
+  })()
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Media Library</h1>
-          <p className="text-gray-600 mt-1">Upload and manage images for articles and businesses</p>
+          <p className="text-gray-600 mt-1">
+            {isBusinessOwner
+              ? 'Browse shared images or upload private images only you can use.'
+              : 'Upload and manage images for articles and businesses'}
+          </p>
         </div>
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          disabled={uploading}
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
-        >
-          {uploading ? (
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-          ) : (
-            <Plus className="w-5 h-5" />
-          )}
-          <span>{uploading ? 'Uploading...' : 'Upload Files'}</span>
-        </button>
+        {allowUpload ? (
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+          >
+            {uploading ? (
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+            ) : (
+              <Plus className="w-5 h-5" />
+            )}
+            <span>{uploading ? 'Uploading...' : 'Upload Files'}</span>
+          </button>
+        ) : null}
       </div>
 
+      {isBusinessOwner ? (
+        <div className="flex flex-wrap gap-2 border-b border-gray-200 pb-1">
+          <button
+            type="button"
+            onClick={() => setOwnerTab('shared')}
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg border-b-2 transition-colors ${
+              ownerTab === 'shared'
+                ? 'border-blue-600 text-blue-700 bg-white'
+                : 'border-transparent text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            Shared library
+          </button>
+          <button
+            type="button"
+            onClick={() => setOwnerTab('private')}
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg border-b-2 transition-colors ${
+              ownerTab === 'private'
+                ? 'border-blue-600 text-blue-700 bg-white'
+                : 'border-transparent text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            My private images
+          </button>
+        </div>
+      ) : null}
+
       {/* Upload Area */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-        <div
-          className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors cursor-pointer"
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <Plus className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Upload Images</h3>
-          <p className="text-gray-600 mb-4">
-            Click to browse or drag and drop. Images are saved to the library and can be used in articles and business profiles.
-          </p>
-          <p className="text-sm text-gray-500">
-            Supported: JPG, PNG, GIF, WebP (max 10MB each)
+      {allowUpload ? (
+        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+          <div
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click()
+            }}
+            className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors cursor-pointer"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <Plus className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              {isBusinessOwner && ownerTab === 'private' ? 'Upload private images' : 'Upload Images'}
+            </h3>
+            <p className="text-gray-600 mb-4">
+              {isBusinessOwner && ownerTab === 'private'
+                ? 'These images are visible only to you in this library. They are not shared with everyone by default.'
+                : 'Click to browse or drag and drop. Images are saved to the library and can be used in articles and business profiles.'}
+            </p>
+            <p className="text-sm text-gray-500">
+              Supported: JPG, PNG, GIF, WebP (max 10MB each)
+            </p>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            onChange={handleFileUpload}
+            className="hidden"
+            accept="image/*"
+          />
+        </div>
+      ) : (
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-gray-700 text-sm">
+          <p className="font-medium text-gray-900 mb-1">Shared library is read-only</p>
+          <p>
+            You can view and open shared images to use in your content. New shared assets are added by the editorial team.
+            Switch to <strong>My private images</strong> to upload your own files.
           </p>
         </div>
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          onChange={handleFileUpload}
-          className="hidden"
-          accept="image/*"
-        />
-      </div>
+      )}
 
       {/* Search and Controls */}
       <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
@@ -224,6 +309,7 @@ export default function MediaLibrary({ profile: _profile }: MediaLibraryProps) {
           </div>
           <div className="flex items-center space-x-2">
             <button
+              type="button"
               onClick={() => setViewMode('grid')}
               className={`px-3 py-2 text-sm rounded-lg transition-colors ${
                 viewMode === 'grid'
@@ -234,6 +320,7 @@ export default function MediaLibrary({ profile: _profile }: MediaLibraryProps) {
               Grid
             </button>
             <button
+              type="button"
               onClick={() => setViewMode('list')}
               className={`px-3 py-2 text-sm rounded-lg transition-colors ${
                 viewMode === 'list'
@@ -258,10 +345,10 @@ export default function MediaLibrary({ profile: _profile }: MediaLibraryProps) {
           <div className="text-center py-12">
             <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {searchQuery ? 'No files found' : 'No files uploaded yet'}
+              {emptyTitle}
             </h3>
             <p className="text-gray-600">
-              {searchQuery ? 'Try adjusting your search terms' : 'Upload your first image above to get started'}
+              {emptySubtitle}
             </p>
           </div>
         ) : viewMode === 'grid' ? (
@@ -303,13 +390,16 @@ export default function MediaLibrary({ profile: _profile }: MediaLibraryProps) {
                     >
                       View
                     </a>
-                    <button
-                      onClick={() => handleDelete(file.id)}
-                      className="p-1 bg-white border border-gray-200 rounded shadow-sm hover:bg-red-50 hover:border-red-200"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-3 h-3 text-red-600" />
-                    </button>
+                    {!isBusinessOwner ? (
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(file.id)}
+                        className="p-1 bg-white border border-gray-200 rounded shadow-sm hover:bg-red-50 hover:border-red-200"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-3 h-3 text-red-600" />
+                      </button>
+                    ) : null}
                   </div>
                 </div>
               </div>
@@ -340,13 +430,16 @@ export default function MediaLibrary({ profile: _profile }: MediaLibraryProps) {
                   >
                     View
                   </a>
-                  <button
-                    onClick={() => handleDelete(file.id)}
-                    className="p-2 text-gray-400 hover:text-red-600"
-                    title="Delete"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  {!isBusinessOwner ? (
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(file.id)}
+                      className="p-2 text-gray-400 hover:text-red-600"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  ) : null}
                 </div>
               </div>
             ))}
@@ -357,11 +450,19 @@ export default function MediaLibrary({ profile: _profile }: MediaLibraryProps) {
       {/* Tips */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <h3 className="font-medium text-blue-900 mb-2">Media Library Tips</h3>
-        <ul className="text-sm text-blue-800 space-y-1">
-          <li>• Upload images here to use them in articles and business profiles</li>
-          <li>• Use the &quot;Browse Media Library&quot; option when editing articles or businesses to select existing images</li>
-          <li>• Optimize images for web to reduce file sizes and improve load times</li>
-        </ul>
+        {isBusinessOwner ? (
+          <ul className="text-sm text-blue-800 space-y-1">
+            <li>• You cannot delete shared media; contact the news team if something must be removed.</li>
+            <li>• Use “My private images” for personal uploads that only you will see in the library list.</li>
+            <li>• Use “Browse Media Library” in editors to pick both shared and your private images.</li>
+          </ul>
+        ) : (
+          <ul className="text-sm text-blue-800 space-y-1">
+            <li>• Upload images here to use them in articles and business profiles</li>
+            <li>• Use the &quot;Browse Media Library&quot; option when editing articles or businesses to select existing images</li>
+            <li>• Optimize images for web to reduce file sizes and improve load times</li>
+          </ul>
+        )}
       </div>
     </div>
   )

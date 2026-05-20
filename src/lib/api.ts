@@ -666,11 +666,14 @@ export const authApi = {
     password: string
     company_name?: string  // Optional - if provided, creates business; otherwise connects to Riverside Herald
     company_email?: string
+    company_phone?: string
     first_name?: string    // Preferred - first name
     last_name?: string     // Preferred - last name  
     full_name?: string     // Fallback - will be split into first/last if first_name and last_name not provided
     password_confirm?: string
     role?: string  // Optional role for user registration (e.g., 'author')
+    /** Required for default user/author registration (UserRegistrationSerializer) */
+    phone?: string
   }) {
     // Build request data
     const requestData: any = {
@@ -688,6 +691,10 @@ export const authApi = {
       requestData.username = `${emailPrefix}${timestamp}`
       requestData.company_name = data.company_name
       requestData.company_email = data.company_email || data.email
+      const bizPhone = (data.company_phone || data.phone || '').trim()
+      if (bizPhone) {
+        requestData.company_phone = bizPhone
+      }
       
       // Use provided first_name and last_name, or split full_name if provided
       if (data.first_name && data.last_name) {
@@ -717,6 +724,10 @@ export const authApi = {
       // Add role if provided (for author registration)
       if (data.role) {
         requestData.role = data.role
+      }
+      const userPhone = (data.phone || '').trim()
+      if (userPhone) {
+        requestData.phone = userPhone
       }
     }
     
@@ -1026,6 +1037,23 @@ export const newsApi = {
     get: (id: string) => apiClient.get(`/news/notifications/${id}/`),
     markRead: (id: string) => apiClient.patch(`/news/notifications/${id}/`, { is_read: true }),
   },
+}
+
+/** LinkedIn sharing (Django linkedin_connector) — JWT + X-Company-Id */
+export const linkedinApi = {
+  status: () =>
+    apiClient.get<{
+      connected: boolean
+      expires_at: string | null
+      scopes: string | null
+      organization_configured: boolean
+      organization_id: string | null
+      token_company_id: string | null
+    }>('/linkedin/status/'),
+  authUrl: () =>
+    apiClient.get<{ auth_url: string; redirect_uri?: string; state?: string }>('/linkedin/auth-url/'),
+  share: (data: { text: string; target: 'profile' | 'page'; url?: string }) =>
+    apiClient.post<{ id: string; target: string }>('/linkedin/share/', data),
 }
 
 export default apiClient

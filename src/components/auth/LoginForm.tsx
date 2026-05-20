@@ -7,13 +7,17 @@ import { authApi } from '@/lib/api'
 import { useToast } from '@/contexts/ToastContext'
 import { Eye, EyeOff, User, Lock, LogIn } from 'lucide-react'
 
+const loginInputClass =
+  'block w-full pl-10 pr-3 py-3 border rounded-lg transition-colors bg-[rgb(var(--color-surface))] text-text border-border-default placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-ring))]'
+const loginPasswordClass =
+  'block w-full pl-10 pr-12 py-3 border rounded-lg transition-colors bg-[rgb(var(--color-surface))] text-text border-border-default placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-ring))]'
+
 interface LoginFormProps {
   onSuccess?: () => void
-  onSwitchToSignup?: () => void
   className?: string
 }
 
-export default function LoginForm({ onSuccess, onSwitchToSignup, className = '' }: LoginFormProps) {
+export default function LoginForm({ onSuccess, className = '' }: LoginFormProps) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -98,20 +102,20 @@ export default function LoginForm({ onSuccess, onSwitchToSignup, className = '' 
 
   return (
     <div className={`w-full max-w-md mx-auto ${className}`}>
-      <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+      <div className="bg-surface rounded-2xl shadow-card border border-border-default p-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <LogIn className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+            <LogIn className="w-8 h-8 text-[rgb(var(--color-on-accent))]" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h2>
-          <p className="text-gray-600">Sign in to your account to continue</p>
+          <h2 className="text-2xl font-playfair font-semibold text-text mb-2">Welcome Back</h2>
+          <p className="text-text-muted">Sign in to your account to continue</p>
         </div>
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-700 text-sm">{error}</p>
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 rounded-lg">
+            <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
           </div>
         )}
 
@@ -119,12 +123,12 @@ export default function LoginForm({ onSuccess, onSwitchToSignup, className = '' 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Username Field */}
           <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="username" className="block text-sm font-medium text-text mb-2">
               Username
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <User className="h-5 w-5 text-gray-400" />
+                <User className="h-5 w-5 text-text-muted" />
               </div>
               <input
                 id="username"
@@ -132,23 +136,23 @@ export default function LoginForm({ onSuccess, onSwitchToSignup, className = '' 
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 data-cy="login-username"
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className={loginInputClass}
                 placeholder="Enter your username"
                 required
                 autoComplete="username"
               />
             </div>
-            <p className="mt-1 text-xs text-gray-500">Use your username to sign in</p>
+            <p className="mt-1 text-xs text-text-muted">Use your username to sign in</p>
           </div>
 
           {/* Password Field */}
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-text mb-2">
               Password
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-gray-400" />
+                <Lock className="h-5 w-5 text-text-muted" />
               </div>
               <input
                 id="password"
@@ -156,19 +160,19 @@ export default function LoginForm({ onSuccess, onSwitchToSignup, className = '' 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 data-cy="login-password"
-                className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className={loginPasswordClass}
                 placeholder="Enter your password"
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-text-muted hover:text-text"
               >
                 {showPassword ? (
-                  <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  <EyeOff className="h-5 w-5" />
                 ) : (
-                  <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  <Eye className="h-5 w-5" />
                 )}
               </button>
             </div>
@@ -179,11 +183,11 @@ export default function LoginForm({ onSuccess, onSwitchToSignup, className = '' 
             type="submit"
             disabled={isLoading}
             data-cy="login-submit"
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            className="btn btn-primary w-full flex justify-center py-3 items-center disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <div className="flex items-center">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[rgb(var(--color-on-accent))] mr-2"></div>
                 Signing In...
               </div>
             ) : (
@@ -193,12 +197,12 @@ export default function LoginForm({ onSuccess, onSwitchToSignup, className = '' 
         </form>
 
         {needsVerifyHint ? (
-          <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm space-y-3">
-            <p className="text-gray-800 font-medium">Email verification is required before sign-in.</p>
+          <div className="mt-6 p-4 bg-[rgb(var(--color-surface-raised))] border border-border-default rounded-lg text-sm space-y-3">
+            <p className="text-text font-medium">Email verification is required before sign-in.</p>
             <div className="flex flex-wrap gap-2">
               <Link
                 href={`/auth/verify-email?email=${encodeURIComponent(username.trim())}`}
-                className="inline-flex justify-center py-2 px-3 rounded-lg border border-gray-300 text-gray-800 text-sm font-medium hover:bg-gray-50"
+                className="inline-flex justify-center py-2 px-3 rounded-lg border border-border-default text-text text-sm font-medium hover:bg-[rgb(var(--color-surface-raised)/0.65)]"
               >
                 Verification help
               </Link>
@@ -218,7 +222,7 @@ export default function LoginForm({ onSuccess, onSwitchToSignup, className = '' 
                     setResendBusy(false)
                   }
                 }}
-                className="py-2 px-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium disabled:opacity-50"
+                className="py-2 px-3 rounded-lg btn btn-primary text-sm font-medium disabled:opacity-50"
               >
                 {resendBusy ? 'Sending…' : 'Resend email'}
               </button>
@@ -227,13 +231,13 @@ export default function LoginForm({ onSuccess, onSwitchToSignup, className = '' 
         ) : null}
 
         {needsPhoneVerifyHint ? (
-          <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm space-y-3">
-            <p className="text-gray-800 font-medium">
+          <div className="mt-6 p-4 bg-[rgb(var(--color-surface-raised))] border border-border-default rounded-lg text-sm space-y-3">
+            <p className="text-text font-medium">
               Phone verification is required. Complete verification from your profile, then sign in again.
             </p>
             <Link
               href="/profile"
-              className="inline-flex justify-center py-2 px-3 rounded-lg border border-gray-300 text-gray-800 text-sm font-medium hover:bg-gray-50"
+              className="inline-flex justify-center py-2 px-3 rounded-lg border border-border-default text-text text-sm font-medium hover:bg-[rgb(var(--color-surface-raised)/0.65)]"
             >
               Go to profile
             </Link>
@@ -242,14 +246,11 @@ export default function LoginForm({ onSuccess, onSwitchToSignup, className = '' 
 
         {/* Footer */}
         <div className="mt-8 text-center">
-          <p className="text-sm text-gray-600">
-            Don't have an account?{' '}
-            <button
-              onClick={onSwitchToSignup}
-              className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
-            >
+          <p className="text-sm text-text-muted">
+            Don&apos;t have an account?{' '}
+            <Link href="/register" className="font-medium text-primary hover:opacity-90 transition-opacity">
               Sign up here
-            </button>
+            </Link>
           </p>
         </div>
       </div>

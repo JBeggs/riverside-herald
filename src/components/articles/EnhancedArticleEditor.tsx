@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
 import {
-  Edit3, Save, X, Loader2, Calendar, Search
+  Edit3, Save, X, Loader2, Calendar, Search, Linkedin,
 } from 'lucide-react'
 
 // Custom icons not available in lucide-react
@@ -69,6 +69,8 @@ const ChevronRight = ({ className }: { className: string }) => (
   </svg>
 )
 import { newsApi, apiClient } from '@/lib/api'
+import ShareToLinkedInDialog from '@/components/social/ShareToLinkedInDialog'
+import { buildArticlePublicUrl, buildLinkedInPostText } from '@/lib/linkedin-share'
 import {
   toLocalDateTimeInput,
   nowLocalDateTimeInput,
@@ -168,8 +170,11 @@ export default function EnhancedArticleEditor({
   const [isSyncingCursorGallery, setIsSyncingCursorGallery] = useState(false)
   const prevHeroJobRef = useRef(false)
   const prevGalleryJobRef = useRef(false)
+  const [linkedinDialogOpen, setLinkedinDialogOpen] = useState(false)
+  const [linkedinDialogKey, setLinkedinDialogKey] = useState(0)
   
   const canManageArticleResearch = Boolean(profile?.role === 'admin' || isCompanyOwner)
+  const canPostToLinkedIn = Boolean(profile?.role === 'admin' || profile?.role === 'editor')
   // Data states
   const [categories, setCategories] = useState<Category[]>([])
   const [availableTags, setAvailableTags] = useState<Tag[]>([])
@@ -484,6 +489,9 @@ export default function EnhancedArticleEditor({
       .replace(/[\s_-]+/g, '-') // Replace spaces and underscores with hyphens
       .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
   }
+
+  /** Public URL slug: saved value or derived from current title (for preview text before next save). */
+  const slugForShare = (article.slug || generateSlug(editData.title || '')).trim()
 
   // Validation helper function
   const validateArticle = () => {
@@ -2147,6 +2155,34 @@ export default function EnhancedArticleEditor({
                 {editData.is_featured && <p className="text-indigo-600">⭐ Homepage hero (featured)</p>}
               </div>
             </div>
+
+            {canPostToLinkedIn && article.id !== 'new' ? (
+              <div className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
+                <h3 className="font-medium text-gray-900 mb-2 flex items-center gap-2">
+                  <Linkedin className="w-4 h-4 text-[#0A66C2]" aria-hidden />
+                  LinkedIn
+                </h3>
+                <p className="text-sm text-gray-600 mb-3">
+                  Post a text update to your personal profile or your LinkedIn Company Page. Requires one-time
+                  connection and (for pages) organization ID in Django Admin.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLinkedinDialogKey((k) => k + 1)
+                    setLinkedinDialogOpen(true)
+                  }}
+                  disabled={!slugForShare}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#0A66C2] text-white text-sm font-medium rounded-lg hover:bg-[#095195] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Linkedin className="w-4 h-4" aria-hidden />
+                  Post to LinkedIn
+                </button>
+                {!slugForShare ? (
+                  <p className="text-xs text-amber-700 mt-2">Add a title (and save) so we can build the article URL.</p>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         )
 
@@ -2288,6 +2324,18 @@ export default function EnhancedArticleEditor({
           )}
         </button>
       </div>
+
+      <ShareToLinkedInDialog
+        key={linkedinDialogKey}
+        isOpen={linkedinDialogOpen}
+        onClose={() => setLinkedinDialogOpen(false)}
+        initialText={buildLinkedInPostText({
+          title: editData.title,
+          excerpt: editData.excerpt || editData.subtitle,
+          url: buildArticlePublicUrl(slugForShare) || undefined,
+        })}
+        canonicalUrl={buildArticlePublicUrl(slugForShare)}
+      />
     </div>
   )
 }
