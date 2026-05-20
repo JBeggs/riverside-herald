@@ -509,8 +509,9 @@ export default function EnhancedArticleEditor({
       .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
   }
 
-  /** Public URL slug: saved value or derived from current title (for preview text before next save). */
-  const slugForShare = (article.slug || generateSlug(editData.title || '')).trim()
+  /** Public URL slug follows the current title; saved slug used only until title slugifies to non-empty. */
+  const slugForShare =
+    generateSlug(editData.title || '').trim() || String(article.slug || '').trim()
 
   // Validation helper function
   const validateArticle = () => {
@@ -797,10 +798,8 @@ export default function EnhancedArticleEditor({
       // Note: Company ID is not required - backend attaches the tenant news company automatically.
       // for business owners and other users creating articles
 
-      // Generate slug if creating new article
-      const slug = article.id === 'new' 
-        ? generateSlug(editData.title || 'untitled-article')
-        : article.slug || generateSlug(editData.title || 'untitled-article')
+      // Slug always follows current title so public/edit URLs stay aligned (matches user expectation).
+      const slug = generateSlug(editData.title || 'untitled-article')
 
       // Prepare update data - use empty strings instead of null for blank fields
       const updateData: any = {
@@ -910,7 +909,7 @@ export default function EnhancedArticleEditor({
         }
         // If onSave callback provided, use it
         if (onSave) {
-          onSave()
+          onSave(updated)
         }
         // NO RELOAD - stay on same page
       }

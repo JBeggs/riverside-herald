@@ -77,7 +77,19 @@ export default function ArticleEditPage() {
       <div className="flex-1 min-h-0 flex flex-col">
         <EnhancedArticleEditor
           article={article}
-          onSave={() => router.push('/admin/articles')}
+          onSave={(saved) => {
+            if (
+              saved &&
+              typeof saved === 'object' &&
+              saved.slug &&
+              typeof saved.slug === 'string' &&
+              saved.slug !== slug
+            ) {
+              router.replace(`/admin/articles/${encodeURIComponent(saved.slug)}`)
+              return
+            }
+            router.push('/admin/articles')
+          }}
           onCancel={() => router.push('/admin/articles')}
           inModal={true}
           chrome="dashboard"
