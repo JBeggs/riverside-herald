@@ -17,7 +17,8 @@ export function BusinessAuthModal({ businessId, onClose, onSuccess }: BusinessAu
   const [email, setEmail] = useState('') // For signup
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [fullName, setFullName] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [phone, setPhone] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -73,23 +74,34 @@ export function BusinessAuthModal({ businessId, onClose, onSuccess }: BusinessAu
         const trimmedPhone = phone.trim()
         if (!trimmedPhone) {
           setError('Please enter your cellphone number')
+          setLoading(false)
           return
         }
         const digits = trimmedPhone.replace(/\D/g, '')
         if (digits.length < 8) {
           setError('Cellphone must include at least 8 digits')
+          setLoading(false)
           return
         }
 
-        const nameParts = fullName.trim().split(/\s+/)
-        const firstName = nameParts[0] || ''
-        const lastName = nameParts.slice(1).join(' ') || '—'
+        const fn = firstName.trim()
+        const ln = lastName.trim()
+        if (!fn) {
+          setError('Please enter your first name')
+          setLoading(false)
+          return
+        }
+        if (!ln) {
+          setError('Please enter your last name')
+          setLoading(false)
+          return
+        }
 
         const { error: signupError } = await signUp(
           email,
           password,
-          firstName,
-          lastName,
+          fn,
+          ln,
           trimmedPhone,
           business?.name || 'Business Owner',
           'business_owner',
@@ -147,14 +159,29 @@ export function BusinessAuthModal({ businessId, onClose, onSuccess }: BusinessAu
           {!isLogin && (
             <>
               <div>
-                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-                  Full Name
+                <label htmlFor="signup-first-name" className="block text-sm font-medium text-gray-700 mb-2">
+                  First name
                 </label>
                 <input
-                  id="fullName"
+                  id="signup-first-name"
                   type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
+                  autoComplete="given-name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  required={!isLogin}
+                />
+              </div>
+              <div>
+                <label htmlFor="signup-last-name" className="block text-sm font-medium text-gray-700 mb-2">
+                  Last name
+                </label>
+                <input
+                  id="signup-last-name"
+                  type="text"
+                  autoComplete="family-name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   required={!isLogin}
                 />
