@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { X, Loader2, Linkedin, Link2 } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
+import { X, Loader2, Linkedin, Link2, ExternalLink } from 'lucide-react'
 import { linkedinApi, getApiErrorMessage } from '@/lib/api'
 import { useToast } from '@/contexts/ToastContext'
 import {
@@ -50,11 +50,35 @@ export default function ShareToLinkedInDialog({
   const [orgConfigured, setOrgConfigured] = useState(false)
   const [orgPostingReady, setOrgPostingReady] = useState(false)
   const [organizationId, setOrganizationId] = useState<string | null>(null)
+  const [connectUrl, setConnectUrl] = useState<string | null>(null)
+  const [connectUrlLoading, setConnectUrlLoading] = useState(false)
+  const [connectUrlError, setConnectUrlError] = useState<string | null>(null)
 
   const companyPageReady = orgConfigured && orgPostingReady
+  const needsReconnect = connected && mustPostToCompanyPage && orgConfigured && !orgPostingReady
+  const needsConnect = !connected || needsReconnect
 
   const charCount = text.length
   const overLimit = charCount > LINKEDIN_POST_MAX_CHARS
+
+  const loadConnectUrl = useCallback(async () => {
+    setConnectUrlLoading(true)
+    setConnectUrlError(null)
+    try {
+      const res = await linkedinApi.authUrl()
+      if (res.auth_url) {
+        setConnectUrl(res.auth_url)
+      } else {
+        setConnectUrl(null)
+        setConnectUrlError('LinkedIn authorization URL was empty. Check Django LinkedIn settings.')
+      }
+    } catch (e) {
+      setConnectUrl(null)
+      setConnectUrlError(getApiErrorMessage(e, 'Could not load LinkedIn connect URL'))
+    } finally {
+      setConnectUrlLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
     if (!isOpen) return
@@ -87,20 +111,32 @@ export default function ShareToLinkedInDialog({
   }, [isOpen])
 
   useEffect(() => {
+    if (!isOpen) {
+      setConnectUrl(null)
+      setConnectUrlError(null)
+      return
+    }
+    void loadConnectUrl()
+  }, [isOpen, loadConnectUrl])
+
+  useEffect(() => {
     if (!isOpen) return
     setText(initialText)
     setTarget(mustPostToCompanyPage ? 'page' : 'profile')
   }, [isOpen, initialText, mustPostToCompanyPage])
 
-  const openConnect = async () => {
-    try {
-      const res = await linkedinApi.authUrl()
-      if (res.auth_url) {
-        window.open(res.auth_url, '_blank', 'noopener,noreferrer')
-        showSuccess('Complete LinkedIn authorization in the new tab, then try posting again.')
-      }
-    } catch (e) {
-      showError(getApiErrorMessage(e, 'Could not start LinkedIn connection'))
+  const openConnect = () => {
+    if (!connectUrl) {
+      void loadConnectUrl().then(() => {
+        showError(connectUrlError || 'Connect URL not ready yet — try again in a moment.')
+      })
+      return
+    }
+    const popup = window.open(connectUrl, '_blank', 'noopener,noreferrer')
+    if (!popup) {
+      window.location.assign(connectUrl)
+    } else {
+      showSuccess('Complete LinkedIn authorization in the new tab, then return here and post again.')
     }
   }
 
@@ -159,6 +195,8 @@ export default function ShareToLinkedInDialog({
 
   if (!isOpen) return null
 
+  const connectLabel = needsReconnect ? 'Reconnect LinkedIn' : 'Connect LinkedIn'
+
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50"
@@ -208,23 +246,54 @@ export default function ShareToLinkedInDialog({
               <Loader2 className="w-4 h-4 animate-spin" />
               Checking LinkedIn connection…
             </p>
-          ) : !connected ? (
+          ) : needsConnect ? (
             <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-900 space-y-2">
-              <p>LinkedIn is not connected for this site yet.</p>
-              <button
-                type="button"
-                onClick={() => void openConnect()}
-                className="inline-flex items-center gap-1 text-amber-900 underline font-medium"
-              >
-                Connect LinkedIn
-                <Link2 className="w-3.5 h-3.5" aria-hidden />
-              </button>
+              {!connected ? (
+                <p>LinkedIn is not connected for this site yet.</p>
+              ) : (
+                <p>
+                  LinkedIn is connected, but this token cannot post to the Company Page yet. Re-authorize
+                  with <code className="bg-amber-100 px-1 rounded">w_organization_social</code>.
+                </p>
+              )}
+              {connectUrlLoading ? (
+                <p className="text-xs flex items-center gap-2 text-amber-800">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Loading authorization link…
+                </p>
+              ) : connectUrl ? (
+                <a
+                  href={connectUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() =>
+                    showSuccess('Complete LinkedIn authorization in the new tab, then return here and post again.')
+                  }
+                  className="inline-flex items-center gap-1.5 text-amber-900 underline font-medium hover:text-amber-950"
+                >
+                  {connectLabel}
+                  <ExternalLink className="w-3.5 h-3.5" aria-hidden />
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => void loadConnectUrl()}
+                  className="inline-flex items-center gap-1 text-amber-900 underline font-medium"
+                >
+                  {connectLabel}
+                  <Link2 className="w-3.5 h-3.5" aria-hidden />
+                </button>
+              )}
+              {connectUrlError ? (
+                <p className="text-xs text-red-700">{connectUrlError}</p>
+              ) : null}
               <p className="text-xs text-amber-800">
-                After authorizing, return here and post again.
+                After authorizing, return here and post again. If the new tab does not open, use the link
+                above (right-click → Open link).
               </p>
             </div>
           ) : (
-            <p className="text-sm text-green-700">LinkedIn is connected.</p>
+            <p className="text-sm text-green-700">LinkedIn is connected and ready to post.</p>
           )}
 
           <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 space-y-1">
@@ -240,8 +309,26 @@ export default function ShareToLinkedInDialog({
               </p>
             ) : mustPostToCompanyPage && !orgPostingReady ? (
               <p className="text-xs text-amber-800">
-                Page ID {organizationId ? organizationId : '65685613'} is saved but reconnect LinkedIn with{' '}
-                <code className="bg-gray-100 px-1 rounded">w_organization_social</code>.
+                Page ID {organizationId ? organizationId : '65685613'} is saved. Use{' '}
+                {connectUrl ? (
+                  <a
+                    href={connectUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline font-medium text-amber-900"
+                  >
+                    Reconnect LinkedIn
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={openConnect}
+                    className="underline font-medium text-amber-900"
+                  >
+                    Reconnect LinkedIn
+                  </button>
+                )}{' '}
+                so the token includes <code className="bg-gray-100 px-1 rounded">w_organization_social</code>.
               </p>
             ) : mustPostToCompanyPage && organizationId ? (
               <p className="text-xs text-gray-600">Organization ID: {organizationId}</p>

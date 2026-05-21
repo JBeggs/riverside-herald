@@ -234,7 +234,12 @@ export default function EnhancedArticleEditor({
   const [linkedinDialogKey, setLinkedinDialogKey] = useState(0)
   
   const canManageArticleResearch = Boolean(profile?.role === 'admin' || isCompanyOwner)
-  const canPostToLinkedIn = Boolean(profile?.role === 'admin' || profile?.role === 'editor')
+  const canPostToLinkedIn = Boolean(
+    profile?.role === 'admin' ||
+      profile?.role === 'editor' ||
+      profile?.role === 'business_owner' ||
+      isCompanyOwner,
+  )
   const mustPostToLinkedInCompanyPage = Boolean(
     profile?.role === 'admin' ||
       profile?.role === 'business_owner' ||
