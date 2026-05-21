@@ -5,8 +5,8 @@ import { notFound } from 'next/navigation'
 import { BusinessEditButton } from '@/components/businesses/BusinessEditButton'
 import ProductGallery from '@/components/businesses/ProductGallery'
 import BusinessHeroCover from '@/components/businesses/BusinessHeroCover'
-import { getBusinessImageUrl as getBusinessImageUrlUtil, ARTICLE_IMAGE_PLACEHOLDER } from '@/lib/image-utils'
-import { resolveBusinessLogo } from '@/lib/business-media'
+import { getBusinessImageUrl as getBusinessImageUrlUtil, getAbsoluteImageUrl, getMediaCardUrl, ARTICLE_IMAGE_PLACEHOLDER } from '@/lib/image-utils'
+import { mapCoverImageForCard, resolveBusinessLogo, resolveProductCardImage } from '@/lib/business-media'
 import { loadSiteSettingsMap, siteLabelFromMap } from '@/lib/site-settings'
 
 function formatPhone(phone?: string): string {
@@ -117,7 +117,7 @@ async function getBusiness(slug: string) {
     const reviews = reviewsData?.results || reviewsData || []
 
     // Fallback to this business's saved homepage hero banner when cover_image is not set.
-    let homeBannerUrl: string | null = null
+    let homeHeroImage: { file_url?: string; thumbnail_url?: string } | null = null
     try {
       const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api').replace(/\/+$/, '')
       const heroResponse = await fetch(
@@ -133,9 +133,12 @@ async function getBusiness(slug: string) {
       if (heroResponse.ok) {
         const heroData: any = await heroResponse.json()
         const rows = Array.isArray(heroData) ? heroData : (heroData?.results || [])
-        const imageUrl = rows?.[0]?.image?.file_url
-        if (typeof imageUrl === 'string' && imageUrl.length > 0) {
-          homeBannerUrl = imageUrl
+        const image = rows?.[0]?.image
+        if (image?.file_url) {
+          homeHeroImage = {
+            file_url: image.file_url,
+            thumbnail_url: image.thumbnail_url,
+          }
         }
       }
     } catch {
@@ -172,17 +175,11 @@ async function getBusiness(slug: string) {
       owner_id: business.owner,
       owner_name: business.owner_name || '',
       logo: resolveBusinessLogo(business),
-      cover_image: business.cover_image?.file_url
-        ? {
-            file_url: business.cover_image.file_url,
-            alt_text: `${business.name} cover`
-          }
-        : homeBannerUrl
-          ? {
-              file_url: homeBannerUrl,
-              alt_text: `${business.name} cover`
-            }
-          : null,
+      cover_image: mapCoverImageForCard(
+        business.cover_image,
+        `${business.name} cover`,
+        homeHeroImage,
+      ),
       reviews: reviews,
     }
   } catch (error) {
@@ -208,7 +205,9 @@ export async function generateMetadata({ params }: BusinessPageProps): Promise<M
     openGraph: {
       title: business.name,
       description: business.description || '',
-      images: business.cover_image?.file_url ? [business.cover_image.file_url] : [],
+      images: business.cover_image?.file_url
+        ? [getMediaCardUrl(business.cover_image) || business.cover_image.file_url]
+        : [],
     },
   }
 }
@@ -232,7 +231,21 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
   try {
     if (business.slug) {
       const productsData: any = await serverNewsApi.products.getByBusiness(business.slug)
-      products = productsData?.data || []
+      const rawProducts = productsData?.results ?? productsData?.data ?? productsData ?? []
+      const list = Array.isArray(rawProducts) ? rawProducts : []
+      products = list.map((product: any) => {
+        const cardImage = resolveProductCardImage(product)
+        return {
+          id: String(product.id),
+          name: product.name,
+          description: product.description || '',
+          price: parseFloat(product.price) || 0,
+          currency: product.currency || 'USD',
+          imageUrl: getAbsoluteImageUrl(cardImage?.file_url || ''),
+          externalUrl: product.external_url || product.website_url || business.website_url || '',
+          category: product.category_name || product.category?.name || undefined,
+        }
+      }).filter((p) => p.imageUrl)
     }
   } catch (error) {
     console.error('Error fetching products for business:', error)

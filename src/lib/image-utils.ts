@@ -5,6 +5,27 @@
 /** Public-site placeholder when an article has no featured image (River Lodge branding). */
 export const ARTICLE_IMAGE_PLACEHOLDER = '/image-placeholder.png'
 
+/** Insert `-thumb` before the file extension (matches backend thumb_path_for). */
+export function deriveThumbUrlFromFull(url: string): string {
+  const raw = (url || '').trim()
+  if (!raw) return ''
+  const qIdx = raw.indexOf('?')
+  const base = qIdx >= 0 ? raw.slice(0, qIdx) : raw
+  const query = qIdx >= 0 ? raw.slice(qIdx) : ''
+  const slash = base.lastIndexOf('/')
+  const head = slash >= 0 ? base.slice(0, slash + 1) : ''
+  const name = slash >= 0 ? base.slice(slash + 1) : base
+  const dot = name.lastIndexOf('.')
+  if (dot <= 0) {
+    if (name.endsWith('-thumb')) return raw
+    return `${head}${name}-thumb${query}`
+  }
+  const stem = name.slice(0, dot)
+  const ext = name.slice(dot)
+  if (stem.endsWith('-thumb')) return raw
+  return `${head}${stem}-thumb${ext}${query}`
+}
+
 /**
  * Convert relative image URLs to absolute URLs pointing to the backend
  */
@@ -56,12 +77,16 @@ export function getArticleImageUrl(
   return ARTICLE_IMAGE_PLACEHOLDER
 }
 
-/** Prefer thumbnail URL for card/small views; fall back to full image. */
+/** Prefer thumbnail URL for card/small views; fall back to derived -thumb sibling, then full image. */
 export function resolveCardImageUrl(full?: string | null, thumbnail?: string | null): string {
   const thumb = (thumbnail || '').trim()
   if (thumb) return getAbsoluteImageUrl(thumb)
   const fullUrl = (full || '').trim()
-  if (fullUrl) return getAbsoluteImageUrl(fullUrl)
+  if (fullUrl) {
+    const derived = deriveThumbUrlFromFull(fullUrl)
+    if (derived && derived !== fullUrl) return getAbsoluteImageUrl(derived)
+    return getAbsoluteImageUrl(fullUrl)
+  }
   return ARTICLE_IMAGE_PLACEHOLDER
 }
 
@@ -72,6 +97,13 @@ function pickArticleCardImageRaw(article?: {
   for (const media of [article?.social_image, article?.featured_media]) {
     const thumb = media?.thumbnail_url?.trim()
     if (thumb) return thumb
+  }
+  for (const media of [article?.social_image, article?.featured_media]) {
+    const full = media?.file_url?.trim()
+    if (full) {
+      const derived = deriveThumbUrlFromFull(full)
+      if (derived && derived !== full) return derived
+    }
   }
   return pickArticleShareImageRaw(article || undefined)
 }
@@ -135,7 +167,11 @@ export function getMediaCardUrl(
   const thumb = (media?.thumbnail_url || '').trim()
   if (thumb) return getAbsoluteImageUrl(thumb)
   const full = (media?.file_url || '').trim()
-  if (full) return getAbsoluteImageUrl(full)
+  if (full) {
+    const derived = deriveThumbUrlFromFull(full)
+    if (derived && derived !== full) return getAbsoluteImageUrl(derived)
+    return getAbsoluteImageUrl(full)
+  }
   return ''
 }
 
@@ -147,7 +183,7 @@ export function mapMediaForCard(
   if (!media?.file_url?.trim()) return undefined
   return {
     file_url: media.file_url,
-    thumbnail_url: media.thumbnail_url,
+    thumbnail_url: media.thumbnail_url ?? undefined,
     alt_text: media.alt_text || altFallback,
   }
 }

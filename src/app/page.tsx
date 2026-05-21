@@ -8,7 +8,7 @@ import {
   HomeTrendingMeta,
 } from '@/components/home/HomeArticleBlocks'
 import HomeFeaturedBusinessesSlideshow from '@/components/home/HomeFeaturedBusinessesSlideshow'
-import { getArticleCardImageUrl, mapMediaForCard, getMediaCardUrl } from '@/lib/image-utils'
+import { getArticleCardImageUrl, mapMediaForCard } from '@/lib/image-utils'
 import {
   getEcommerceCompanySlug,
   mapCoverImageForCard,
@@ -162,7 +162,7 @@ async function getHomepageData() {
     }
     const businessesArray = Array.isArray(businessesData) ? businessesData : (businessesData?.results || [])
     const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api').replace(/\/+$/, '')
-    const businessHomeBannerBySlug = new Map<string, string>()
+    const businessHomeBannerBySlug = new Map<string, { file_url?: string; thumbnail_url?: string }>()
     await Promise.all(
       businessesArray.map(async (business: any) => {
         const heroSlug = getEcommerceCompanySlug(business)
@@ -182,9 +182,8 @@ async function getHomepageData() {
           const heroData: any = await response.json()
           const rows = Array.isArray(heroData) ? heroData : (heroData?.results || [])
           const heroImage = rows?.[0]?.image
-          const imageUrl = getMediaCardUrl(heroImage)
-          if (imageUrl) {
-            businessHomeBannerBySlug.set(String(business.slug || heroSlug), imageUrl)
+          if (heroImage?.file_url) {
+            businessHomeBannerBySlug.set(String(business.slug || heroSlug), heroImage)
           }
         } catch {
           // Ignore individual banner fetch errors so homepage still renders.

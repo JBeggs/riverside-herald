@@ -3,6 +3,8 @@
  * Used by public pages, profile enrichment, and business owner admin.
  */
 
+import { getMediaCardUrl } from '@/lib/image-utils'
+
 export function unwrapPageHeroListPayload(raw: unknown): any[] {
   if (raw == null) return []
   if (Array.isArray(raw)) return raw
@@ -19,6 +21,13 @@ export function getHeroImageFileUrl(row: any): string | null {
   return typeof url === 'string' && url.trim().length > 0 ? url.trim() : null
 }
 
+/** Card-sized hero image URL (prefers thumbnail when present). */
+export function getHeroImageCardUrl(row: any): string | null {
+  if (!row || typeof row !== 'object') return null
+  const card = getMediaCardUrl(row.image)
+  return card || null
+}
+
 /** Prefer explicit `home` slug; else first row (list filtered by page_slug). */
 export function pickHomePageHeroRow(rows: any[]): any | null {
   if (!Array.isArray(rows) || rows.length === 0) return null
@@ -30,4 +39,10 @@ export function getHomeHeroImageFileUrlFromPayload(raw: unknown): string | null 
   const rows = unwrapPageHeroListPayload(raw)
   const row = pickHomePageHeroRow(rows)
   return getHeroImageFileUrl(row)
+}
+
+export function getHomeHeroImageCardUrlFromPayload(raw: unknown): string | null {
+  const rows = unwrapPageHeroListPayload(raw)
+  const row = pickHomePageHeroRow(rows)
+  return getHeroImageCardUrl(row)
 }

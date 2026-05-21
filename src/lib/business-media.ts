@@ -1,7 +1,7 @@
 /**
  * Normalize business logos and ecommerce product images from API payloads.
  */
-import { getMediaCardUrl } from './image-utils'
+import { deriveThumbUrlFromFull, getMediaCardUrl } from './image-utils'
 
 export function getEcommerceCompanySlug(business: {
   slug?: string
@@ -80,16 +80,25 @@ export function resolveProductCardImage(
 ): { file_url: string } | null {
   if (!product) return null
   const apiThumb = (product.image_thumbnail || '').trim()
-  if (apiThumb) return { file_url: apiThumb }
+  const mainImage = resolveProductImage(product)
+  const main = mainImage?.file_url?.trim() || ''
+  if (apiThumb && (!main || apiThumb !== main)) return { file_url: apiThumb }
   const apiThumbs = Array.isArray(product.image_thumbnails)
     ? product.image_thumbnails.filter((u): u is string => typeof u === 'string' && !!u.trim())
     : []
-  if (apiThumbs.length > 0) return { file_url: apiThumbs[0].trim() }
+  if (apiThumbs.length > 0) {
+    const first = apiThumbs[0].trim()
+    if (!main || first !== main) return { file_url: first }
+  }
   const img = product.image
   if (img && typeof img === 'object' && img.thumbnail_url?.trim()) {
     return { file_url: img.thumbnail_url.trim() }
   }
-  return resolveProductImage(product)
+  if (main) {
+    const derived = deriveThumbUrlFromFull(main)
+    if (derived && derived !== main) return { file_url: derived }
+  }
+  return mainImage
 }
 
 export function resolveBusinessCoverCardUrl(
@@ -101,7 +110,7 @@ export function resolveBusinessCoverCardUrl(
 export function mapCoverImageForCard(
   cover: { file_url?: string | null; thumbnail_url?: string | null; alt_text?: string | null } | null | undefined,
   altFallback: string,
-  fallbackCardUrl?: string | null,
+  fallback?: { file_url?: string | null; thumbnail_url?: string | null } | string | null,
 ) {
   if (cover?.file_url?.trim()) {
     return {
@@ -110,8 +119,15 @@ export function mapCoverImageForCard(
       alt_text: cover.alt_text || altFallback,
     }
   }
-  if (fallbackCardUrl?.trim()) {
-    return { file_url: fallbackCardUrl.trim(), alt_text: altFallback }
+  if (typeof fallback === 'string' && fallback.trim()) {
+    return { file_url: fallback.trim(), alt_text: altFallback }
+  }
+  if (fallback && typeof fallback === 'object' && fallback.file_url?.trim()) {
+    return {
+      file_url: fallback.file_url,
+      thumbnail_url: fallback.thumbnail_url,
+      alt_text: altFallback,
+    }
   }
   return null
 }

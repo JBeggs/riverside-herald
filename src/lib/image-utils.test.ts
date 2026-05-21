@@ -87,11 +87,11 @@ describe('image-utils', () => {
       expect(getBusinessImageUrl(undefined)).toBe('');
     });
 
-    it('returns logo URL when type is logo and logo.file_url exists', () => {
+    it('returns derived logo thumb URL when logo.file_url exists without thumbnail_url', () => {
       const business = {
         logo: { file_url: '/media/logo.png' },
       };
-      expect(getBusinessImageUrl(business, 'logo')).toBe('http://localhost:8000/media/logo.png');
+      expect(getBusinessImageUrl(business, 'logo')).toBe('http://localhost:8000/media/logo-thumb.png');
     });
 
     it('returns logo_url when type is logo and logo_url exists', () => {
@@ -106,11 +106,11 @@ describe('image-utils', () => {
       expect(getBusinessImageUrl(business, 'cover')).toBe('http://localhost:8000/media/cover-thumb.jpg');
     });
 
-    it('returns cover image URL when type is cover', () => {
+    it('returns derived cover thumb URL when thumbnail_url is missing', () => {
       const business = {
         cover_image: { file_url: '/media/cover.jpg' },
       };
-      expect(getBusinessImageUrl(business, 'cover')).toBe('http://localhost:8000/media/cover.jpg');
+      expect(getBusinessImageUrl(business, 'cover')).toBe('http://localhost:8000/media/cover-thumb.jpg');
     });
 
     it('returns empty string when no matching image', () => {

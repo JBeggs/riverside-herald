@@ -1,7 +1,18 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { X, Loader2, Linkedin, Link2, ExternalLink } from 'lucide-react'
+import { X, Loader2, Linkedin, Link2 } from 'lucide-react'
+
+const ExternalLink = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+    />
+  </svg>
+)
 import { linkedinApi, getApiErrorMessage } from '@/lib/api'
 import { useToast } from '@/contexts/ToastContext'
 import {

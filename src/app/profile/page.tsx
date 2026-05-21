@@ -2,7 +2,8 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { serverNewsApi } from '@/lib/api-server'
-import { getHomeHeroImageFileUrlFromPayload } from '@/lib/page-hero'
+import { pickHomePageHeroRow, unwrapPageHeroListPayload } from '@/lib/page-hero'
+import { mapCoverImageForCard } from '@/lib/business-media'
 import ProfilePage from '@/components/profile/ProfilePage'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
 
@@ -155,14 +156,16 @@ export default async function Profile() {
           if (!slug) return b
           try {
             const raw = await serverNewsApi.pageHeroes.listForHome(slug)
-            const url = getHomeHeroImageFileUrlFromPayload(raw)
-            if (!url) return b
+            const row = pickHomePageHeroRow(unwrapPageHeroListPayload(raw))
+            const heroImage = row?.image
+            if (!heroImage?.file_url) return b
             return {
               ...b,
-              cover_image: {
-                ...(typeof b.cover_image === 'object' && b.cover_image ? b.cover_image : {}),
-                file_url: url,
-              },
+              cover_image: mapCoverImageForCard(
+                b.cover_image,
+                `${b.name || 'Business'} cover`,
+                heroImage,
+              ),
             }
           } catch {
             return b

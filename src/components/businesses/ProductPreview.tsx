@@ -1,5 +1,7 @@
 'use client'
 
+import { resolveProductCardImage } from '@/lib/business-media'
+import { getAbsoluteImageUrl } from '@/lib/image-utils'
 import { useState } from 'react'
 import Image from 'next/image'
 // Custom icons to avoid lucide-react version issues
@@ -21,7 +23,8 @@ interface Product {
   price?: number
   currency?: string
   image_id?: string
-  image?: { file_url: string }
+  image?: string | { file_url: string; thumbnail_url?: string }
+  image_thumbnail?: string
   description?: string
   externalUrl?: string
 }
@@ -35,11 +38,11 @@ interface ProductPreviewProps {
   compact?: boolean
 }
 
-const getImageUrl = (url?: string) => {
+const getImageUrl = (product: Product) => {
+  const resolved = resolveProductCardImage(product)
+  const url = resolved?.file_url
   if (!url) return null
-  if (url.startsWith('http')) return url
-  // For relative URLs, assume they're from the API base
-  return `${process.env.NEXT_PUBLIC_API_URL || 'https://3pillars.pythonanywhere.com/api'}${url}`
+  return getAbsoluteImageUrl(url)
 }
 
 export default function ProductPreview({
@@ -95,7 +98,7 @@ export default function ProductPreview({
             : 'grid-cols-2 sm:grid-cols-4'
       }`}>
         {displayProducts.map((product) => {
-          const productImageUrl = getImageUrl(product.image?.file_url)
+          const productImageUrl = getImageUrl(product)
           const productLink = product.externalUrl || externalWebsite || `/businesses/${businessSlug}`
           
           return (

@@ -3,7 +3,6 @@ import type { Metadata } from 'next'
 import { BusinessSearchAndFilter } from '@/components/businesses/BusinessSearchAndFilter'
 import { loadSiteSettingsMap, siteLabelFromMap } from '@/lib/site-settings'
 import { getEcommerceCompanySlug, mapCoverImageForCard, resolveBusinessLogo } from '@/lib/business-media'
-import { getMediaCardUrl } from '@/lib/image-utils'
 
 export async function generateMetadata(): Promise<Metadata> {
   const map = await loadSiteSettingsMap()
@@ -21,7 +20,7 @@ async function getBusinesses() {
     const businesses = businessesData?.results || businessesData || []
 
     const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api').replace(/\/+$/, '')
-    const bannerBySlug = new Map<string, string>()
+    const bannerBySlug = new Map<string, { file_url?: string; thumbnail_url?: string }>()
 
     await Promise.all(
       businesses.map(async (business: any) => {
@@ -42,9 +41,8 @@ async function getBusinesses() {
           const data: any = await response.json()
           const rows = Array.isArray(data) ? data : (data?.results || [])
           const heroImage = rows?.[0]?.image
-          const imageUrl = getMediaCardUrl(heroImage)
-          if (imageUrl) {
-            bannerBySlug.set(String(business.slug || heroSlug), imageUrl)
+          if (heroImage?.file_url) {
+            bannerBySlug.set(String(business.slug || heroSlug), heroImage)
           }
         } catch {
           // Ignore per-business banner fetch failures.

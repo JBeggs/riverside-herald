@@ -1,6 +1,7 @@
 'use client'
 
-import React from 'react'
+import { resolveProductCardImage } from '@/lib/business-media'
+import { getAbsoluteImageUrl } from '@/lib/image-utils'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { ExternalProduct } from '@/lib/business-products'
@@ -21,6 +22,13 @@ const ShoppingBag = ({ className }: { className?: string }) => (
 interface ProductGalleryProps {
   products: ExternalProduct[]
   businessName: string
+}
+
+function productCardImageUrl(product: ExternalProduct & { image?: unknown; image_thumbnail?: string }): string {
+  const fromProp = (product.imageUrl || '').trim()
+  if (fromProp) return getAbsoluteImageUrl(fromProp)
+  const resolved = resolveProductCardImage(product as Parameters<typeof resolveProductCardImage>[0])
+  return getAbsoluteImageUrl(resolved?.file_url || '')
 }
 
 const container = {
@@ -61,20 +69,22 @@ export default function ProductGallery({ products, businessName }: ProductGaller
         viewport={{ once: true }}
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
       >
-        {products.map((product) => (
+        {products.map((product) => {
+          const imageSrc = productCardImageUrl(product)
+          return (
           <motion.div
             key={product.id}
             variants={item}
-            className="group bg-surface rounded-2xl border border-border-default overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col h-full"
+            className="group bg-surface rounded-2xl border border-border-default overflow-hidden hover:shadow-xl transition-all duration-500 flex flex-col h-full"
           >
             {/* Image Container */}
             <div className="relative aspect-square overflow-hidden bg-[rgb(var(--color-surface-raised)/0.85)]">
               <Image
-                src={product.imageUrl}
+                src={imageSrc}
                 alt={product.name}
                 fill
                 className="object-cover group-hover:scale-110 transition-transform duration-500"
-                unoptimized={(product.imageUrl || '').startsWith('http')}
+                unoptimized={imageSrc.startsWith('http')}
               />
               {(product.category) && (
                 <div className="absolute top-3 left-3">
@@ -111,7 +121,8 @@ export default function ProductGallery({ products, businessName }: ProductGaller
               </a>
             </div>
           </motion.div>
-        ))}
+          )
+        })}
       </motion.div>
     </section>
   )
