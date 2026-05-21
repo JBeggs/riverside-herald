@@ -249,7 +249,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
           {article.content ? (
             <div
-              className="prose prose-sm sm:prose-base md:prose-lg max-w-none mb-12 prose-headings:text-text prose-p:text-text-muted"
+              className="prose prose-sm sm:prose-base md:prose-lg max-w-none mb-12 prose-headings:text-text prose-p:text-text-muted prose-a:text-primary prose-a:underline hover:prose-a:opacity-90"
               data-cy="article-content"
               dangerouslySetInnerHTML={{ __html: article.content }}
             />
