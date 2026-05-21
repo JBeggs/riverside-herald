@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Menu, X, Search, LogIn, User, LogOut, Building2, FileText, Images } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import AuthModal from '../auth/AuthModal'
+import { getAvatarCardUrl } from '@/lib/image-utils'
 
 const DASHBOARD_ROLES = new Set(['admin', 'editor', 'author', 'business_owner'])
 const CONTENT_ROLES = new Set(['admin', 'editor', 'author', 'business_owner'])
@@ -28,7 +29,7 @@ export function MobileNav({ menuItems }: MobileNavProps) {
   const [showAuthModal, setShowAuthModal] = useState(false)
 
   const role = profile?.role
-  const avatarUrl = profile?.avatar_url?.trim() || ''
+  const avatarUrl = getAvatarCardUrl(profile)
   const showDashboard = Boolean(user && role && DASHBOARD_ROLES.has(role))
   const showMyBusinesses = role === 'business_owner'
   const showContentTools = Boolean(user && role && CONTENT_ROLES.has(role))

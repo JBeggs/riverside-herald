@@ -1,7 +1,7 @@
 import { serverNewsApi } from '@/lib/api-server'
 import Link from 'next/link'
 import { loadSiteSettingsMap, stringFromMap } from '@/lib/site-settings'
-import { getArticleImageUrl } from '@/lib/image-utils'
+import { getArticleCardImageUrl } from '@/lib/image-utils'
 import RelatedArticleCard from '@/components/articles/RelatedArticleCard'
 import type { RelatedArticleCardData } from '@/components/articles/RelatedArticleCard'
 
@@ -105,7 +105,7 @@ export default async function RelatedArticles({ currentArticleId, categoryId }: 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {relatedArticles.map((article: RelatedArticleCardData) => {
               const readingTime = calculateReadingTime(article.content)
-              const imageUrl = getArticleImageUrl(article)
+              const imageUrl = getArticleCardImageUrl(article)
               return (
                 <RelatedArticleCard
                   key={article.id}

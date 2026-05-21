@@ -20,6 +20,7 @@ export interface Profile {
   full_name?: string
   bio?: string
   avatar_url?: string
+  avatar_thumbnail_url?: string
   role: UserRole
   is_verified: boolean
   social_links: Record<string, string>

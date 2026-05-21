@@ -17,15 +17,16 @@ export function getEcommerceCompanySlug(business: {
 export function resolveBusinessLogo(
   business: {
     name?: string
-    logo?: { file_url?: string | null; alt_text?: string } | null
+    logo?: { file_url?: string | null; thumbnail_url?: string | null; alt_text?: string } | null
     logo_url?: string | null
   } | null | undefined,
-): { file_url: string; alt_text?: string } | null {
+): { file_url: string; thumbnail_url?: string; alt_text?: string } | null {
   if (!business) return null
   const fromMedia = business.logo?.file_url?.trim()
   if (fromMedia) {
     return {
       file_url: fromMedia,
+      thumbnail_url: business.logo?.thumbnail_url?.trim() || undefined,
       alt_text: business.logo?.alt_text || `${business.name || 'Business'} logo`,
     }
   }

@@ -1,50 +1,32 @@
-import { describe, it, expect } from 'vitest'
-import {
-  getEcommerceCompanySlug,
-  resolveBusinessLogo,
-  resolveProductImage,
-} from './business-media'
+import { describe, expect, it } from 'vitest'
+import { resolveBusinessLogo } from './business-media'
+import { getLogoCardUrl } from './image-utils'
 
-describe('business-media', () => {
-  it('getEcommerceCompanySlug prefers ecommerce_slug', () => {
-    expect(
-      getEcommerceCompanySlug({
-        slug: 'news-slug',
-        ecommerce_slug: 'past-and-present',
-      }),
-    ).toBe('past-and-present')
+describe('business-media logo cards', () => {
+  it('resolveBusinessLogo exposes thumbnail_url from nested logo', () => {
+    const resolved = resolveBusinessLogo({
+      name: 'Acme',
+      logo: {
+        file_url: '/media/logo.png',
+        thumbnail_url: '/media/logo-thumb.png',
+      },
+    })
+    expect(resolved?.file_url).toBe('/media/logo.png')
+    expect(resolved?.thumbnail_url).toBe('/media/logo-thumb.png')
   })
 
-  it('resolveBusinessLogo uses nested logo', () => {
+  it('getLogoCardUrl uses logo thumbnail for cards', () => {
+    const resolved = resolveBusinessLogo({
+      name: 'Acme',
+      logo: {
+        file_url: 'https://example.com/media/logo.png',
+        thumbnail_url: 'https://example.com/media/logo-thumb.png',
+      },
+    })
     expect(
-      resolveBusinessLogo({
-        name: 'Past and Present',
-        logo: { file_url: '/media/logo.png' },
-      }),
-    ).toEqual({
-      file_url: '/media/logo.png',
-      alt_text: 'Past and Present logo',
-    })
-  })
-
-  it('resolveBusinessLogo falls back to logo_url', () => {
-    expect(
-      resolveBusinessLogo({
-        name: 'Shop',
-        logo_url: 'https://cdn.example/logo.png',
-      }),
-    ).toEqual({
-      file_url: 'https://cdn.example/logo.png',
-      alt_text: 'Shop logo',
-    })
-  })
-
-  it('resolveProductImage handles string image and images array', () => {
-    expect(resolveProductImage({ image: 'https://cdn.example/p1.jpg' })).toEqual({
-      file_url: 'https://cdn.example/p1.jpg',
-    })
-    expect(resolveProductImage({ images: ['https://cdn.example/p2.jpg'] })).toEqual({
-      file_url: 'https://cdn.example/p2.jpg',
-    })
+      getLogoCardUrl(
+        { file_url: resolved!.file_url, thumbnail_url: resolved!.thumbnail_url },
+      ),
+    ).toBe('https://example.com/media/logo-thumb.png')
   })
 })

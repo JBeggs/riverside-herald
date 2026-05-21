@@ -8,7 +8,7 @@ import {
   HomeTrendingMeta,
 } from '@/components/home/HomeArticleBlocks'
 import HomeFeaturedBusinessesSlideshow from '@/components/home/HomeFeaturedBusinessesSlideshow'
-import { getArticleImageUrl } from '@/lib/image-utils'
+import { getArticleCardImageUrl } from '@/lib/image-utils'
 import {
   getEcommerceCompanySlug,
   resolveBusinessLogo,
@@ -262,7 +262,7 @@ async function getHomepageData() {
 }
 
 function getImageUrl(article?: Article) {
-  const u = getArticleImageUrl(article)
+  const u = getArticleCardImageUrl(article)
   return u || null
 }
 

@@ -3,7 +3,7 @@ import { Search } from 'lucide-react'
 import ArticlesFeaturedSplit from '@/components/articles/ArticlesFeaturedSplit'
 import RelatedArticleCard from '@/components/articles/RelatedArticleCard'
 import ArticlesTopicFilters from '@/components/articles/ArticlesTopicFilters'
-import { getArticleImageUrl } from '@/lib/image-utils'
+import { getArticleCardImageUrl } from '@/lib/image-utils'
 import { calculateReadingTime } from '@/lib/articles-archive'
 
 const Plus = ({ className }: { className?: string }) => (
@@ -13,7 +13,7 @@ const Plus = ({ className }: { className?: string }) => (
 )
 
 function getImageUrl(article: any) {
-  return getArticleImageUrl(article)
+  return getArticleCardImageUrl(article)
 }
 
 type Category = { id: string; name: string; slug: string; color: string }

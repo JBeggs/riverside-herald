@@ -3,8 +3,8 @@
 import Link from 'next/link'
 import { MapPin, Star, Phone, Mail, Globe, CheckCircle } from 'lucide-react'
 import SafeImage from '@/components/ui/SafeImage'
-import { getAbsoluteImageUrl, getBusinessImageUrl } from '@/lib/image-utils'
-import { resolveProductImage } from '@/lib/business-media'
+import { getAbsoluteImageUrl, getLogoCardUrl, resolveCardImageUrl } from '@/lib/image-utils'
+import { resolveBusinessLogo, resolveProductImage } from '@/lib/business-media'
 
 const ShoppingBag = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,8 +39,8 @@ interface Business {
   phone?: string
   email?: string
   is_verified?: boolean
-  logo?: { file_url: string }
-  cover_image?: { file_url: string }
+  logo?: { file_url: string; thumbnail_url?: string }
+  cover_image?: { file_url: string; thumbnail_url?: string }
   products?: Product[]
 }
 
@@ -87,8 +87,16 @@ export default function FeaturedBusinessCard({
     }
   }
 
-  const logoUrl = getBusinessImageUrl(business, 'logo') || null
-  const coverUrl = resolveImageUrl(business.cover_image?.file_url)
+  const logoResolved = resolveBusinessLogo(business)
+  const logoUrl = logoResolved
+    ? getLogoCardUrl(
+        { file_url: logoResolved.file_url, thumbnail_url: logoResolved.thumbnail_url },
+        business.logo_url,
+      ) || null
+    : null
+  const coverUrl = business.cover_image?.file_url?.trim()
+    ? resolveCardImageUrl(business.cover_image.file_url, business.cover_image.thumbnail_url)
+    : null
   const hasProducts = business.products && business.products.length > 0
 
   return (

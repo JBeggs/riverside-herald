@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { LogIn, LogOut, User, ChevronDown, Building2, FileText, Images } from 'lucide-react'
 import AuthModal from './AuthModal'
+import { getAvatarCardUrl } from '@/lib/image-utils'
 
 const DASHBOARD_ROLES = new Set(['admin', 'editor', 'author', 'business_owner'])
 const CONTENT_ROLES = new Set(['admin', 'editor', 'author', 'business_owner'])
@@ -47,7 +48,7 @@ export default function AuthButton({ onAction }: { onAction?: () => void }) {
     const showMyBusinesses = role === 'business_owner'
     const showContentTools = Boolean(role && CONTENT_ROLES.has(role))
     const showAdminPanel = Boolean(role && ADMIN_ROLES.has(role))
-    const avatarUrl = profile.avatar_url?.trim() || ''
+    const avatarUrl = getAvatarCardUrl(profile)
 
     const closeMenu = () => {
       setShowUserMenu(false)
