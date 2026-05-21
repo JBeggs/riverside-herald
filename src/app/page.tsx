@@ -8,11 +8,12 @@ import {
   HomeTrendingMeta,
 } from '@/components/home/HomeArticleBlocks'
 import HomeFeaturedBusinessesSlideshow from '@/components/home/HomeFeaturedBusinessesSlideshow'
-import { getArticleCardImageUrl } from '@/lib/image-utils'
+import { getArticleCardImageUrl, mapMediaForCard, getMediaCardUrl } from '@/lib/image-utils'
 import {
   getEcommerceCompanySlug,
+  mapCoverImageForCard,
   resolveBusinessLogo,
-  resolveProductImage,
+  resolveProductCardImage,
 } from '@/lib/business-media'
 
 interface Article {
@@ -33,6 +34,7 @@ interface Article {
   views: number
   featured_media?: {
     file_url: string
+    thumbnail_url?: string
     alt_text: string
   }
   author_name: string
@@ -58,9 +60,11 @@ interface Business {
   is_verified?: boolean
   logo?: {
     file_url: string
+    thumbnail_url?: string
   }
   cover_image?: {
     file_url: string
+    thumbnail_url?: string
   }
   products?: Array<{
     id: string
@@ -130,10 +134,7 @@ async function getHomepageData() {
         is_featured: Boolean(article.is_featured) || article.status === 'featured',
         read_time_minutes: article.read_time_minutes,
         views: article.views || 0,
-        featured_media: article.featured_media && article.featured_media.file_url ? {
-          file_url: article.featured_media.file_url,
-          alt_text: article.featured_media.alt_text || article.title
-        } : undefined,
+        featured_media: mapMediaForCard(article.featured_media, article.title),
         author_name: article.author_name || 'Staff Writer',
         category: article.category ? {
           name: article.category.name,
@@ -180,8 +181,9 @@ async function getHomepageData() {
           if (!response.ok) return
           const heroData: any = await response.json()
           const rows = Array.isArray(heroData) ? heroData : (heroData?.results || [])
-          const imageUrl = rows?.[0]?.image?.file_url
-          if (typeof imageUrl === 'string' && imageUrl.length > 0) {
+          const heroImage = rows?.[0]?.image
+          const imageUrl = getMediaCardUrl(heroImage)
+          if (imageUrl) {
             businessHomeBannerBySlug.set(String(business.slug || heroSlug), imageUrl)
           }
         } catch {
@@ -193,7 +195,7 @@ async function getHomepageData() {
     const businesses: Business[] = businessesArray.map((business: any) => {
       const mappedProducts = Array.isArray(business.products)
         ? business.products.map((product: any) => {
-            const image = resolveProductImage(product)
+            const image = resolveProductCardImage(product)
             return image ? { ...product, image } : product
           })
         : []
@@ -214,11 +216,11 @@ async function getHomepageData() {
         is_verified: business.is_verified,
         logo: resolveBusinessLogo(business) ?? undefined,
         ecommerce_slug: business.ecommerce_slug || undefined,
-        cover_image: business.cover_image?.file_url
-          ? { file_url: business.cover_image.file_url }
-          : bannerFromHomeHero
-            ? { file_url: bannerFromHomeHero }
-            : undefined,
+        cover_image: mapCoverImageForCard(
+          business.cover_image,
+          `${business.name} cover`,
+          bannerFromHomeHero,
+        ) ?? undefined,
         products: mappedProducts,
       }
     })

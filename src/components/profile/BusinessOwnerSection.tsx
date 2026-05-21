@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Profile } from '@/lib/types'
 import { BusinessEditModal } from '@/components/businesses/BusinessEditModal'
-import { getAbsoluteImageUrl } from '@/lib/image-utils'
+import { getLogoCardUrl, getMediaCardUrl } from '@/lib/image-utils'
 import { 
   Building2, 
   Star, 
@@ -209,10 +209,10 @@ export default function BusinessOwnerSection({ businesses, profile: _profile }: 
                 {/* Business Header */}
                 <div className="relative h-32 bg-gradient-to-r from-blue-500 to-purple-600 overflow-hidden flex-shrink-0">
                   {/* Cover Image */}
-                  {business.cover_image?.file_url ? (
+                  {getMediaCardUrl(business.cover_image) ? (
                     <div className="absolute inset-0">
                       <img
-                        src={getAbsoluteImageUrl(business.cover_image.file_url)}
+                        src={getMediaCardUrl(business.cover_image)}
                         alt={`${business.name} cover`}
                         className="w-full h-full object-cover"
                         onError={(e) => {
@@ -224,11 +224,11 @@ export default function BusinessOwnerSection({ businesses, profile: _profile }: 
                   ) : null}
                   
                   {/* Logo */}
-                  {business.logo?.file_url && (
+                  {getLogoCardUrl(business.logo) ? (
                     <div className="absolute bottom-4 left-4 z-10">
                       <div className="w-16 h-16 bg-white rounded-lg p-2 shadow-lg">
                         <img
-                          src={getAbsoluteImageUrl(business.logo.file_url)}
+                          src={getLogoCardUrl(business.logo)}
                           alt={business.name}
                           className="w-full h-full object-contain"
                           onError={(e) => {
@@ -237,7 +237,7 @@ export default function BusinessOwnerSection({ businesses, profile: _profile }: 
                         />
                       </div>
                     </div>
-                  )}
+                  ) : null}
                   
                   {/* Verified Badge */}
                   <div className="absolute top-4 right-4 flex items-center space-x-2 z-10">

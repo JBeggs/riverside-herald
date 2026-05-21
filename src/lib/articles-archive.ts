@@ -1,4 +1,5 @@
 import { serverNewsApi } from '@/lib/api-server'
+import { mapMediaForCard } from '@/lib/image-utils'
 
 export function calculateReadingTime(content: string): number {
   const wordsPerMinute = 200
@@ -17,12 +18,7 @@ export function mapListArticle(article: any) {
     views: article.views || 0,
     likes: article.likes || 0,
     read_time_minutes: article.read_time_minutes,
-    featured_media: article.featured_media
-      ? {
-          file_url: article.featured_media.file_url,
-          alt_text: article.featured_media.alt_text || article.title,
-        }
-      : undefined,
+    featured_media: mapMediaForCard(article.featured_media, article.title),
     author_name: article.author_name || 'Staff Writer',
     category: article.category
       ? {

@@ -2,7 +2,8 @@ import { serverNewsApi } from '@/lib/api-server'
 import type { Metadata } from 'next'
 import { BusinessSearchAndFilter } from '@/components/businesses/BusinessSearchAndFilter'
 import { loadSiteSettingsMap, siteLabelFromMap } from '@/lib/site-settings'
-import { getEcommerceCompanySlug, resolveBusinessLogo } from '@/lib/business-media'
+import { getEcommerceCompanySlug, mapCoverImageForCard, resolveBusinessLogo } from '@/lib/business-media'
+import { getMediaCardUrl } from '@/lib/image-utils'
 
 export async function generateMetadata(): Promise<Metadata> {
   const map = await loadSiteSettingsMap()
@@ -40,8 +41,9 @@ async function getBusinesses() {
           if (!response.ok) return
           const data: any = await response.json()
           const rows = Array.isArray(data) ? data : (data?.results || [])
-          const imageUrl = rows?.[0]?.image?.file_url
-          if (typeof imageUrl === 'string' && imageUrl.length > 0) {
+          const heroImage = rows?.[0]?.image
+          const imageUrl = getMediaCardUrl(heroImage)
+          if (imageUrl) {
             bannerBySlug.set(String(business.slug || heroSlug), imageUrl)
           }
         } catch {
@@ -83,17 +85,11 @@ async function getBusinesses() {
         created_at: business.created_at,
         owner_id: business.owner,
         logo: resolveBusinessLogo(business),
-        cover_image: business.cover_image?.file_url
-          ? {
-              file_url: business.cover_image.file_url,
-              alt_text: `${business.name} cover`,
-            }
-          : homeBanner
-            ? {
-                file_url: homeBanner,
-                alt_text: `${business.name} cover`,
-              }
-            : null,
+        cover_image: mapCoverImageForCard(
+          business.cover_image,
+          `${business.name} cover`,
+          homeBanner,
+        ),
       }
     })
   } catch (error) {

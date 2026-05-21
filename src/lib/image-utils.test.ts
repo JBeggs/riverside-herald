@@ -7,6 +7,7 @@ import {
   getAbsoluteImageUrl,
   getArticleImageUrl,
   getBusinessImageUrl,
+  getMediaCardUrl,
 } from './image-utils';
 
 describe('image-utils', () => {
@@ -72,6 +73,15 @@ describe('image-utils', () => {
     });
   });
 
+  it('getMediaCardUrl prefers thumbnail_url', () => {
+    expect(
+      getMediaCardUrl({
+        file_url: '/media/hero.jpg',
+        thumbnail_url: '/media/hero-thumb.jpg',
+      }),
+    ).toBe('http://localhost:8000/media/hero-thumb.jpg');
+  });
+
   describe('getBusinessImageUrl', () => {
     it('returns empty string when business is undefined', () => {
       expect(getBusinessImageUrl(undefined)).toBe('');
@@ -87,6 +97,13 @@ describe('image-utils', () => {
     it('returns logo_url when type is logo and logo_url exists', () => {
       const business = { logo_url: '/media/logo.png' } as any;
       expect(getBusinessImageUrl(business, 'logo')).toBe('http://localhost:8000/media/logo.png');
+    });
+
+    it('returns cover thumbnail when type is cover and thumbnail_url exists', () => {
+      const business = {
+        cover_image: { file_url: '/media/cover.jpg', thumbnail_url: '/media/cover-thumb.jpg' },
+      };
+      expect(getBusinessImageUrl(business, 'cover')).toBe('http://localhost:8000/media/cover-thumb.jpg');
     });
 
     it('returns cover image URL when type is cover', () => {

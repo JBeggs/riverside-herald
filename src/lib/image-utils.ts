@@ -1,7 +1,6 @@
 /**
  * Utility functions for handling image URLs
  */
-import { resolveBusinessLogo } from './business-media'
 
 /** Public-site placeholder when an article has no featured image (River Lodge branding). */
 export const ARTICLE_IMAGE_PLACEHOLDER = '/image-placeholder.png'
@@ -129,24 +128,47 @@ export function getArticleOpenGraphImageUrls(
   return []
 }
 
+/** Card/small view URL from a Media object; empty when missing (no placeholder). */
+export function getMediaCardUrl(
+  media?: { file_url?: string | null; thumbnail_url?: string | null } | null,
+): string {
+  const thumb = (media?.thumbnail_url || '').trim()
+  if (thumb) return getAbsoluteImageUrl(thumb)
+  const full = (media?.file_url || '').trim()
+  if (full) return getAbsoluteImageUrl(full)
+  return ''
+}
+
+/** Preserve API media fields needed for card thumbnail resolution. */
+export function mapMediaForCard(
+  media: { file_url?: string | null; thumbnail_url?: string | null; alt_text?: string | null } | null | undefined,
+  altFallback: string,
+) {
+  if (!media?.file_url?.trim()) return undefined
+  return {
+    file_url: media.file_url,
+    thumbnail_url: media.thumbnail_url,
+    alt_text: media.alt_text || altFallback,
+  }
+}
+
 /**
  * Get image URL for a business logo or cover image
  */
 export function getBusinessImageUrl(
   business?: {
     name?: string
-    logo?: { file_url?: string | null } | null
-    cover_image?: { file_url?: string | null } | null
+    logo?: { file_url?: string | null; thumbnail_url?: string | null } | null
+    cover_image?: { file_url?: string | null; thumbnail_url?: string | null } | null
     logo_url?: string | null
   },
   type: 'logo' | 'cover' = 'cover',
 ): string {
   if (type === 'logo') {
-    const resolved = resolveBusinessLogo(business)
-    if (resolved?.file_url) return getAbsoluteImageUrl(resolved.file_url)
+    return getLogoCardUrl(business?.logo, business?.logo_url)
   }
-  if (type === 'cover' && business?.cover_image?.file_url) {
-    return getAbsoluteImageUrl(business.cover_image.file_url)
+  if (type === 'cover') {
+    return getMediaCardUrl(business?.cover_image)
   }
   return ''
 }

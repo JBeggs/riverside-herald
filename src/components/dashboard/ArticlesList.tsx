@@ -12,7 +12,7 @@ import {
   CheckCircle,
   XCircle,
 } from 'lucide-react'
-import { getAbsoluteImageUrl } from '@/lib/image-utils'
+import { getArticleCardImageUrl, ARTICLE_IMAGE_PLACEHOLDER } from '@/lib/image-utils'
 import SafeImage from '@/components/ui/SafeImage'
 
 interface ArticlesListProps {
@@ -143,9 +143,9 @@ export default function ArticlesList({ articles, loading, onEdit, onDelete, prof
           <li key={article.id} className="p-4 space-y-3">
             <div className="flex gap-3">
               <div className="relative w-16 h-16 flex-shrink-0 overflow-hidden rounded-lg bg-[rgb(var(--color-surface-raised)/0.85)]">
-                {article.featured_media?.file_url ? (
+                {getArticleCardImageUrl(article) !== ARTICLE_IMAGE_PLACEHOLDER ? (
                   <SafeImage
-                    src={getAbsoluteImageUrl(article.featured_media.file_url)}
+                    src={getArticleCardImageUrl(article)}
                     alt=""
                     width={64}
                     height={64}
@@ -227,9 +227,9 @@ export default function ArticlesList({ articles, loading, onEdit, onDelete, prof
                 <td className="px-6 py-4 align-top">
                   <div className="flex items-start space-x-3 min-w-0">
                     <div className="relative w-16 h-16 flex-shrink-0 overflow-hidden rounded-lg bg-[rgb(var(--color-surface-raised)/0.85)]">
-                      {article.featured_media?.file_url ? (
+                      {getArticleCardImageUrl(article) !== ARTICLE_IMAGE_PLACEHOLDER ? (
                         <SafeImage
-                          src={getAbsoluteImageUrl(article.featured_media.file_url)}
+                          src={getArticleCardImageUrl(article)}
                           alt=""
                           width={64}
                           height={64}

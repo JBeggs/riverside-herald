@@ -15,7 +15,7 @@ import {
   Building2,
   Share2
 } from 'lucide-react'
-import { getAbsoluteImageUrl } from '@/lib/image-utils'
+import { getArticleCardImageUrl, ARTICLE_IMAGE_PLACEHOLDER } from '@/lib/image-utils'
 import SafeImage from '@/components/ui/SafeImage'
 
 // Custom icons not available in lucide-react
@@ -132,15 +132,17 @@ export default function ArticleCard({
 
   const isBusinessOwner = profile?.role === 'business_owner'
   const isEditor = profile?.role === 'editor' || profile?.role === 'admin'
+  const cardImageUrl = getArticleCardImageUrl(article)
+  const hasCardImage = cardImageUrl !== ARTICLE_IMAGE_PLACEHOLDER
 
   if (compact) {
     return (
       <div className={`bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow ${className}`}>
         <div className="flex items-start space-x-3">
           {/* Thumbnail */}
-          {article.featured_media?.file_url ? (
+          {hasCardImage ? (
             <SafeImage
-              src={getAbsoluteImageUrl(article.featured_media.file_url)}
+              src={cardImageUrl}
               alt=""
               width={48}
               height={48}
@@ -212,9 +214,9 @@ export default function ArticleCard({
       <div className="p-6">
         <div className="flex items-start space-x-4">
           {/* Thumbnail */}
-          {article.featured_media?.file_url ? (
+          {hasCardImage ? (
             <SafeImage
-              src={getAbsoluteImageUrl(article.featured_media.file_url)}
+              src={cardImageUrl}
               alt=""
               width={80}
               height={80}

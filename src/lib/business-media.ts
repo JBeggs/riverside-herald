@@ -1,6 +1,7 @@
 /**
  * Normalize business logos and ecommerce product images from API payloads.
  */
+import { getMediaCardUrl } from './image-utils'
 
 export function getEcommerceCompanySlug(business: {
   slug?: string
@@ -41,6 +42,8 @@ export function resolveProductImage(
   product: {
     image?: string | { file_url?: string | null } | null
     images?: Array<string | { file_url?: string | null; url?: string | null }>
+    image_thumbnail?: string | null
+    image_thumbnails?: string[] | null
   } | null | undefined,
 ): { file_url: string } | null {
   if (!product) return null
@@ -62,6 +65,53 @@ export function resolveProductImage(
         if (url) return { file_url: url }
       }
     }
+  }
+  return null
+}
+
+/** Product image for cards — prefers API thumbnail fields. */
+export function resolveProductCardImage(
+  product: {
+    image?: string | { file_url?: string | null; thumbnail_url?: string | null } | null
+    images?: Array<string | { file_url?: string | null; url?: string | null; thumbnail_url?: string | null }>
+    image_thumbnail?: string | null
+    image_thumbnails?: string[] | null
+  } | null | undefined,
+): { file_url: string } | null {
+  if (!product) return null
+  const apiThumb = (product.image_thumbnail || '').trim()
+  if (apiThumb) return { file_url: apiThumb }
+  const apiThumbs = Array.isArray(product.image_thumbnails)
+    ? product.image_thumbnails.filter((u): u is string => typeof u === 'string' && !!u.trim())
+    : []
+  if (apiThumbs.length > 0) return { file_url: apiThumbs[0].trim() }
+  const img = product.image
+  if (img && typeof img === 'object' && img.thumbnail_url?.trim()) {
+    return { file_url: img.thumbnail_url.trim() }
+  }
+  return resolveProductImage(product)
+}
+
+export function resolveBusinessCoverCardUrl(
+  cover?: { file_url?: string | null; thumbnail_url?: string | null } | null,
+): string {
+  return getMediaCardUrl(cover)
+}
+
+export function mapCoverImageForCard(
+  cover: { file_url?: string | null; thumbnail_url?: string | null; alt_text?: string | null } | null | undefined,
+  altFallback: string,
+  fallbackCardUrl?: string | null,
+) {
+  if (cover?.file_url?.trim()) {
+    return {
+      file_url: cover.file_url,
+      thumbnail_url: cover.thumbnail_url,
+      alt_text: cover.alt_text || altFallback,
+    }
+  }
+  if (fallbackCardUrl?.trim()) {
+    return { file_url: fallbackCardUrl.trim(), alt_text: altFallback }
   }
   return null
 }

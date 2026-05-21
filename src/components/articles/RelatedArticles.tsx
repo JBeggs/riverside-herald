@@ -1,7 +1,7 @@
 import { serverNewsApi } from '@/lib/api-server'
 import Link from 'next/link'
 import { loadSiteSettingsMap, stringFromMap } from '@/lib/site-settings'
-import { getArticleCardImageUrl } from '@/lib/image-utils'
+import { getArticleCardImageUrl, mapMediaForCard } from '@/lib/image-utils'
 import RelatedArticleCard from '@/components/articles/RelatedArticleCard'
 import type { RelatedArticleCardData } from '@/components/articles/RelatedArticleCard'
 
@@ -62,12 +62,7 @@ async function getRelatedArticles(currentArticleId: string, categoryId?: string)
       content: article.content || '',
       published_at: article.published_at,
       views: article.views || 0,
-      featured_media: article.featured_media
-        ? {
-            file_url: article.featured_media.file_url,
-            alt_text: article.featured_media.alt_text || article.title,
-          }
-        : undefined,
+      featured_media: mapMediaForCard(article.featured_media, article.title),
       author_name: article.author_name || 'Staff Writer',
       category: article.category
         ? {

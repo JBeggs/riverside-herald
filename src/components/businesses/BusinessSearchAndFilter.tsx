@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { Search, Filter, X, Building2, MapPin, Star } from 'lucide-react'
+import { getLogoCardUrl, getMediaCardUrl, ARTICLE_IMAGE_PLACEHOLDER } from '@/lib/image-utils'
 import Link from 'next/link'
 import Image from 'next/image'
 // Using any for now to handle the transformed business data structure
@@ -17,8 +18,8 @@ interface BusinessData {
   is_verified: boolean
   rating: number
   review_count: number
-  logo?: { file_url: string; alt_text: string } | null
-  cover_image?: { file_url: string; alt_text: string } | null
+  logo?: { file_url: string; thumbnail_url?: string; alt_text: string } | null
+  cover_image?: { file_url: string; thumbnail_url?: string; alt_text: string } | null
   website_url?: string
   phone?: string
 }
@@ -224,30 +225,33 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
               >
                 {/* Business Image */}
                 <div className="relative h-40 overflow-hidden">
-                  {business.cover_image?.file_url ? (
+                  {getMediaCardUrl(business.cover_image) ? (
                     <Image
-                      src={business.cover_image.file_url}
-                      alt={business.cover_image.alt_text || business.name}
+                      src={getMediaCardUrl(business.cover_image)}
+                      alt={business.cover_image?.alt_text || business.name}
                       fill
                       className="object-cover hover:scale-105 transition-transform duration-200"
                     />
-                  ) : business.logo?.file_url ? (
+                  ) : (() => {
+                    const logoSrc = getLogoCardUrl(business.logo)
+                    return logoSrc && logoSrc !== ARTICLE_IMAGE_PLACEHOLDER ? (
                     <div className="w-full h-full bg-[rgb(var(--color-surface-raised)/0.85)] flex items-center justify-center">
                       <Image
-                        src={business.logo.file_url}
-                        alt={business.logo.alt_text || business.name}
+                        src={logoSrc}
+                        alt={business.logo?.alt_text || business.name}
                         width={80}
                         height={80}
                         className="object-contain"
                       />
                     </div>
-                  ) : (
+                    ) : (
                     <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
                       <span className="text-white text-3xl font-bold">
                         {business.name.charAt(0)}
                       </span>
                     </div>
-                  )}
+                    )
+                  })()}
                   
                   {/* Industry Badge */}
                   {business.industry && (

@@ -41,9 +41,6 @@ export default function ShareToLinkedInDialog({
 }: ShareToLinkedInDialogProps) {
   const { showError, showSuccess } = useToast()
   const [text, setText] = useState(initialText)
-  const [target, setTarget] = useState<LinkedInShareTarget>(
-    mustPostToCompanyPage ? 'page' : 'profile',
-  )
   const [statusLoading, setStatusLoading] = useState(false)
   const [posting, setPosting] = useState(false)
   const [connected, setConnected] = useState(false)
@@ -122,7 +119,6 @@ export default function ShareToLinkedInDialog({
   useEffect(() => {
     if (!isOpen) return
     setText(initialText)
-    setTarget(mustPostToCompanyPage ? 'page' : 'profile')
   }, [isOpen, initialText, mustPostToCompanyPage])
 
   const openConnect = () => {
