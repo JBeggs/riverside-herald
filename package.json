@@ -34,6 +34,7 @@
     "@headlessui/react": "^2.2.6",
     "@hookform/resolvers": "^5.2.0",
     "@supabase/ssr": "^0.6.1",
+    "@tiptap/extension-link": "^2.27.2",
     "@tiptap/extension-placeholder": "^2.27.2",
     "@tiptap/pm": "^2.27.2",
     "@tiptap/react": "^2.27.2",

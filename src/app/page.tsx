@@ -8,7 +8,7 @@ import {
   HomeTrendingMeta,
 } from '@/components/home/HomeArticleBlocks'
 import HomeFeaturedBusinessesSlideshow from '@/components/home/HomeFeaturedBusinessesSlideshow'
-import { getArticleCardImageUrl, mapMediaForCard } from '@/lib/image-utils'
+import { getArticleCardImageUrl, getArticleImageUrl, mapMediaForCard } from '@/lib/image-utils'
 import {
   getEcommerceCompanySlug,
   mapCoverImageForCard,
@@ -262,6 +262,11 @@ async function getHomepageData() {
   }
 }
 
+/** Sidebar featured cards: full hero image scales better than tiny thumbs. */
+function getSideImageUrl(article?: Article) {
+  return getArticleImageUrl(article)
+}
+
 function getImageUrl(article?: Article) {
   const u = getArticleCardImageUrl(article)
   return u || null
@@ -336,7 +341,7 @@ export default async function HomePage() {
                     <HomeSideArticleBlock
                       key={article.id}
                       article={article}
-                      imageUrl={getImageUrl(article)}
+                      imageUrl={getSideImageUrl(article)}
                       locale={defaultLocale}
                     />
                   ))}

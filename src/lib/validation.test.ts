@@ -41,6 +41,20 @@ describe('validation', () => {
       expect(sanitizeHtml(html)).toContain('world');
     });
 
+    it('preserves reference links in lists', () => {
+      const html =
+        '<ul><li><a href="https://example.com/report" rel="noopener noreferrer" target="_blank">Example report</a></li></ul>';
+      const cleaned = sanitizeHtml(html);
+      expect(cleaned).toContain('href="https://example.com/report"');
+      expect(cleaned).toContain('Example report');
+    });
+
+    it('strips javascript hrefs from links', () => {
+      const html = '<p><a href="javascript:alert(1)">bad</a></p>';
+      const cleaned = sanitizeHtml(html);
+      expect(cleaned).not.toContain('javascript:');
+    });
+
     it('strips script tags', () => {
       const html = '<p>Safe</p><script>alert(1)</script>';
       expect(sanitizeHtml(html)).not.toContain('script');

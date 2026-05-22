@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import Link from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
 import { cmsField, cmsTextarea } from '@/lib/cms-ui-classes'
 
@@ -54,6 +55,15 @@ export default function ArticleHtmlEditor({ value, onChange, disabled = false }:
     extensions: [
       StarterKit.configure({
         heading: { levels: [2, 3] },
+      }),
+      Link.configure({
+        openOnClick: false,
+        autolink: true,
+        linkOnPaste: true,
+        HTMLAttributes: {
+          rel: 'noopener noreferrer',
+          target: '_blank',
+        },
       }),
       Placeholder.configure({
         placeholder: 'Write your article…',
@@ -110,6 +120,19 @@ export default function ArticleHtmlEditor({ value, onChange, disabled = false }:
     fn()
   }
 
+  const toggleLink = () => {
+    if (!editor || disabled) return
+    const previous = (editor.getAttributes('link').href as string) || ''
+    const url = window.prompt('Link URL (https://…)', previous || 'https://')
+    if (url === null) return
+    const trimmed = url.trim()
+    if (!trimmed) {
+      editor.chain().focus().extendMarkRange('link').unsetLink().run()
+      return
+    }
+    editor.chain().focus().extendMarkRange('link').setLink({ href: trimmed }).run()
+  }
+
   return (
     <div className="rounded-lg border border-border-default overflow-hidden bg-[rgb(var(--color-surface))]">
       <div className="flex flex-wrap items-center gap-2 p-2 border-b border-border-default bg-[rgb(var(--color-surface-raised)/0.4)]">
@@ -159,6 +182,14 @@ export default function ArticleHtmlEditor({ value, onChange, disabled = false }:
               onClick={() => run(() => editor.chain().focus().toggleItalic().run())}
             >
               <span className="text-sm italic">I</span>
+            </ToolbarButton>
+            <ToolbarButton
+              title="Link"
+              disabled={disabled}
+              active={editor.isActive('link')}
+              onClick={toggleLink}
+            >
+              <span className="text-sm underline">Link</span>
             </ToolbarButton>
             <ToolbarButton
               title="Heading 2"
@@ -221,7 +252,7 @@ export default function ArticleHtmlEditor({ value, onChange, disabled = false }:
       {tab === 'visual' ? (
         <EditorContent
           editor={editor}
-          className="article-html-editor__content min-h-[12rem] sm:min-h-[16rem] px-4 py-3 text-text [&_.ProseMirror]:min-h-[10rem] [&_.ProseMirror]:outline-none [&_.ProseMirror_p]:my-3 [&_.ProseMirror_h2]:text-xl [&_.ProseMirror_h2]:font-semibold [&_.ProseMirror_h2]:mt-6 [&_.ProseMirror_h2]:mb-2 [&_.ProseMirror_h3]:text-lg [&_.ProseMirror_h3]:font-semibold [&_.ProseMirror_h3]:mt-4 [&_.ProseMirror_h3]:mb-2 [&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-6 [&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-6 [&_.ProseMirror_blockquote]:border-l-4 [&_.ProseMirror_blockquote]:border-primary [&_.ProseMirror_blockquote]:pl-4 [&_.ProseMirror_blockquote]:italic [&_.ProseMirror_blockquote]:text-text-muted"
+          className="article-html-editor__content min-h-[12rem] sm:min-h-[16rem] px-4 py-3 text-text [&_.ProseMirror]:min-h-[10rem] [&_.ProseMirror]:outline-none [&_.ProseMirror_p]:my-3 [&_.ProseMirror_h2]:text-xl [&_.ProseMirror_h2]:font-semibold [&_.ProseMirror_h2]:mt-6 [&_.ProseMirror_h2]:mb-2 [&_.ProseMirror_h3]:text-lg [&_.ProseMirror_h3]:font-semibold [&_.ProseMirror_h3]:mt-4 [&_.ProseMirror_h3]:mb-2 [&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-6 [&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-6 [&_.ProseMirror_blockquote]:border-l-4 [&_.ProseMirror_blockquote]:border-primary [&_.ProseMirror_blockquote]:pl-4 [&_.ProseMirror_blockquote]:italic [&_.ProseMirror_blockquote]:text-text-muted [&_.ProseMirror_a]:text-primary [&_.ProseMirror_a]:underline"
         />
       ) : (
         <textarea
@@ -238,7 +269,7 @@ export default function ArticleHtmlEditor({ value, onChange, disabled = false }:
 
       <p className="px-3 py-2 text-xs text-text-muted border-t border-border-default bg-[rgb(var(--color-surface-raised)/0.25)]">
         Use <strong>Visual</strong> for everyday editing, or <strong>HTML</strong> for full markup control.
-        Allowed tags: p, h2–h4, strong, em, ul, ol, li, blockquote.
+        Allowed tags: p, h2–h4, strong, em, a, ul, ol, li, blockquote.
       </p>
     </div>
   )

@@ -119,7 +119,7 @@ export function HomeFeaturedArticleBlock({
   )
 }
 
-/** Compact row with thumbnail (side column). */
+/** Compact horizontal card (featured sidebar column). */
 export function HomeSideArticleBlock({
   article,
   imageUrl,
@@ -132,47 +132,56 @@ export function HomeSideArticleBlock({
   const [revealed, setRevealed] = useState(!imageUrl)
   const onLoad = useCallback(() => setRevealed(true), [])
   const subtitle = trimArticleSubtitle(article.subtitle)
+  const href = `/articles/${article.slug}`
 
   return (
-    <article className={`card p-3 md:p-4 ${revealClass(revealed)}`}>
-      <div className="flex space-x-3 md:space-x-4">
-        {imageUrl ? (
-          <div className="flex-shrink-0 relative w-20 h-16 md:w-24 md:h-20 overflow-hidden rounded">
-            <SafeImage
-              src={imageUrl}
-              alt=""
-              width={120}
-              height={80}
-              className="rounded"
-              imgClassName="h-full w-full object-cover"
-              onLoad={onLoad}
-            />
-          </div>
+    <article
+      className={`card overflow-hidden flex gap-3 md:gap-4 p-3 md:p-4 items-stretch ${revealClass(revealed)}`}
+    >
+      {imageUrl ? (
+        <Link
+          href={href}
+          className="relative block w-[5.5rem] sm:w-24 md:w-28 shrink-0 rounded-md overflow-hidden bg-[rgb(var(--color-surface-raised)/0.85)] self-center aspect-[4/3]"
+          aria-hidden
+          tabIndex={-1}
+        >
+          <SafeImage
+            src={imageUrl}
+            alt=""
+            fill
+            sizes="(max-width: 640px) 88px, 112px"
+            imgClassName="object-cover object-center"
+            loading="lazy"
+            decoding="async"
+            onLoad={onLoad}
+          />
+        </Link>
+      ) : null}
+      <div className="flex-1 min-w-0 flex flex-col justify-center">
+        {article.category ? (
+          <span
+            translate="no"
+            className="tag tag-primary mb-1.5 w-fit"
+            style={{
+              backgroundColor: `${article.category.color}20`,
+              color: article.category.color,
+            }}
+          >
+            {article.category.name}
+          </span>
         ) : null}
-        <div className="flex-1 min-w-0">
-          {article.category ? (
-            <span
-              translate="no"
-              className="tag tag-primary mb-1 md:mb-2"
-              style={{
-                backgroundColor: `${article.category.color}20`,
-                color: article.category.color,
-              }}
-            >
-              {article.category.name}
-            </span>
-          ) : null}
-          <h3 className="heading-xs mb-1 md:mb-2 line-clamp-2">
-            <Link href={`/articles/${article.slug}`} className="hover:text-primary">
-              {article.title}
-            </Link>
-          </h3>
-          <ArticleCardSubtitle text={subtitle} />
-          <div className="flex items-center text-[10px] md:text-xs text-neutral-500 truncate">
-            <span className="truncate max-w-[80px] md:max-w-none">{article.author_name || 'Staff Writer'}</span>
-            <span className="mx-1 md:mx-2 flex-shrink-0">•</span>
-            <time className="flex-shrink-0">{formatArticleDateShort(article.published_at, locale) || '—'}</time>
-          </div>
+        <h3 className="heading-xs mb-1 line-clamp-3 leading-snug">
+          <Link href={href} className="hover:text-primary">
+            {article.title}
+          </Link>
+        </h3>
+        <ArticleCardSubtitle text={subtitle} />
+        <div className="flex items-center text-[10px] md:text-xs text-neutral-500 mt-0.5">
+          <span className="truncate">{article.author_name || 'Staff Writer'}</span>
+          <span className="mx-1.5 flex-shrink-0">•</span>
+          <time className="flex-shrink-0 whitespace-nowrap">
+            {formatArticleDateShort(article.published_at, locale) || '—'}
+          </time>
         </div>
       </div>
     </article>
