@@ -54,7 +54,7 @@ export default function FooterClient({
           <div>
             <div className="flex items-center space-x-2 mb-4">
               <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
-                <span className="text-[var(--color-text-inverse)] font-bold text-xs">
+                <span className="text-on-primary font-bold text-xs">
                   {siteName
                     .split(/\s+/)
                     .map((word: string) => word[0])

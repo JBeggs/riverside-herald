@@ -114,7 +114,7 @@ export default async function RelatedArticles({ currentArticleId, categoryId }: 
           </div>
 
           <div className="text-center mt-12">
-            <Link href="/articles" className="inline-flex items-center px-6 py-3 bg-primary text-[rgb(var(--color-on-accent))] font-semibold rounded-lg hover:opacity-90 transition-opacity shadow-card">
+            <Link href="/articles" className="inline-flex items-center px-6 py-3 bg-primary text-on-primary font-semibold rounded-lg hover:opacity-90 transition-opacity shadow-card">
               View All Articles
             </Link>
           </div>

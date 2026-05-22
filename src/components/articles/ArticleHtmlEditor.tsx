@@ -37,7 +37,7 @@ function ToolbarButton({
       className={[
         'p-2 rounded-md border border-border-default min-w-[36px] min-h-[36px] flex items-center justify-center transition-colors',
         active
-          ? 'bg-primary text-[rgb(var(--color-on-accent))]'
+          ? 'bg-primary text-on-primary'
           : 'bg-surface text-text-muted hover:text-text hover:bg-[rgb(var(--color-surface-raised)/0.5)]',
         disabled ? 'opacity-50 cursor-not-allowed' : '',
       ].join(' ')}
@@ -144,7 +144,7 @@ export default function ArticleHtmlEditor({ value, onChange, disabled = false }:
             className={[
               'px-3 py-1.5 text-sm font-medium flex items-center gap-1.5 min-h-[36px]',
               tab === 'visual'
-                ? 'bg-primary text-[rgb(var(--color-on-accent))]'
+                ? 'bg-primary text-on-primary'
                 : 'bg-surface text-text-muted hover:text-text',
             ].join(' ')}
           >
@@ -157,7 +157,7 @@ export default function ArticleHtmlEditor({ value, onChange, disabled = false }:
             className={[
               'px-3 py-1.5 text-sm font-medium flex items-center gap-1.5 min-h-[36px] border-l border-border-default',
               tab === 'html'
-                ? 'bg-primary text-[rgb(var(--color-on-accent))]'
+                ? 'bg-primary text-on-primary'
                 : 'bg-surface text-text-muted hover:text-text',
             ].join(' ')}
           >

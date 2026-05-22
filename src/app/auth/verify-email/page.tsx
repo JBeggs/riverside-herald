@@ -72,7 +72,7 @@ function VerifyEmailInner() {
         </div>
         <div className={cardClass}>
           <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto">
-            <Mail className="w-8 h-8 text-[rgb(var(--color-on-accent))]" />
+            <Mail className="w-8 h-8 text-on-primary" />
           </div>
           {emailHint ? (
             <p className="text-sm text-text-muted">
@@ -102,7 +102,7 @@ function VerifyEmailInner() {
       {status === 'working' ? (
         <>
           <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto">
-            <Mail className="w-8 h-8 text-[rgb(var(--color-on-accent))]" />
+            <Mail className="w-8 h-8 text-on-primary" />
           </div>
           <h2 className="text-2xl font-playfair font-semibold text-text">Verifying your email</h2>
           <div className="flex flex-col items-center gap-3 py-4">
@@ -115,7 +115,7 @@ function VerifyEmailInner() {
       {status === 'done' ? (
         <>
           <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto">
-            <Mail className="w-8 h-8 text-[rgb(var(--color-on-accent))]" />
+            <Mail className="w-8 h-8 text-on-primary" />
           </div>
           <h2 className="text-2xl font-playfair font-semibold text-text">Email verified</h2>
           <p className="text-text-muted text-sm">Redirecting…</p>

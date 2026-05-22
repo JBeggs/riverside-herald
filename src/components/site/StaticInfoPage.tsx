@@ -20,7 +20,7 @@ export default function StaticInfoPage({ title, intro, children }: StaticInfoPag
         <div className="mt-8">
           <Link
             href="/"
-            className="inline-flex items-center px-4 py-2 rounded-lg bg-primary text-[rgb(var(--color-on-accent))] hover:opacity-90 transition-opacity"
+            className="inline-flex items-center px-4 py-2 rounded-lg bg-primary text-on-primary hover:opacity-90 transition-opacity"
           >
             Back to home
           </Link>

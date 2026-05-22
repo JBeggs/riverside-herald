@@ -112,7 +112,7 @@ export function MobileNav({ menuItems }: MobileNavProps) {
                     </button>
                     <Link
                       href="/register"
-                      className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-primary text-[rgb(var(--color-on-accent))] font-medium hover:opacity-90 transition-opacity min-h-[48px]"
+                      className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-primary text-on-primary font-medium hover:opacity-90 transition-opacity min-h-[48px]"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       <User className="w-5 h-5 shrink-0" />
@@ -130,7 +130,7 @@ export function MobileNav({ menuItems }: MobileNavProps) {
                         />
                       ) : (
                         <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center shrink-0">
-                          <User className="w-5 h-5 text-[rgb(var(--color-on-accent))]" />
+                          <User className="w-5 h-5 text-on-primary" />
                         </div>
                       )}
                       <div className="flex-1 min-w-0">

@@ -67,10 +67,10 @@ export async function Header() {
               <span className="xs:hidden">{shortDate}</span>
             </div>
             <div className="flex items-center space-x-4">
-              <Link href="/newsletter" className="hover:text-primary">
+              <Link href="/newsletter" className="hover:opacity-80 transition-opacity">
                 Newsletter
               </Link>
-              <Link href="/contact" className="hover:text-primary">
+              <Link href="/contact" className="hover:opacity-80 transition-opacity">
                 Contact
               </Link>
             </div>

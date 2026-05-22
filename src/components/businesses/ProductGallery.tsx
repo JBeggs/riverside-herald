@@ -53,12 +53,20 @@ type CategoryFilter = {
   count: number
 }
 
+/** Single source of truth for category chip keys and product filtering. */
+function productCategoryKey(product: ExternalProduct): string {
+  const label = (product.category || '').trim()
+  const slug = (product.categorySlug || '').trim()
+  if (!label && !slug) return ''
+  return (slug || label).toLowerCase()
+}
+
 function buildCategoryFilters(products: ExternalProduct[]): CategoryFilter[] {
   const counts = new Map<string, CategoryFilter>()
   for (const product of products) {
     const label = (product.category || '').trim()
-    if (!label) continue
-    const key = (product.categorySlug || label).trim().toLowerCase()
+    const key = productCategoryKey(product)
+    if (!key || !label) continue
     const existing = counts.get(key)
     if (existing) {
       existing.count += 1
@@ -76,10 +84,7 @@ export default function ProductGallery({ products, businessName }: ProductGaller
 
   const filteredProducts = useMemo(() => {
     if (!selectedCategory) return products
-    return products.filter((product) => {
-      const key = (product.categorySlug || product.category || '').trim().toLowerCase()
-      return key === selectedCategory
-    })
+    return products.filter((product) => productCategoryKey(product) === selectedCategory)
   }, [products, selectedCategory])
 
   if (!products || products.length === 0) return null
@@ -106,7 +111,7 @@ export default function ProductGallery({ products, businessName }: ProductGaller
               className={[
                 'px-4 py-2 rounded-full text-sm font-medium border transition-colors',
                 selectedCategory === null
-                  ? 'bg-primary text-[rgb(var(--color-on-accent))] border-primary'
+                  ? 'bg-primary text-on-primary border-primary'
                   : 'bg-surface text-text border-border-default hover:bg-[rgb(var(--color-surface-raised)/0.85)]',
               ].join(' ')}
             >
@@ -120,7 +125,7 @@ export default function ProductGallery({ products, businessName }: ProductGaller
                 className={[
                   'px-4 py-2 rounded-full text-sm font-medium border transition-colors',
                   selectedCategory === category.key
-                    ? 'bg-primary text-[rgb(var(--color-on-accent))] border-primary'
+                    ? 'bg-primary text-on-primary border-primary'
                     : 'bg-surface text-text border-border-default hover:bg-[rgb(var(--color-surface-raised)/0.85)]',
                 ].join(' ')}
               >
@@ -135,10 +140,10 @@ export default function ProductGallery({ products, businessName }: ProductGaller
         <p className="text-text-muted text-sm">No products in this category.</p>
       ) : (
         <motion.div
+          key={selectedCategory ?? 'all'}
           variants={container}
           initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
+          animate="show"
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
         >
           {filteredProducts.map((product) => {
@@ -190,7 +195,7 @@ export default function ProductGallery({ products, businessName }: ProductGaller
                       href={detailUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center w-full px-4 py-3 bg-primary text-[rgb(var(--color-on-accent))] text-sm font-bold rounded-xl hover:opacity-90 transition-colors group/btn"
+                      className="inline-flex items-center justify-center w-full px-4 py-3 bg-primary text-on-primary text-sm font-bold rounded-xl hover:opacity-90 transition-colors group/btn"
                     >
                       <span>View on Website</span>
                       <ArrowUpRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />

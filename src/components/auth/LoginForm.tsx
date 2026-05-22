@@ -106,7 +106,7 @@ export default function LoginForm({ onSuccess, className = '' }: LoginFormProps)
         {/* Header */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-            <LogIn className="w-8 h-8 text-[rgb(var(--color-on-accent))]" />
+            <LogIn className="w-8 h-8 text-on-primary" />
           </div>
           <h2 className="text-2xl font-playfair font-semibold text-text mb-2">Welcome Back</h2>
           <p className="text-text-muted">Sign in to your account to continue</p>

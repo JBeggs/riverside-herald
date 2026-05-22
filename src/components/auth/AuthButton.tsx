@@ -71,7 +71,7 @@ export default function AuthButton({ onAction }: { onAction?: () => void }) {
             />
           ) : (
             <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-              <User className="w-4 h-4 text-[rgb(var(--color-on-accent))]" />
+              <User className="w-4 h-4 text-on-primary" />
             </div>
           )}
           <span className="text-sm font-medium text-text hidden sm:block">

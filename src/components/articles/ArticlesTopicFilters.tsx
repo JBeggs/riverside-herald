@@ -21,7 +21,7 @@ export default function ArticlesTopicFilters({
             href="/articles"
             className={
               activeCategorySlug == null
-                ? `${chipBase} bg-primary text-[rgb(var(--color-text-inverse))] ring-transparent`
+                ? `${chipBase} bg-primary text-on-primary ring-transparent`
                 : `${chipBase} bg-surface-raised text-text-muted hover:text-text hover:bg-[rgb(var(--color-border)/0.35)] ring-border-default`
             }
           >
@@ -35,7 +35,7 @@ export default function ArticlesTopicFilters({
                 href={`/category/${category.slug}`}
                 className={
                   active
-                    ? `${chipBase} text-[rgb(var(--color-text-inverse))] ring-transparent`
+                    ? `${chipBase} text-on-primary ring-transparent`
                     : `${chipBase} bg-surface-raised text-text ring-border-default hover:opacity-95`
                 }
                 style={

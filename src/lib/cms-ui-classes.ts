@@ -28,7 +28,7 @@ export const cmsEditorBar =
 export const cmsEditorFooter =
   'px-4 sm:px-6 py-4 sm:py-6 border-t border-border-default bg-[rgb(var(--color-surface-raised)/0.5)] z-20 shrink-0 max-md:pb-[max(1.25rem,env(safe-area-inset-bottom))]'
 export const cmsStepBtnActive =
-  'bg-primary text-[rgb(var(--color-on-accent))] shadow-md ring-2 ring-primary/25'
+  'bg-primary text-on-primary shadow-md ring-2 ring-primary/25'
 export const cmsStepBtnDone =
   'bg-green-100 text-green-800 dark:bg-green-950/40 dark:text-green-200 border border-green-200 dark:border-green-900 hover:bg-green-200 dark:hover:bg-green-950/55'
 export const cmsStepBtnIdle =

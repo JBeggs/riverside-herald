@@ -54,7 +54,7 @@ export default function ArticlesArchivePage({
               <div className="flex justify-center">
                 <Link
                   href="/admin/articles/add"
-                  className="flex items-center space-x-2 px-6 py-3 bg-primary text-[rgb(var(--color-text-inverse))] rounded-lg hover:opacity-90 transition-opacity font-semibold shadow-card"
+                  className="flex items-center space-x-2 px-6 py-3 bg-primary text-on-primary rounded-lg hover:opacity-90 transition-opacity font-semibold shadow-card"
                 >
                   <Plus className="w-5 h-5" />
                   <span>Create New Article</span>
@@ -111,7 +111,7 @@ export default function ArticlesArchivePage({
             </p>
             <Link
               href="/articles"
-              className="inline-flex items-center px-6 py-3 bg-primary text-[rgb(var(--color-text-inverse))] font-semibold rounded-lg hover:opacity-90 transition-opacity"
+              className="inline-flex items-center px-6 py-3 bg-primary text-on-primary font-semibold rounded-lg hover:opacity-90 transition-opacity"
             >
               All articles
             </Link>

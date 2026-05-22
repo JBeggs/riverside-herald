@@ -207,7 +207,7 @@ export default function FeaturedBusinessCard({
               href={business.website || business.website_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full py-2 px-4 text-center bg-primary text-[rgb(var(--color-on-accent))] rounded-lg hover:opacity-90 transition-opacity text-sm font-medium flex items-center justify-center space-x-2"
+              className="w-full py-2 px-4 text-center bg-primary text-on-primary rounded-lg hover:opacity-90 transition-opacity text-sm font-medium flex items-center justify-center space-x-2"
             >
               <Globe className="w-4 h-4" />
               <span>Visit Website</span>

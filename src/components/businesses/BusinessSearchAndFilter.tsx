@@ -126,7 +126,7 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
                 className={`flex items-center space-x-2 px-4 py-3 border rounded-lg transition-colors ${
                   selectedIndustry 
-                    ? 'border-blue-500 bg-blue-50 text-blue-700' 
+                    ? 'border-primary bg-primary/10 text-primary' 
                     : 'border-border-default hover:border-neutral-400 text-text'
                 }`}
               >
@@ -148,7 +148,7 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
                         }}
                         className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
                           !selectedIndustry 
-                            ? 'bg-blue-100 text-blue-700' 
+                            ? 'bg-primary/10 text-primary font-medium' 
                             : 'hover:bg-[rgb(var(--color-surface-raised)/0.85)] text-text'
                         }`}
                       >
@@ -163,7 +163,7 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
                           }}
                           className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
                             selectedIndustry === industry 
-                              ? 'bg-blue-100 text-blue-700' 
+                              ? 'bg-primary/10 text-primary font-medium' 
                               : 'hover:bg-[rgb(var(--color-surface-raised)/0.85)] text-text'
                           }`}
                         >
@@ -333,7 +333,7 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
                     {business.slug ? (
                       <Link 
                         href={`/businesses/${business.slug}`}
-                        className="block w-full text-center px-4 py-2 bg-primary text-[rgb(var(--color-on-accent))] text-sm font-medium rounded-lg hover:opacity-90 transition-colors"
+                        className="block w-full text-center px-4 py-2 bg-primary text-on-primary text-sm font-medium rounded-lg hover:opacity-90 transition-colors"
                       >
                         View Details
                       </Link>
@@ -374,7 +374,7 @@ export function BusinessSearchAndFilter({ businesses, industries }: BusinessSear
             </p>
             <button
               onClick={clearFilters}
-              className="inline-flex items-center px-6 py-3 bg-primary text-[rgb(var(--color-on-accent))] font-semibold rounded-lg hover:opacity-90 transition-colors"
+              className="inline-flex items-center px-6 py-3 bg-primary text-on-primary font-semibold rounded-lg hover:opacity-90 transition-colors"
             >
               Clear All Filters
             </button>

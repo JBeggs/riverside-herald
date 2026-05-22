@@ -277,6 +277,11 @@ h6 {
   color: rgb(var(--color-text-inverse));
 }
 
+/* Icons/labels on primary-filled surfaces — not --color-on-accent (same as primary on modern). */
+.text-on-primary {
+  color: rgb(var(--color-text-inverse));
+}
+
 .btn-primary:hover {
   background-color: rgb(var(--color-primary-hover));
 }
