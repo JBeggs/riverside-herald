@@ -5,6 +5,7 @@ import { MapPin, Star, Phone, Mail, Globe, CheckCircle } from 'lucide-react'
 import SafeImage from '@/components/ui/SafeImage'
 import { getAbsoluteImageUrl, getLogoCardUrl, getMediaCardUrl } from '@/lib/image-utils'
 import { resolveBusinessLogo, resolveProductCardImage } from '@/lib/business-media'
+import { DEFAULT_CURRENCY, formatPrice } from '@/lib/format-price'
 
 const ShoppingBag = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -63,7 +64,7 @@ export default function FeaturedBusinessCard({
   business,
   showProducts = true,
   showWebsiteLink = true,
-  defaultCurrency = 'USD',
+  defaultCurrency = DEFAULT_CURRENCY,
   prominent = false,
 }: FeaturedBusinessCardProps) {
   const renderStars = (rating: number) => {
@@ -73,18 +74,6 @@ export default function FeaturedBusinessCard({
         className={`w-4 h-4 ${i < Math.floor(rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
       />
     ))
-  }
-
-  const formatPrice = (price: number, currency?: string) => {
-    const cur = (currency || defaultCurrency || 'USD').toUpperCase()
-    if (cur === 'ZAR') {
-      return `R${price.toFixed(2)}`
-    }
-    try {
-      return new Intl.NumberFormat(undefined, { style: 'currency', currency: cur }).format(price)
-    } catch {
-      return `$${price.toFixed(2)}`
-    }
   }
 
   const logoResolved = resolveBusinessLogo(business)
@@ -195,7 +184,7 @@ export default function FeaturedBusinessCard({
                     <p className="text-xs text-text font-medium truncate">{product.name}</p>
                     {product.price != null ? (
                       <p className="text-xs text-text-muted">
-                        {formatPrice(product.price, product.currency)}
+                        {formatPrice(product.price, product.currency, defaultCurrency)}
                       </p>
                     ) : null}
                   </div>

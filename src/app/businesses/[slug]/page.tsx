@@ -4,9 +4,11 @@ import { MapPin, Phone, Mail, Globe, Star, CheckCircle } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { BusinessEditButton } from '@/components/businesses/BusinessEditButton'
 import ProductGallery from '@/components/businesses/ProductGallery'
+import { DEFAULT_CURRENCY } from '@/lib/format-price'
 import BusinessHeroCover from '@/components/businesses/BusinessHeroCover'
 import { getBusinessImageUrl as getBusinessImageUrlUtil, getAbsoluteImageUrl, getMediaCardUrl, ARTICLE_IMAGE_PLACEHOLDER } from '@/lib/image-utils'
-import { mapCoverImageForCard, resolveBusinessLogo, resolveProductCardImage } from '@/lib/business-media'
+import { mapCoverImageForCard, resolveBusinessLogo, resolveProductCardImage, getEcommerceCompanySlug } from '@/lib/business-media'
+import { buildProductDetailUrl } from '@/lib/product-urls'
 import { loadSiteSettingsMap, siteLabelFromMap } from '@/lib/site-settings'
 
 function formatPhone(phone?: string): string {
@@ -174,6 +176,7 @@ async function getBusiness(slug: string) {
       created_at: business.created_at,
       owner_id: business.owner,
       owner_name: business.owner_name || '',
+      ecommerce_slug: business.ecommerce_slug || null,
       logo: resolveBusinessLogo(business),
       cover_image: mapCoverImageForCard(
         business.cover_image,
@@ -229,21 +232,33 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
   // Fetch products from the real API
   let products: any[] = []
   try {
-    if (business.slug) {
-      const productsData: any = await serverNewsApi.products.getByBusiness(business.slug)
+    const productCompanySlug = getEcommerceCompanySlug(business)
+    if (productCompanySlug) {
+      const productsData: any = await serverNewsApi.products.getByBusiness(productCompanySlug)
       const rawProducts = productsData?.results ?? productsData?.data ?? productsData ?? []
       const list = Array.isArray(rawProducts) ? rawProducts : []
+      const storefrontWebsite = business.website_url || business.website || ''
       products = list.map((product: any) => {
         const cardImage = resolveProductCardImage(product)
+        const productSlug = (product.slug || '').trim()
+        const categoryName = product.category_name || product.category?.name || undefined
+        const categorySlug = product.category_slug || product.category?.slug || undefined
         return {
           id: String(product.id),
           name: product.name,
-          description: product.description || '',
+          slug: productSlug || undefined,
+          description: product.description || product.short_description || '',
           price: parseFloat(product.price) || 0,
-          currency: product.currency || 'USD',
+          currency: product.currency || DEFAULT_CURRENCY,
           imageUrl: getAbsoluteImageUrl(cardImage?.file_url || ''),
-          externalUrl: product.external_url || product.website_url || business.website_url || '',
-          category: product.category_name || product.category?.name || undefined,
+          externalUrl: buildProductDetailUrl({
+            website: storefrontWebsite,
+            productSlug,
+            canonicalUrl: product.canonical_url,
+            sourceUrl: product.source_url,
+          }),
+          category: categoryName,
+          categorySlug,
         }
       }).filter((p) => p.imageUrl)
     }

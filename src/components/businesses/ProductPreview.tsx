@@ -2,6 +2,7 @@
 
 import { resolveProductCardImage } from '@/lib/business-media'
 import { getAbsoluteImageUrl } from '@/lib/image-utils'
+import { DEFAULT_CURRENCY, formatPrice } from '@/lib/format-price'
 import { useState } from 'react'
 import Image from 'next/image'
 // Custom icons to avoid lucide-react version issues
@@ -57,13 +58,6 @@ export default function ProductPreview({
 
   const handleImageError = (productId: string) => {
     setImageErrors(prev => ({ ...prev, [productId]: true }))
-  }
-
-  const formatPrice = (price: number, currency = 'USD') => {
-    if (currency === 'ZAR') {
-      return `R${price.toFixed(2)}`
-    }
-    return `$${price.toFixed(2)}`
   }
 
   const displayProducts = products.slice(0, maxProducts)
@@ -141,7 +135,7 @@ export default function ProductPreview({
                     <p className={`${
                       compact ? 'text-xs' : 'text-sm'
                     } text-gray-600 font-medium`}>
-                      {formatPrice(product.price, product.currency)}
+                      {formatPrice(product.price, product.currency, DEFAULT_CURRENCY)}
                     </p>
                   )}
                   

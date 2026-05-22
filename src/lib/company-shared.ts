@@ -38,8 +38,8 @@ export const FALLBACK_COMPANY: Company = {
   brandColor: null,
   contact: { email: '', phone: '', address: '' },
   social: { facebook: '', twitter: '', instagram: '', whatsapp: '' },
-  currency: '',
-  localeTag: 'en',
+  currency: 'ZAR',
+  localeTag: 'en-ZA',
 }
 
 export function companyMonogram(name: string): string {

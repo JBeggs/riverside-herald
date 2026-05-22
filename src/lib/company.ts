@@ -4,6 +4,7 @@
 
 import 'server-only'
 import { getAbsoluteImageUrl } from '@/lib/image-utils'
+import { DEFAULT_CURRENCY } from '@/lib/format-price'
 import { FALLBACK_COMPANY, companyMonogram, type Company } from '@/lib/company-shared'
 import { loadSiteSettingsMap } from '@/lib/site-settings'
 
@@ -49,7 +50,7 @@ export async function getCompany(): Promise<Company> {
         instagram: coerceString(map.social_instagram),
         whatsapp: coerceString(map.social_whatsapp ?? map.contact_whatsapp),
       },
-      currency: coerceString(map.currency) || FALLBACK_COMPANY.currency,
+      currency: coerceString(map.currency) || DEFAULT_CURRENCY,
       localeTag: coerceString(map.site_locale) || FALLBACK_COMPANY.localeTag,
       paymentProviderDisplayName:
         coerceString(map.payment_provider_display_name) || undefined,

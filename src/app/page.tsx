@@ -9,6 +9,7 @@ import {
 } from '@/components/home/HomeArticleBlocks'
 import HomeFeaturedBusinessesSlideshow from '@/components/home/HomeFeaturedBusinessesSlideshow'
 import { getArticleCardImageUrl, getArticleImageUrl, mapMediaForCard } from '@/lib/image-utils'
+import { DEFAULT_CURRENCY } from '@/lib/format-price'
 import {
   getEcommerceCompanySlug,
   mapCoverImageForCard,
@@ -278,7 +279,8 @@ export default async function HomePage() {
   const siteName = String(settings.site_name ?? '').trim() || 'Community News'
   const tagline = String(settings.site_tagline ?? '').trim() || 'Local stories and updates'
   const defaultLocale = String(settings.default_locale ?? '').trim() || 'en-ZA'
-  const defaultCurrency = String(settings.default_currency ?? '').trim() || 'USD'
+  const defaultCurrency =
+    String(settings.currency ?? settings.default_currency ?? '').trim() || DEFAULT_CURRENCY
 
   return (
     <div className="bg-bg min-h-screen">

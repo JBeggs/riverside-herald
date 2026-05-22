@@ -1,12 +1,14 @@
 export interface ExternalProduct {
   id: string
   name: string
+  slug?: string
   description: string
   price: number
   currency: string
   imageUrl: string
   externalUrl: string
   category?: string
+  categorySlug?: string
 }
 
 export const BUSINESS_PRODUCTS: Record<string, ExternalProduct[]> = {
