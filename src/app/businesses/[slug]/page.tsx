@@ -8,7 +8,7 @@ import { DEFAULT_CURRENCY } from '@/lib/format-price'
 import BusinessHeroCover from '@/components/businesses/BusinessHeroCover'
 import { getBusinessImageUrl as getBusinessImageUrlUtil, getAbsoluteImageUrl, getMediaCardUrl, ARTICLE_IMAGE_PLACEHOLDER } from '@/lib/image-utils'
 import { mapCoverImageForCard, resolveBusinessLogo, resolveProductCardImage, getEcommerceCompanySlug } from '@/lib/business-media'
-import { buildProductDetailUrl } from '@/lib/product-urls'
+import { buildListingStorefrontProductUrl } from '@/lib/product-urls'
 import { loadSiteSettingsMap, siteLabelFromMap } from '@/lib/site-settings'
 
 function formatPhone(phone?: string): string {
@@ -251,12 +251,7 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
           price: parseFloat(product.price) || 0,
           currency: product.currency || DEFAULT_CURRENCY,
           imageUrl: getAbsoluteImageUrl(cardImage?.file_url || ''),
-          externalUrl: buildProductDetailUrl({
-            website: storefrontWebsite,
-            productSlug,
-            canonicalUrl: product.canonical_url,
-            sourceUrl: product.source_url,
-          }),
+          externalUrl: buildListingStorefrontProductUrl(storefrontWebsite, productSlug),
           category: categoryName,
           categorySlug,
         }

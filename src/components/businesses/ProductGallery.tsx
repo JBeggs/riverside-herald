@@ -197,7 +197,7 @@ export default function ProductGallery({ products, businessName }: ProductGaller
                       rel="noopener noreferrer"
                       className="inline-flex items-center justify-center w-full px-4 py-3 bg-primary text-on-primary text-sm font-bold rounded-xl hover:opacity-90 transition-colors group/btn"
                     >
-                      <span>View on Website</span>
+                      <span>View product in shop</span>
                       <ArrowUpRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
                     </a>
                   ) : null}
