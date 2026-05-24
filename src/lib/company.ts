@@ -6,6 +6,7 @@ import 'server-only'
 import { getAbsoluteImageUrl } from '@/lib/image-utils'
 import { DEFAULT_CURRENCY } from '@/lib/format-price'
 import { FALLBACK_COMPANY, companyMonogram, type Company } from '@/lib/company-shared'
+import { resolvePublicContactEmail } from '@/lib/platform-contact-email'
 import { loadSiteSettingsMap } from '@/lib/site-settings'
 
 export { FALLBACK_COMPANY, companyMonogram }
