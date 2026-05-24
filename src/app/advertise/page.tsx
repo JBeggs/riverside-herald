@@ -1,9 +1,10 @@
 import StaticInfoPage from '@/components/site/StaticInfoPage'
 import { getCompany } from '@/lib/company'
+import { PLATFORM_CONTACT_EMAIL } from '@/lib/platform-contact-email'
 
 export default async function AdvertisePage() {
   const company = await getCompany()
-  const contactEmail = company.contact.email.trim() || 'admin@riversideherald.co.za'
+  const contactEmail = company.contact.email.trim() || PLATFORM_CONTACT_EMAIL
 
   return (
     <StaticInfoPage

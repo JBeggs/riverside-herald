@@ -40,7 +40,7 @@ export async function getCompany(): Promise<Company> {
       ogImageUrl: normaliseImageUrl(map.og_image ?? map.site_og_image),
       brandColor: coerceString(map.brand_color) || null,
       contact: {
-        email: coerceString(map.contact_email),
+        email: resolvePublicContactEmail(coerceString(map.contact_email), map),
         phone: coerceString(map.contact_phone),
         address: coerceString(map.contact_address),
       },

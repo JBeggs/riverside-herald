@@ -6,6 +6,11 @@ import { useAuth } from '@/contexts/AuthContext'
 import { newsApi } from '@/lib/api'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
 import { Save, Loader2 } from 'lucide-react'
+import {
+  CUSTOM_CONTACT_EMAIL_SETTING,
+  PLATFORM_CONTACT_EMAIL,
+  isCustomContactEmailEnabled,
+} from '@/lib/platform-contact-email'
 
 const SettingsIcon = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,7 +42,6 @@ const SETTING_GROUPS: { label: string; keys: { key: string; label: string; place
     keys: [
       { key: 'contact_address', label: 'Address', placeholder: '123 Main Street' },
       { key: 'contact_phone', label: 'Phone', placeholder: '+27 12 345 6789' },
-      { key: 'contact_email', label: 'Email', placeholder: 'hello@example.com' },
     ],
   },
   {
@@ -59,6 +63,7 @@ export default function AdminSettingsPage() {
   const router = useRouter()
   const [settings, setSettings] = useState<Record<string, SiteSetting>>({})
   const [values, setValues] = useState<Record<string, string>>({})
+  const [customContactEmailEnabled, setCustomContactEmailEnabled] = useState(false)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -92,6 +97,7 @@ export default function AdminSettingsPage() {
       })
       setSettings(byKey)
       setValues(vals)
+      setCustomContactEmailEnabled(isCustomContactEmailEnabled(vals))
     } catch (err: unknown) {
       console.error('Error loading settings:', err)
       setError((err as { message?: string })?.message || 'Failed to load settings')
@@ -104,35 +110,46 @@ export default function AdminSettingsPage() {
     setValues((prev) => ({ ...prev, [key]: value }))
   }
 
+  const upsertSetting = async (key: string, value: string, type = 'string', isPublic = true) => {
+    const existing = settings[key]
+    if (existing) {
+      if (existing.value !== value) {
+        await newsApi.siteSettings.update(existing.id, {
+          key: existing.key,
+          value,
+          type: existing.type || type,
+          description: existing.description ?? '',
+          is_public: isPublic,
+        })
+      }
+    } else if (value || type === 'boolean') {
+      await newsApi.siteSettings.create({
+        key,
+        value,
+        type,
+        description: '',
+        is_public: isPublic,
+      })
+    }
+  }
+
   const handleSave = async () => {
     setSaving(true)
     setError(null)
     try {
       for (const group of SETTING_GROUPS) {
         for (const { key } of group.keys) {
-          const newVal = values[key] ?? ''
-          const existing = settings[key]
-          if (existing) {
-            if (existing.value !== newVal) {
-              await newsApi.siteSettings.update(existing.id, {
-                key: existing.key,
-                value: newVal,
-                type: existing.type || 'string',
-                description: existing.description ?? '',
-                is_public: true,
-              })
-            }
-          } else if (newVal) {
-            await newsApi.siteSettings.create({
-              key,
-              value: newVal,
-              type: 'string',
-              description: '',
-              is_public: true,
-            })
-          }
+          await upsertSetting(key, values[key] ?? '')
         }
       }
+
+      const flagValue = customContactEmailEnabled ? 'true' : 'false'
+      await upsertSetting(CUSTOM_CONTACT_EMAIL_SETTING, flagValue, 'boolean', false)
+
+      if (customContactEmailEnabled) {
+        await upsertSetting('contact_email', values.contact_email ?? '')
+      }
+
       await loadSettings()
     } catch (err: unknown) {
       console.error('Error saving settings:', err)
@@ -238,6 +255,44 @@ export default function AdminSettingsPage() {
                       />
                     </div>
                   ))}
+                  {group.label === 'Contact' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Email
+                      </label>
+                      {!customContactEmailEnabled ? (
+                        <>
+                          <input
+                            type="email"
+                            readOnly
+                            value={PLATFORM_CONTACT_EMAIL}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Temporary platform contact email shown on your site.
+                          </p>
+                        </>
+                      ) : (
+                        <input
+                          id="contact_email"
+                          type="email"
+                          value={values.contact_email ?? ''}
+                          onChange={(e) => handleChange('contact_email', e.target.value)}
+                          placeholder="hello@example.com"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      )}
+                      <label className="flex items-center gap-2 mt-2 text-sm text-gray-600 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={customContactEmailEnabled}
+                          onChange={(e) => setCustomContactEmailEnabled(e.target.checked)}
+                          className="rounded border-gray-300"
+                        />
+                        Use my own contact email
+                      </label>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
