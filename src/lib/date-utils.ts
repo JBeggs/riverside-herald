@@ -58,3 +58,17 @@ export function parseLocalDateTimeToIso(local: string): string | null {
   if (isInvalidOrEpoch(d)) return null
   return d.toISOString()
 }
+
+/** Newest `published_at` first; missing dates sort last. */
+export function sortArticlesByPublishedAtDesc<T extends { published_at?: string | null }>(
+  articles: T[],
+): T[] {
+  return [...articles].sort((a, b) => {
+    const ta = a.published_at ? Date.parse(a.published_at) : Number.NEGATIVE_INFINITY
+    const tb = b.published_at ? Date.parse(b.published_at) : Number.NEGATIVE_INFINITY
+    if (Number.isNaN(ta) && Number.isNaN(tb)) return 0
+    if (Number.isNaN(ta)) return 1
+    if (Number.isNaN(tb)) return -1
+    return tb - ta
+  })
+}

@@ -8,6 +8,8 @@ import {
   HomeTrendingMeta,
 } from '@/components/home/HomeArticleBlocks'
 import HomeFeaturedBusinessesSlideshow from '@/components/home/HomeFeaturedBusinessesSlideshow'
+import BreakingNewsTicker from '@/components/home/BreakingNewsTicker'
+import { sortArticlesByPublishedAtDesc } from '@/lib/date-utils'
 import { getArticleCardImageUrl, getArticleImageUrl, mapMediaForCard } from '@/lib/image-utils'
 import { DEFAULT_CURRENCY } from '@/lib/format-price'
 import {
@@ -98,11 +100,13 @@ async function getHomepageData() {
     const [articlesPage1, articlesPage2]: [any, any] = await Promise.all([
       serverNewsApi.articles.list({ 
         status: 'published',
+        ordering: '-published_at',
         page: 1,
         skipTenant: true
       }),
       serverNewsApi.articles.list({ 
         status: 'published',
+        ordering: '-published_at',
         page: 2,
         skipTenant: true
       }).catch(() => ({ results: [] })),
@@ -120,7 +124,8 @@ async function getHomepageData() {
     }
 
     // Transform articles to match expected format
-    const articles: Article[] = mergedRaw.map((article: any) => {
+    const articles: Article[] = sortArticlesByPublishedAtDesc(
+      mergedRaw.map((article: any) => {
       return {
         id: article.id,
         title: article.title,
@@ -143,7 +148,8 @@ async function getHomepageData() {
           color: article.category.color
         } : undefined,
       }
-    })
+    }),
+    )
 
     // Get businesses with products for enhanced display
     let businessesData: any
@@ -225,10 +231,12 @@ async function getHomepageData() {
       }
     })
 
-    const breakingNews = articles.find(article => article.is_breaking_news) || null
+    const breakingNewsItems = sortArticlesByPublishedAtDesc(
+      articles.filter((article) => article.is_breaking_news),
+    )
 
     const nonBreaking = articles.filter((a) => !a.is_breaking_news)
-    const featuredPool = nonBreaking.filter((a) => a.is_featured)
+    const featuredPool = sortArticlesByPublishedAtDesc(nonBreaking.filter((a) => a.is_featured))
     const heroFeaturedIds = new Set<string>()
     const featuredArticles: Article[] = []
     for (const a of featuredPool) {
@@ -239,12 +247,14 @@ async function getHomepageData() {
       }
     }
 
-    const trendingArticles = articles.filter(article => article.is_trending).slice(0, 5)
+    const trendingArticles = sortArticlesByPublishedAtDesc(
+      articles.filter((article) => article.is_trending),
+    ).slice(0, 5)
     const recentArticles = nonBreaking.filter((a) => !heroFeaturedIds.has(a.id)).slice(0, 8)
 
     return {
       settings: settingsMap,
-      breakingNews,
+      breakingNewsItems,
       featuredArticles,
       trendingArticles,
       recentArticles,
@@ -254,7 +264,7 @@ async function getHomepageData() {
     console.error('Error fetching homepage data:', error)
     return {
       settings: {},
-      breakingNews: null,
+      breakingNewsItems: [],
       featuredArticles: [],
       trendingArticles: [],
       recentArticles: [],
@@ -274,7 +284,7 @@ function getImageUrl(article?: Article) {
 }
 
 export default async function HomePage() {
-  const { settings, breakingNews, featuredArticles, trendingArticles, recentArticles, businesses } = await getHomepageData()
+  const { settings, breakingNewsItems, featuredArticles, trendingArticles, recentArticles, businesses } = await getHomepageData()
 
   const siteName = String(settings.site_name ?? '').trim() || 'Community News'
   const tagline = String(settings.site_tagline ?? '').trim() || 'Local stories and updates'
@@ -285,25 +295,16 @@ export default async function HomePage() {
   return (
     <div className="bg-bg min-h-screen">
       {/* Breaking News Banner */}
-      {breakingNews && (
-        <div className="breaking-news">
-          <div className="container-wide">
-            <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-4">
-              <span className="breaking-news-text flex-shrink-0">Breaking News</span>
-              <div className="min-w-0 flex-1">
-                <Link href={`/articles/${breakingNews.slug}`} className="hover:underline block">
-                  <span className="font-medium text-sm sm:text-base line-clamp-2">{breakingNews.title}</span>
-                  {breakingNews.subtitle ? (
-                    <span className="block text-xs sm:text-sm text-white/90 mt-1 line-clamp-2 font-normal">
-                      {breakingNews.subtitle}
-                    </span>
-                  ) : null}
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {breakingNewsItems.length > 0 ? (
+        <BreakingNewsTicker
+          items={breakingNewsItems.map((article) => ({
+            id: article.id,
+            slug: article.slug,
+            title: article.title,
+            subtitle: article.subtitle,
+          }))}
+        />
+      ) : null}
 
       {/* Hero: featured-first (6 slots) */}
       <section

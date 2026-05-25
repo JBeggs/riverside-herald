@@ -334,14 +334,117 @@ h6 {
   @apply underline hover:opacity-90;
 }
 
-.breaking-news {
-  background-color: rgb(var(--color-accent));
-  color: rgb(var(--color-on-accent));
-  @apply py-2 px-4;
+.breaking-ticker {
+  background: linear-gradient(
+    90deg,
+    rgb(var(--color-secondary)) 0%,
+    rgb(15 23 42) 50%,
+    rgb(var(--color-secondary)) 100%
+  );
+  color: rgb(var(--color-text-inverse));
+  @apply py-2.5;
 }
 
-.breaking-news-text {
-  @apply font-semibold uppercase tracking-wide text-sm;
+.breaking-ticker-inner {
+  @apply flex items-center gap-3 md:gap-4;
+}
+
+.breaking-ticker-label {
+  @apply flex-shrink-0 inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em];
+  color: rgb(254 226 226);
+}
+
+.breaking-ticker-live-dot {
+  @apply inline-block h-2 w-2 rounded-full;
+  background: rgb(248 113 113);
+  box-shadow: 0 0 0 0 rgb(248 113 113 / 0.55);
+  animation: breaking-ticker-pulse 2s ease-out infinite;
+}
+
+.breaking-ticker-viewport {
+  @apply overflow-hidden relative;
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    black 6%,
+    black 94%,
+    transparent 100%
+  );
+}
+
+.breaking-ticker-track {
+  @apply flex items-center whitespace-nowrap w-max;
+  animation: breaking-ticker-scroll 45s linear infinite;
+}
+
+.breaking-ticker-track:hover {
+  animation-play-state: paused;
+}
+
+.breaking-ticker-item {
+  @apply inline-flex items-center gap-4 pr-4;
+}
+
+.breaking-ticker-link {
+  @apply inline-flex items-center gap-2 text-sm text-white/95 transition-colors;
+}
+
+.breaking-ticker-link:hover {
+  color: rgb(255 255 255);
+}
+
+.breaking-ticker-subtitle {
+  @apply text-white/65 font-normal text-sm max-w-[28rem] truncate;
+}
+
+.breaking-ticker-sep {
+  @apply text-[8px] text-white/25 select-none;
+}
+
+@keyframes breaking-ticker-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes breaking-ticker-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(248 113 113 / 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgb(248 113 113 / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgb(248 113 113 / 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .breaking-ticker-track {
+    animation: none;
+    @apply flex-wrap whitespace-normal w-full gap-y-1;
+  }
+
+  .breaking-ticker-live-dot {
+    animation: none;
+  }
+
+  .breaking-ticker-sep {
+    @apply hidden;
+  }
+
+  .breaking-ticker-viewport {
+    mask-image: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .breaking-ticker-track {
+    animation-duration: 35s;
+  }
 }
 
 .nav-link {
