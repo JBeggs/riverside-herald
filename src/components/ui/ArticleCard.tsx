@@ -99,6 +99,11 @@ export default function ArticleCard({
     return false
   }
 
+  const canView = () => {
+    if (!article.slug) return false
+    return article.status === 'published' || canEdit()
+  }
+
   const canDelete = () => {
     if (profile?.role === 'admin') return true
     if (profile?.role === 'editor') return true
@@ -160,7 +165,7 @@ export default function ArticleCard({
             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">
                 <Link
-                  href={article.status === 'published' ? `/articles/${article.slug}` : '#'}
+                  href={canView() ? `/articles/${article.slug}` : '#'}
                   className="text-sm font-medium text-gray-900 hover:text-blue-600 block truncate"
                 >
                   {article.title}
@@ -183,12 +188,12 @@ export default function ArticleCard({
               {/* Quick Actions */}
               {showActions && canEdit() && (
                 <div className="flex items-center space-x-1 ml-2">
-                  {article.status === 'published' && (
+                  {canView() && (
                     <Link
                       href={`/articles/${article.slug}`}
                       target="_blank"
                       className="p-1.5 text-gray-400 hover:text-blue-600 transition-colors"
-                      title="View article"
+                      title={article.status === 'published' ? 'View article' : 'Preview draft'}
                     >
                       <Eye className="w-3.5 h-3.5" />
                     </Link>
@@ -234,7 +239,7 @@ export default function ArticleCard({
             <div className="flex items-start justify-between mb-3">
               <div className="flex-1 min-w-0">
                 <Link
-                  href={article.status === 'published' ? `/articles/${article.slug}` : '#'}
+                  href={canView() ? `/articles/${article.slug}` : '#'}
                   className="text-lg font-semibold text-gray-900 hover:text-blue-600 block"
                 >
                   {article.title}
@@ -303,14 +308,14 @@ export default function ArticleCard({
           <div className="flex items-center justify-between pt-4 border-t border-gray-200">
             <div className="flex items-center space-x-2">
               {/* View Button */}
-              {article.status === 'published' && (
+              {canView() && (
                 <Link
                   href={`/articles/${article.slug}`}
                   target="_blank"
                   className="inline-flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   <Eye className="w-4 h-4" />
-                  <span>View</span>
+                  <span>{article.status === 'published' ? 'View' : 'Preview'}</span>
                   <ExternalLink className="w-3 h-3" />
                 </Link>
               )}

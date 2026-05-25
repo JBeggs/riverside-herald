@@ -245,6 +245,11 @@ export default function EnhancedArticleEditor({
       profile?.role === 'business_owner' ||
       isCompanyOwner,
   )
+  const canPublish = Boolean(
+    profile?.is_verified ||
+      profile?.role === 'admin' ||
+      profile?.role === 'editor',
+  )
   // Data states
   const [categories, setCategories] = useState<Category[]>([])
   const [availableTags, setAvailableTags] = useState<Tag[]>([])
@@ -866,13 +871,19 @@ export default function EnhancedArticleEditor({
       const slug = generateSlug(editData.title || 'untitled-article')
 
       // Prepare update data - use empty strings instead of null for blank fields
+      const requestedStatus = editData.status || 'draft'
+      const saveStatus =
+        !canPublish && (requestedStatus === 'published' || requestedStatus === 'scheduled')
+          ? 'draft'
+          : requestedStatus
+
       const updateData: any = {
         title: title, // Already validated and trimmed
         slug: slug,
         subtitle: editData.subtitle || '',
         content: content, // Already validated and trimmed
         excerpt: editData.excerpt || '',
-        status: editData.status || 'draft',
+        status: saveStatus,
         content_type: editData.content_type || 'article',
         is_premium: editData.is_premium || false,
         is_breaking_news: editData.is_breaking_news || false,
@@ -909,7 +920,7 @@ export default function EnhancedArticleEditor({
       
       // published_at: for published, empty picker means "now" (matches Publish tab helper text).
       // For scheduled, use explicit publish date or fall back to scheduled_for — never imply "now".
-      const st = editData.status || 'draft'
+      const st = saveStatus
       if (st === 'published') {
         const pubIso = parseLocalDateTimeToIso(editData.published_at)
         updateData.published_at = pubIso ?? new Date().toISOString()
@@ -1752,6 +1763,12 @@ export default function EnhancedArticleEditor({
       case 'settings':
         return (
           <div className="space-y-6">
+            {!canPublish ? (
+              <div className={cmsWarningBanner}>
+                Your account is pending admin verification. You can save drafts, but publishing and scheduling are
+                disabled until an administrator verifies your account.
+              </div>
+            ) : null}
             <div>
               <label className={cmsLabel}>
                 Article Status
@@ -1762,8 +1779,8 @@ export default function EnhancedArticleEditor({
                 className={cmsField}
               >
                 <option value="draft">Draft</option>
-                <option value="published">Published</option>
-                <option value="scheduled">Scheduled</option>
+                <option value="published" disabled={!canPublish}>Published</option>
+                <option value="scheduled" disabled={!canPublish}>Scheduled</option>
                 <option value="archived">Archived</option>
               </select>
               <p className="mt-2 text-sm text-text-muted">
@@ -2233,6 +2250,12 @@ export default function EnhancedArticleEditor({
       case 'publish':
         return (
           <div className="space-y-6">
+            {!canPublish ? (
+              <div className={cmsWarningBanner}>
+                Your account is pending admin verification. You can preview and edit drafts, but publishing is disabled
+                until an administrator verifies your account.
+              </div>
+            ) : null}
             <div>
               <label className={cmsLabel}>
                 Article status
@@ -2241,10 +2264,11 @@ export default function EnhancedArticleEditor({
                 value={editData.status}
                 onChange={(e) => setEditData((prev) => ({ ...prev, status: e.target.value }))}
                 className={cmsField}
+                disabled={!canPublish && editData.status === 'draft'}
               >
                 <option value="draft">Draft</option>
-                <option value="published">Published</option>
-                <option value="scheduled">Scheduled</option>
+                <option value="published" disabled={!canPublish}>Published</option>
+                <option value="scheduled" disabled={!canPublish}>Scheduled</option>
                 <option value="archived">Archived</option>
               </select>
               <p className="mt-2 text-sm text-text-muted">

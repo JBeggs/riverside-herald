@@ -99,16 +99,16 @@ export default function ArticlesList({ articles, loading, onEdit, onDelete, prof
 
   const rowActions = (article: any) => (
     <div className="flex items-center justify-end space-x-2">
-      {article.status === 'published' && (
+      {(article.status === 'published' || canEdit(article)) && article.slug ? (
         <Link
           href={`/articles/${article.slug}`}
           target="_blank"
           className="p-2 text-text-muted hover:text-primary transition-colors"
-          title="View article"
+          title={article.status === 'published' ? 'View article' : 'Preview draft'}
         >
           <Eye className="w-4 h-4" />
         </Link>
-      )}
+      ) : null}
       {canEdit(article) && (
         <>
           <button
@@ -160,7 +160,7 @@ export default function ArticlesList({ articles, loading, onEdit, onDelete, prof
               </div>
               <div className="flex-1 min-w-0">
                 <Link
-                  href={article.status === 'published' ? `/articles/${article.slug}` : '#'}
+                  href={article.slug ? `/articles/${article.slug}` : '#'}
                   className="text-sm font-medium text-text hover:text-primary line-clamp-2"
                 >
                   {article.title}
@@ -244,7 +244,7 @@ export default function ArticlesList({ articles, loading, onEdit, onDelete, prof
                     </div>
                     <div className="flex-1 min-w-0">
                       <Link
-                        href={article.status === 'published' ? `/articles/${article.slug}` : '#'}
+                        href={article.slug ? `/articles/${article.slug}` : '#'}
                         className="text-sm font-medium text-text hover:text-primary block break-words"
                       >
                         {article.title}

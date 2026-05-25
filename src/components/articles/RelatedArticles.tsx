@@ -97,7 +97,7 @@ export default async function RelatedArticles({ currentArticleId, categoryId }: 
             <p className="text-lg text-text-muted">Continue reading with these related stories</p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid gap-8 [grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr))]">
             {relatedArticles.map((article: RelatedArticleCardData) => {
               const readingTime = calculateReadingTime(article.content)
               const imageUrl = getArticleCardImageUrl(article)
