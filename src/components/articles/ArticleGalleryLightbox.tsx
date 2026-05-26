@@ -49,6 +49,66 @@ function scrollContainerTo(container: HTMLElement | null, left: number) {
   container.scrollLeft = left
 }
 
+type GallerySlideImageProps = {
+  slide: GallerySlide
+  onTap: () => void
+  viewportRef?: (node: HTMLDivElement | null) => void
+}
+
+function GallerySlideImage({ slide, onTap, viewportRef }: GallerySlideImageProps) {
+  const pointer = useRef({ x: 0, y: 0, active: false, moved: false })
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    pointer.current = {
+      x: e.clientX,
+      y: e.clientY,
+      active: true,
+      moved: false,
+    }
+  }
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!pointer.current.active) return
+    const dx = Math.abs(e.clientX - pointer.current.x)
+    const dy = Math.abs(e.clientY - pointer.current.y)
+    if (dx > 8 || dy > 8) pointer.current.moved = true
+  }
+
+  const handlePointerUp = () => {
+    if (pointer.current.active && !pointer.current.moved) onTap()
+    pointer.current.active = false
+  }
+
+  const handlePointerCancel = () => {
+    pointer.current.active = false
+  }
+
+  return (
+    <div
+      ref={viewportRef}
+      className="h-full w-full overflow-auto overscroll-contain [-webkit-overflow-scrolling:touch]"
+      style={{ touchAction: 'pan-x pan-y pinch-zoom' }}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerCancel}
+    >
+      <div className="flex min-h-full min-w-full items-center justify-center p-2 sm:p-4">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={slide.src}
+          alt={slide.alt}
+          draggable={false}
+          decoding="async"
+          loading="eager"
+          className="block h-auto w-auto max-h-full max-w-full select-none object-contain"
+          style={{ touchAction: 'pan-x pan-y pinch-zoom' }}
+        />
+      </div>
+    </div>
+  )
+}
+
 export function ArticleGalleryLightbox({
   isOpen,
   slides,
@@ -57,6 +117,7 @@ export function ArticleGalleryLightbox({
   onIndexChange,
 }: ArticleGalleryLightboxProps) {
   const scrollerRef = useRef<HTMLDivElement>(null)
+  const slideViewportRefs = useRef(new Map<string, HTMLDivElement>())
   const programmaticScroll = useRef(false)
 
   const [detailsExpanded, setDetailsExpanded] = useState(false)
@@ -116,6 +177,17 @@ export function ArticleGalleryLightbox({
 
     return () => cancelAnimationFrame(frame)
   }, [activeIndex, isOpen])
+
+  useEffect(() => {
+    if (!isOpen) return
+    const slide = slides[activeIndex]
+    if (!slide) return
+    const viewport = slideViewportRefs.current.get(slide.id)
+    if (viewport) {
+      viewport.scrollLeft = 0
+      viewport.scrollTop = 0
+    }
+  }, [activeIndex, isOpen, slides])
 
   const handleScroll = () => {
     if (programmaticScroll.current || !hasMultiple) return
@@ -231,25 +303,16 @@ export function ArticleGalleryLightbox({
           {slides.map((slide) => (
             <div
               key={slide.id}
-              className="flex h-full w-full shrink-0 snap-center items-center justify-center px-3 py-2 sm:px-8"
+              className="flex h-full w-full shrink-0 snap-center items-stretch justify-center sm:px-4"
             >
-              <button
-                type="button"
-                onClick={toggleChrome}
-                className="flex h-full w-full max-w-[72rem] items-center justify-center focus:outline-none"
-                aria-label={chromeVisible ? 'Hide controls' : 'Show controls'}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={slide.src}
-                  alt={slide.alt}
-                  draggable={false}
-                  decoding="async"
-                  loading="eager"
-                  className="max-h-full max-w-full select-none object-contain"
-                  style={{ touchAction: 'pinch-zoom' }}
-                />
-              </button>
+              <GallerySlideImage
+                slide={slide}
+                onTap={toggleChrome}
+                viewportRef={(node) => {
+                  if (node) slideViewportRefs.current.set(slide.id, node)
+                  else slideViewportRefs.current.delete(slide.id)
+                }}
+              />
             </div>
           ))}
         </div>
@@ -307,7 +370,7 @@ export function ArticleGalleryLightbox({
               'transition-opacity duration-200',
             ].join(' ')}
           >
-            Swipe sideways for more photos · tap image to hide controls
+            Swipe sideways for more photos · drag image to pan · tap to hide controls
           </p>
         ) : (
           <p
@@ -317,7 +380,7 @@ export function ArticleGalleryLightbox({
               'transition-opacity duration-200',
             ].join(' ')}
           >
-            Tap image to hide controls
+            Drag image to pan · pinch to zoom · tap to hide controls
           </p>
         )}
       </div>
