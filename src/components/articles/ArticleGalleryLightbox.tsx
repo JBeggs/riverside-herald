@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 
 export type GallerySlide = {
   id: string
@@ -19,7 +18,36 @@ type ArticleGalleryLightboxProps = {
   onIndexChange: (index: number) => void
 }
 
-const SWIPE_THRESHOLD_PX = 50
+function CloseIcon() {
+  return (
+    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  )
+}
+
+function ChevronIcon({ direction }: { direction: 'left' | 'right' | 'up' | 'down' }) {
+  const paths = {
+    left: 'M15 19l-7-7 7-7',
+    right: 'M9 5l7 7-7 7',
+    up: 'M5 15l7-7 7 7',
+    down: 'M19 9l-7 7-7-7',
+  }
+  return (
+    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={paths[direction]} />
+    </svg>
+  )
+}
+
+function scrollContainerTo(container: HTMLElement | null, left: number) {
+  if (!container) return
+  if (typeof container.scrollTo === 'function') {
+    container.scrollTo({ left, top: 0 })
+    return
+  }
+  container.scrollLeft = left
+}
 
 export function ArticleGalleryLightbox({
   isOpen,
@@ -28,11 +56,11 @@ export function ArticleGalleryLightbox({
   onClose,
   onIndexChange,
 }: ArticleGalleryLightboxProps) {
-  const closeButtonRef = useRef<HTMLButtonElement>(null)
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const touchStartX = useRef<number | null>(null)
-  const touchStartY = useRef<number | null>(null)
-  const [zoomed, setZoomed] = useState(false)
+  const scrollerRef = useRef<HTMLDivElement>(null)
+  const programmaticScroll = useRef(false)
+
+  const [detailsExpanded, setDetailsExpanded] = useState(false)
+  const [chromeVisible, setChromeVisible] = useState(true)
 
   const slideCount = slides.length
   const current = slides[activeIndex]
@@ -53,199 +81,245 @@ export function ArticleGalleryLightbox({
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose()
-      } else if (e.key === 'ArrowLeft') {
-        goPrev()
-      } else if (e.key === 'ArrowRight') {
-        goNext()
-      }
+        if (detailsExpanded) setDetailsExpanded(false)
+        else onClose()
+      } else if (e.key === 'ArrowLeft') goPrev()
+      else if (e.key === 'ArrowRight') goNext()
     }
 
     const originalOverflow = document.body.style.overflow
-    const originalPaddingRight = document.body.style.paddingRight
     document.body.style.overflow = 'hidden'
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
-    if (scrollbarWidth > 0) {
-      document.body.style.paddingRight = `${scrollbarWidth}px`
-    }
-
     document.addEventListener('keydown', handleKeyDown)
-    closeButtonRef.current?.focus()
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
       document.body.style.overflow = originalOverflow
-      document.body.style.paddingRight = originalPaddingRight
     }
-  }, [isOpen, onClose, goPrev, goNext])
-
-  const resetScroll = () => {
-    const el = scrollRef.current
-    if (!el) return
-    if (typeof el.scrollTo === 'function') {
-      el.scrollTo(0, 0)
-    } else {
-      el.scrollTop = 0
-      el.scrollLeft = 0
-    }
-  }
+  }, [isOpen, onClose, goPrev, goNext, detailsExpanded])
 
   useEffect(() => {
-    setZoomed(false)
-    resetScroll()
-  }, [activeIndex, isOpen])
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0]?.clientX ?? null
-    touchStartY.current = e.touches[0]?.clientY ?? null
-  }
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current === null || touchStartY.current === null || !hasMultiple || zoomed) {
-      touchStartX.current = null
-      touchStartY.current = null
+    if (!isOpen) {
+      setDetailsExpanded(false)
+      setChromeVisible(true)
       return
     }
-    const endX = e.changedTouches[0]?.clientX ?? touchStartX.current
-    const endY = e.changedTouches[0]?.clientY ?? touchStartY.current
-    const deltaX = endX - touchStartX.current
-    const deltaY = endY - touchStartY.current
-    touchStartX.current = null
-    touchStartY.current = null
 
-    if (Math.abs(deltaY) > Math.abs(deltaX)) return
-    if (Math.abs(deltaX) < SWIPE_THRESHOLD_PX) return
-    if (deltaX > 0) {
-      goPrev()
-    } else {
-      goNext()
+    const container = scrollerRef.current
+    if (!container) return
+
+    programmaticScroll.current = true
+    scrollContainerTo(container, activeIndex * container.clientWidth)
+
+    const frame = requestAnimationFrame(() => {
+      programmaticScroll.current = false
+    })
+
+    return () => cancelAnimationFrame(frame)
+  }, [activeIndex, isOpen])
+
+  const handleScroll = () => {
+    if (programmaticScroll.current || !hasMultiple) return
+    const container = scrollerRef.current
+    if (!container || container.clientWidth <= 0) return
+
+    const nextIndex = Math.round(container.scrollLeft / container.clientWidth)
+    if (nextIndex !== activeIndex && nextIndex >= 0 && nextIndex < slideCount) {
+      onIndexChange(nextIndex)
     }
   }
 
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose()
-    }
-  }
-
-  const toggleZoom = () => {
-    setZoomed((value) => !value)
-    requestAnimationFrame(resetScroll)
+  const toggleChrome = () => {
+    setChromeVisible((visible) => !visible)
+    if (detailsExpanded) setDetailsExpanded(false)
   }
 
   if (!isOpen || !current || typeof document === 'undefined') {
     return null
   }
 
+  const hasDetails = Boolean(current.caption || current.alt)
+  const detailPrimary = current.caption || current.alt
+  const detailSecondary =
+    current.alt && current.caption && current.alt !== current.caption ? current.alt : null
+
   const modal = (
     <div
-      className="fixed inset-0 z-[200] grid h-[100dvh] grid-rows-[auto_minmax(0,1fr)_auto] bg-black/95"
+      className="fixed inset-0 z-[200] flex flex-col bg-black"
       role="dialog"
       aria-modal="true"
       aria-label="Gallery image viewer"
-      onClick={handleBackdropClick}
+      style={{
+        height: '100dvh',
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingBottom: 'env(safe-area-inset-bottom)',
+      }}
     >
-      <div className="flex shrink-0 items-center justify-end gap-2 p-3 sm:p-4 safe-px">
-        <button
-          type="button"
-          onClick={toggleZoom}
-          className="min-h-[44px] rounded-full bg-white/10 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-white/20"
-          aria-pressed={zoomed}
-          aria-label={zoomed ? 'Fit image to screen' : 'Zoom to full size'}
-        >
-          {zoomed ? 'Fit' : 'Zoom'}
-        </button>
-        <button
-          ref={closeButtonRef}
-          type="button"
-          onClick={onClose}
-          className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
-          aria-label="Close gallery"
-        >
-          <X className="h-6 w-6" />
-        </button>
-      </div>
-
-      <div className="relative min-h-0">
-        {hasMultiple ? (
+      <div
+        className={[
+          'pointer-events-none absolute inset-0 z-20 flex flex-col transition-opacity duration-200',
+          chromeVisible ? 'opacity-100' : 'opacity-0',
+        ].join(' ')}
+      >
+        <div className="pointer-events-auto flex shrink-0 items-center justify-between gap-3 px-3 py-3 sm:px-4">
+          <div className="min-w-0 flex-1">
+            {hasMultiple ? (
+              <>
+                <p className="text-sm font-medium text-white/90">
+                  {activeIndex + 1} / {slideCount}
+                </p>
+                <div className="mt-2 flex gap-1.5" aria-hidden="true">
+                  {slides.map((slide, index) => (
+                    <button
+                      key={slide.id}
+                      type="button"
+                      onClick={() => onIndexChange(index)}
+                      className={[
+                        'h-1.5 rounded-full transition-all',
+                        index === activeIndex ? 'w-6 bg-white' : 'w-1.5 bg-white/35',
+                      ].join(' ')}
+                      aria-label={`Go to image ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <p className="truncate text-sm font-medium text-white/90">Gallery</p>
+            )}
+          </div>
           <button
             type="button"
-            onClick={(e) => {
-              e.stopPropagation()
-              goPrev()
-            }}
-            className="absolute left-2 top-1/2 z-10 flex min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70 sm:left-4"
-            aria-label="Previous image"
+            onClick={onClose}
+            className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm"
+            aria-label="Close gallery"
           >
-            <ChevronLeft className="h-8 w-8" />
+            <CloseIcon />
           </button>
+        </div>
+      </div>
+
+      <div className="relative min-h-0 flex-1">
+        {hasMultiple && chromeVisible ? (
+          <>
+            <button
+              type="button"
+              onClick={goPrev}
+              className="absolute left-2 top-1/2 z-30 hidden min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm sm:flex"
+              aria-label="Previous image"
+            >
+              <ChevronIcon direction="left" />
+            </button>
+            <button
+              type="button"
+              onClick={goNext}
+              className="absolute right-2 top-1/2 z-30 hidden min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm sm:flex"
+              aria-label="Next image"
+            >
+              <ChevronIcon direction="right" />
+            </button>
+          </>
         ) : null}
 
         <div
-          ref={scrollRef}
-          className="h-full overflow-auto overscroll-contain px-3 sm:px-12 [-webkit-overflow-scrolling:touch]"
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-          onClick={(e) => e.stopPropagation()}
+          ref={scrollerRef}
+          className={[
+            'flex h-full w-full snap-x snap-mandatory overflow-x-auto overflow-y-hidden',
+            hasMultiple ? 'scroll-smooth' : 'overflow-x-hidden',
+            '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+          ].join(' ')}
+          onScroll={handleScroll}
         >
-          <div
-            className={[
-              'box-border flex w-full justify-center',
-              zoomed
-                ? 'min-h-min items-start py-4'
-                : 'h-full min-h-full items-center py-4 sm:py-6',
-            ].join(' ')}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              key={current.id}
-              src={current.src}
-              alt={current.alt}
-              draggable={false}
-              decoding="sync"
-              loading="eager"
-              onDoubleClick={toggleZoom}
-              className={[
-                'mx-auto block h-auto w-auto max-w-full select-none',
-                zoomed
-                  ? 'cursor-zoom-out'
-                  : 'max-h-full cursor-zoom-in object-contain sm:max-w-[min(100%,72rem)]',
-              ].join(' ')}
-              style={{ touchAction: 'pan-x pan-y pinch-zoom' }}
-            />
-          </div>
+          {slides.map((slide) => (
+            <div
+              key={slide.id}
+              className="flex h-full w-full shrink-0 snap-center items-center justify-center px-3 py-2 sm:px-8"
+            >
+              <button
+                type="button"
+                onClick={toggleChrome}
+                className="flex h-full w-full max-w-[72rem] items-center justify-center focus:outline-none"
+                aria-label={chromeVisible ? 'Hide controls' : 'Show controls'}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={slide.src}
+                  alt={slide.alt}
+                  draggable={false}
+                  decoding="async"
+                  loading="eager"
+                  className="max-h-full max-w-full select-none object-contain"
+                  style={{ touchAction: 'pinch-zoom' }}
+                />
+              </button>
+            </div>
+          ))}
         </div>
 
-        {hasMultiple ? (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation()
-              goNext()
-            }}
-            className="absolute right-2 top-1/2 z-10 flex min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70 sm:right-4"
-            aria-label="Next image"
+        {hasDetails ? (
+          <div
+            className={[
+              'pointer-events-auto absolute inset-x-0 bottom-0 z-30 px-3 pb-3 sm:px-6',
+              chromeVisible ? 'opacity-100' : 'pointer-events-none opacity-0',
+              'transition-opacity duration-200',
+            ].join(' ')}
           >
-            <ChevronRight className="h-8 w-8" />
-          </button>
-        ) : null}
-      </div>
-
-      <div className="shrink-0 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-2 text-center safe-px">
-        {hasMultiple ? (
-          <p className="mb-1 text-sm text-white/70">
-            {activeIndex + 1} / {slideCount}
+            <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border border-white/10 bg-black/75 shadow-2xl backdrop-blur-xl">
+              <button
+                type="button"
+                onClick={() => setDetailsExpanded((open) => !open)}
+                className="flex w-full items-start gap-3 px-4 py-3 text-left"
+                aria-expanded={detailsExpanded}
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-white/55">
+                    Caption
+                  </p>
+                  <p
+                    className={[
+                      'mt-1 text-sm leading-relaxed text-white sm:text-base',
+                      detailsExpanded ? '' : 'line-clamp-2',
+                    ].join(' ')}
+                  >
+                    {detailPrimary}
+                  </p>
+                </div>
+                <span className="mt-1 flex shrink-0 items-center gap-1 text-xs font-medium text-white/70">
+                  {detailsExpanded ? 'Less' : 'More'}
+                  <ChevronIcon direction={detailsExpanded ? 'down' : 'up'} />
+                </span>
+              </button>
+              {detailsExpanded ? (
+                <div className="max-h-[40dvh] overflow-y-auto border-t border-white/10 px-4 py-3 [-webkit-overflow-scrolling:touch]">
+                  {current.caption ? (
+                    <p className="text-base leading-relaxed text-white">{current.caption}</p>
+                  ) : null}
+                  {detailSecondary ? (
+                    <p className="mt-2 text-sm text-white/70">{detailSecondary}</p>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          </div>
+        ) : hasMultiple ? (
+          <p
+            className={[
+              'pointer-events-none absolute inset-x-0 bottom-4 z-30 text-center text-xs text-white/50',
+              chromeVisible ? 'opacity-100' : 'opacity-0',
+              'transition-opacity duration-200',
+            ].join(' ')}
+          >
+            Swipe sideways for more photos · tap image to hide controls
           </p>
-        ) : null}
-        {current.caption ? (
-          <p className="mx-auto max-w-2xl text-sm text-white sm:text-base">{current.caption}</p>
-        ) : null}
-        <p className="mt-2 text-xs text-white/50 sm:hidden">
-          Scroll to pan · double-tap or Zoom for full size
-        </p>
-        <p className="mt-1 hidden text-xs text-white/40 sm:block">
-          Double-click or Zoom for full size · scroll when zoomed
-        </p>
+        ) : (
+          <p
+            className={[
+              'pointer-events-none absolute inset-x-0 bottom-4 z-30 text-center text-xs text-white/50',
+              chromeVisible ? 'opacity-100' : 'opacity-0',
+              'transition-opacity duration-200',
+            ].join(' ')}
+          >
+            Tap image to hide controls
+          </p>
+        )}
       </div>
     </div>
   )

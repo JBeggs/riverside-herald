@@ -83,20 +83,20 @@ function GalleryTile({ item, slideIndex, onOpen, featured = false }: GalleryTile
         <button
           type="button"
           onClick={() => onOpen(slideIndex)}
-          className="group relative block w-full overflow-hidden rounded-xl border border-border-default bg-neutral-200 md:rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          className="group relative block w-full overflow-hidden rounded-xl border border-border-default bg-neutral-900/5 md:rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           aria-label={`View full size: ${label}`}
         >
-          <div className="relative aspect-[4/3] w-full sm:aspect-video">
+          <div className="relative h-[min(60vh,520px)] w-full sm:aspect-video sm:h-auto sm:max-h-[560px]">
             <SafeImage
               src={imageUrl}
               alt={alt}
               fill
               className="rounded-xl md:rounded-2xl"
-              imgClassName="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+              imgClassName="object-contain sm:object-cover transition-transform duration-300 group-hover:scale-[1.01]"
               loading="lazy"
             />
-            <div className="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-visible:opacity-100">
-              <span className="mb-4 flex items-center gap-2 rounded-full bg-black/60 px-4 py-2 text-sm font-medium text-white">
+            <div className="absolute inset-x-0 bottom-0 flex items-end justify-center bg-gradient-to-t from-black/60 via-black/20 to-transparent p-4 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100 sm:group-focus-visible:opacity-100">
+              <span className="flex items-center gap-2 rounded-full bg-black/70 px-4 py-2 text-sm font-medium text-white">
                 <ExpandIcon className="h-4 w-4" />
                 View full size
               </span>
@@ -118,17 +118,17 @@ function GalleryTile({ item, slideIndex, onOpen, featured = false }: GalleryTile
         className="group relative block w-full min-h-[44px] overflow-hidden rounded-lg border border-border-default bg-neutral-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         aria-label={`Open image: ${label}`}
       >
-        <div className="relative aspect-square w-full">
+        <div className="relative aspect-[4/3] w-full sm:aspect-[4/5]">
           <SafeImage
             src={imageUrl}
             alt={alt}
             fill
             className="rounded-lg"
-            imgClassName="object-cover transition-transform duration-300 group-hover:scale-105"
+            imgClassName="object-contain sm:object-cover transition-transform duration-300 group-hover:scale-105"
             loading="lazy"
           />
-          <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/20 group-focus-visible:bg-black/20">
-            <ExpandIcon className="h-6 w-6 text-white opacity-0 drop-shadow transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" />
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent p-2 sm:hidden">
+            <span className="text-xs font-medium text-white">Tap to view</span>
           </div>
         </div>
       </button>
