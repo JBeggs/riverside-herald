@@ -16,6 +16,7 @@ import {
   getArticleImageUrl,
   getArticleOpenGraphImageUrls,
 } from '@/lib/image-utils'
+import { buildArticleShareImageUrl } from '@/lib/article-share'
 import {
   parseSiteSettingsRows,
   stringFromMap,
@@ -35,10 +36,11 @@ async function getArticlePageSettings() {
     const map = parseSiteSettingsRows(raw)
     return {
       siteOrigin: stringFromMap(map, 'site_canonical_url'),
+      siteName: stringFromMap(map, 'site_name') || 'Riverside Herald',
       defaultLocale: stringFromMap(map, 'default_locale') || 'en-ZA',
     }
   } catch {
-    return { siteOrigin: '', defaultLocale: 'en-ZA' }
+    return { siteOrigin: '', siteName: 'Riverside Herald', defaultLocale: 'en-ZA' }
   }
 }
 
@@ -178,6 +180,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   const readingTime = article.read_time_minutes || calculateReadingTime(article.content || '')
   const heroSrc = getArticleImageUrl(article)
+  const shareImageUrl = buildArticleShareImageUrl(article, pageSettings.siteOrigin)
   const publishedDateSource =
     article.published_at ||
     (article.status === 'published' ? article.created_at : null)
@@ -282,6 +285,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             title={article.title}
             url={`/articles/${article.slug}`}
             siteOrigin={pageSettings.siteOrigin}
+            excerpt={article.excerpt}
+            subtitle={article.subtitle}
+            seoDescription={article.seo_description}
+            shareImageUrl={shareImageUrl}
+            siteName={pageSettings.siteName}
+            articleSlug={article.slug}
           />
 
           <RelatedArticles
