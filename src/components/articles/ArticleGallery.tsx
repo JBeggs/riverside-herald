@@ -1,13 +1,33 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Expand } from 'lucide-react'
 import SafeImage from '@/components/ui/SafeImage'
 import { getAbsoluteImageUrl } from '@/lib/image-utils'
 import {
   ArticleGalleryLightbox,
   type GallerySlide,
 } from '@/components/articles/ArticleGalleryLightbox'
+
+function ExpandIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      width="24"
+      height="24"
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+      />
+    </svg>
+  )
+}
 
 type GalleryItem = {
   id?: string
@@ -77,7 +97,7 @@ function GalleryTile({ item, slideIndex, onOpen, featured = false }: GalleryTile
             />
             <div className="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-visible:opacity-100">
               <span className="mb-4 flex items-center gap-2 rounded-full bg-black/60 px-4 py-2 text-sm font-medium text-white">
-                <Expand className="h-4 w-4" aria-hidden="true" />
+                <ExpandIcon className="h-4 w-4" />
                 View full size
               </span>
             </div>
@@ -108,10 +128,7 @@ function GalleryTile({ item, slideIndex, onOpen, featured = false }: GalleryTile
             loading="lazy"
           />
           <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/20 group-focus-visible:bg-black/20">
-            <Expand
-              className="h-6 w-6 text-white opacity-0 drop-shadow transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
-              aria-hidden="true"
-            />
+            <ExpandIcon className="h-6 w-6 text-white opacity-0 drop-shadow transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" />
           </div>
         </div>
       </button>
