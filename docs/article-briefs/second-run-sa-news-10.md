@@ -148,21 +148,24 @@ Series: **Local digital infrastructure** (optional tag). References: auto-drafte
 
 ## Suggested publish order
 
-| Priority | Brief | Why first |
-|----------|-------|-----------|
-| 1 | #7 Late payments | Strong data, pure SME utility |
-| 2 | #2 Shrinking basket | Timely cost-of-living |
-| 3 | #6 Stable grid, rising bill | SA-specific, practical |
-| 4 | #1 Rate hike | Macro → micro bridge |
-| 5 | #4 Trust / transparency | Pairs with verification feature |
-| 6 | #10 Rumours vs official page | Safety + comms playbook |
-| 7 | #8 Municipality / Main Street | Civic + directory angle |
-| 8 | #5 Pay gap ripple | Business-page transparency |
-| 9 | #9 Election preparedness | Seasonal |
-| 10 | #3 Directory ethics | Sensitive—editor review required |
+
+| Priority | Brief                         | Why first                        |
+| -------- | ----------------------------- | -------------------------------- |
+| 1        | #7 Late payments              | Strong data, pure SME utility    |
+| 2        | #2 Shrinking basket           | Timely cost-of-living            |
+| 3        | #6 Stable grid, rising bill   | SA-specific, practical           |
+| 4        | #1 Rate hike                  | Macro → micro bridge             |
+| 5        | #4 Trust / transparency       | Pairs with verification feature  |
+| 6        | #10 Rumours vs official page  | Safety + comms playbook          |
+| 7        | #8 Municipality / Main Street | Civic + directory angle          |
+| 8        | #5 Pay gap ripple             | Business-page transparency       |
+| 9        | #9 Election preparedness      | Seasonal                         |
+| 10       | #3 Directory ethics           | Sensitive—editor review required |
+
 
 ## After research
 
-- [ ] Run [REVIEW-CHECKLIST.md](./REVIEW-CHECKLIST.md) on every draft
-- [ ] Extra sensitivity pass on **#3** and **#10** before publish
-- [ ] Confirm References use full `https://` links to **public** news and official stats only
+- Run [REVIEW-CHECKLIST.md](./REVIEW-CHECKLIST.md) on every draft
+- Extra sensitivity pass on **#3** and **#10** before publish
+- Confirm References use full `https://` links to **public** news and official stats only
+
