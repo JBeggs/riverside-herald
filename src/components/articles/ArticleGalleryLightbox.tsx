@@ -26,16 +26,14 @@ function CloseIcon() {
   )
 }
 
-function ChevronIcon({ direction }: { direction: 'left' | 'right' | 'up' | 'down' }) {
-  const paths = {
-    left: 'M15 19l-7-7 7-7',
-    right: 'M9 5l7 7-7 7',
-    up: 'M5 15l7-7 7 7',
-    down: 'M19 9l-7 7-7-7',
-  }
+function ChevronIcon({ direction }: { direction: 'left' | 'right' }) {
   return (
-    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={paths[direction]} />
+    <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      {direction === 'left' ? (
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+      ) : (
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+      )}
     </svg>
   )
 }
@@ -120,7 +118,6 @@ export function ArticleGalleryLightbox({
   const slideViewportRefs = useRef(new Map<string, HTMLDivElement>())
   const programmaticScroll = useRef(false)
 
-  const [detailsExpanded, setDetailsExpanded] = useState(false)
   const [chromeVisible, setChromeVisible] = useState(true)
 
   const slideCount = slides.length
@@ -141,10 +138,8 @@ export function ArticleGalleryLightbox({
     if (!isOpen) return
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        if (detailsExpanded) setDetailsExpanded(false)
-        else onClose()
-      } else if (e.key === 'ArrowLeft') goPrev()
+      if (e.key === 'Escape') onClose()
+      else if (e.key === 'ArrowLeft') goPrev()
       else if (e.key === 'ArrowRight') goNext()
     }
 
@@ -156,11 +151,10 @@ export function ArticleGalleryLightbox({
       document.removeEventListener('keydown', handleKeyDown)
       document.body.style.overflow = originalOverflow
     }
-  }, [isOpen, onClose, goPrev, goNext, detailsExpanded])
+  }, [isOpen, onClose, goPrev, goNext])
 
   useEffect(() => {
     if (!isOpen) {
-      setDetailsExpanded(false)
       setChromeVisible(true)
       return
     }
@@ -202,17 +196,11 @@ export function ArticleGalleryLightbox({
 
   const toggleChrome = () => {
     setChromeVisible((visible) => !visible)
-    if (detailsExpanded) setDetailsExpanded(false)
   }
 
   if (!isOpen || !current || typeof document === 'undefined') {
     return null
   }
-
-  const hasDetails = Boolean(current.caption || current.alt)
-  const detailPrimary = current.caption || current.alt
-  const detailSecondary =
-    current.alt && current.caption && current.alt !== current.caption ? current.alt : null
 
   const modal = (
     <div
@@ -301,10 +289,7 @@ export function ArticleGalleryLightbox({
           onScroll={handleScroll}
         >
           {slides.map((slide) => (
-            <div
-              key={slide.id}
-              className="h-full w-full shrink-0 snap-center"
-            >
+            <div key={slide.id} className="h-full w-full shrink-0 snap-center">
               <GallerySlideImage
                 slide={slide}
                 onTap={toggleChrome}
@@ -317,62 +302,6 @@ export function ArticleGalleryLightbox({
           ))}
         </div>
       </div>
-
-      {hasDetails ? (
-        <div
-          className={[
-            'shrink-0 border-t border-white/10 bg-black/90 backdrop-blur-md transition-[max-height,opacity] duration-200',
-            chromeVisible ? 'max-h-[45dvh] opacity-100' : 'max-h-0 overflow-hidden border-transparent opacity-0',
-          ].join(' ')}
-        >
-          <button
-            type="button"
-            onClick={() => setDetailsExpanded((open) => !open)}
-            className="flex w-full items-start gap-3 px-4 py-3 text-left"
-            aria-expanded={detailsExpanded}
-          >
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold uppercase tracking-wide text-white/55">
-                Caption
-              </p>
-              <p
-                className={[
-                  'mt-1 text-sm leading-relaxed text-white sm:text-base',
-                  detailsExpanded ? '' : 'line-clamp-2',
-                ].join(' ')}
-              >
-                {detailPrimary}
-              </p>
-            </div>
-            <span className="mt-1 flex shrink-0 items-center gap-1 text-xs font-medium text-white/70">
-              {detailsExpanded ? 'Less' : 'More'}
-              <ChevronIcon direction={detailsExpanded ? 'down' : 'up'} />
-            </span>
-          </button>
-          {detailsExpanded ? (
-            <div className="max-h-[30dvh] overflow-y-auto border-t border-white/10 px-4 py-3 [-webkit-overflow-scrolling:touch]">
-              {current.caption ? (
-                <p className="text-base leading-relaxed text-white">{current.caption}</p>
-              ) : null}
-              {detailSecondary ? (
-                <p className="mt-2 text-sm text-white/70">{detailSecondary}</p>
-              ) : null}
-            </div>
-          ) : null}
-        </div>
-      ) : (
-        <p
-          className={[
-            'shrink-0 px-4 py-2 text-center text-xs text-white/45',
-            chromeVisible ? 'opacity-100' : 'opacity-0',
-            'transition-opacity duration-200',
-          ].join(' ')}
-        >
-          {hasMultiple
-            ? 'Scroll image to see all · swipe sideways for more · tap image to hide controls'
-            : 'Scroll image to see all · tap image to hide controls'}
-        </p>
-      )}
     </div>
   )
 

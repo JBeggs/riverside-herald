@@ -92,7 +92,7 @@ describe('ArticleGallery', () => {
     const dialog = screen.getByRole('dialog', { name: 'Gallery image viewer' })
     expect(dialog).toBeInTheDocument()
     expect(within(dialog).getByText('2 / 2')).toBeInTheDocument()
-    expect(within(dialog).getByText('Second')).toBeInTheDocument()
+    expect(within(dialog).queryByText('Second')).not.toBeInTheDocument()
   })
 
   it('opens lightbox from single featured image', () => {
@@ -112,7 +112,7 @@ describe('ArticleGallery', () => {
 
     const dialog = screen.getByRole('dialog', { name: 'Gallery image viewer' })
     expect(dialog).toBeInTheDocument()
-    expect(within(dialog).getByText('Featured caption')).toBeInTheDocument()
+    expect(within(dialog).queryByText('Featured caption')).not.toBeInTheDocument()
     expect(within(dialog).queryByText(/\d+ \/ \d+/)).not.toBeInTheDocument()
   })
 
