@@ -49,4 +49,6 @@ declare module 'lucide-react' {
   export const Trash2: FC<IconProps>
   export const Info: FC<IconProps>
   export const AlertTriangle: FC<IconProps>
+  export const ThumbsUp: FC<IconProps>
+  export const ThumbsDown: FC<IconProps>
 }

@@ -9,6 +9,8 @@ import StaffLinkedInPostHint from '@/components/articles/StaffLinkedInPostHint'
 import RelatedArticles from '@/components/articles/RelatedArticles'
 import { ArticleHero } from '@/components/articles/ArticleHero'
 import { ArticleGallery } from '@/components/articles/ArticleGallery'
+import { ArticleReactions } from '@/components/articles/ArticleReactions'
+import { ArticleViewCount } from '@/components/articles/ArticleViewCount'
 import { formatArticleDate } from '@/lib/date-utils'
 import {
   getArticleImageUrl,
@@ -59,11 +61,8 @@ async function getArticleData(slug: string) {
     // For authenticated users, show all articles
     // (This check is handled by the backend, but we can add client-side check if needed)
 
-    // Increment view count (async, don't wait)
-    if (article.id) {
-      serverNewsApi.articles.incrementViews(article.id).catch(console.error)
-    }
-    
+    // View counting runs client-side (one count per device; see ArticleViewCount).
+
     return {
       id: article.id,
       title: article.title,
@@ -76,6 +75,7 @@ async function getArticleData(slug: string) {
       published_at: article.published_at,
       views: article.views || 0,
       likes: article.likes || 0,
+      dislikes: article.dislikes || 0,
       shares: article.shares || 0,
       read_time_minutes: article.read_time_minutes,
       status: article.status,
@@ -228,11 +228,13 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               <span>{readingTime} min read</span>
             </div>
             <div className="flex items-center space-x-2">
-              <span>{article.views?.toLocaleString() || 0} views</span>
+              <ArticleViewCount articleId={article.id} initialViews={article.views || 0} />
             </div>
-            <div className="flex items-center space-x-2">
-              <span>{article.likes || 0} likes</span>
-            </div>
+            <ArticleReactions
+              articleId={article.id}
+              initialLikes={article.likes || 0}
+              initialDislikes={article.dislikes || 0}
+            />
           </div>
         </div>
       </div>

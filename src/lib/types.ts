@@ -189,6 +189,7 @@ export interface Article {
   // Analytics
   views: number
   likes: number
+  dislikes?: number
   shares: number
   read_time_minutes?: number
   

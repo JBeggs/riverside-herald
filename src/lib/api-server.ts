@@ -274,8 +274,8 @@ export const serverNewsApi = {
         throw error
       }
     },
-    incrementViews: async (id: string) => {
-      return serverApi.post(`/news/articles/${id}/increment_views/`, {}, undefined, true)
+    incrementViews: async (id: string, data?: { voter_id: string }) => {
+      return serverApi.post(`/news/articles/${id}/increment_views/`, data || {}, undefined, true)
     },
   },
 

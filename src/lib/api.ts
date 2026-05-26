@@ -966,7 +966,12 @@ export const newsApi = {
     update: (id: string, data: any) => apiClient.put(`/news/articles/${id}/`, data),
     patch: (id: string, data: any) => apiClient.patch(`/news/articles/${id}/`, data),
     delete: (id: string) => apiClient.delete(`/news/articles/${id}/`),
-    incrementViews: (id: string) => apiClient.post(`/news/articles/${id}/increment_views/`),
+    incrementViews: (id: string, data: { voter_id: string }) =>
+      apiClient.post(`/news/articles/${id}/increment_views/`, data),
+    react: (
+      id: string,
+      data: { voter_id: string; reaction: 'like' | 'dislike' | null },
+    ) => apiClient.post(`/news/articles/${id}/react/`, data),
     like: (id: string) => apiClient.post(`/news/articles/${id}/like/`),
     // Article media gallery management
     getMedia: (id: string) => apiClient.get(`/news/articles/${id}/media/`),
