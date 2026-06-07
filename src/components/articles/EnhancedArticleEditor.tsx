@@ -452,7 +452,9 @@ export default function EnhancedArticleEditor({
     chrome === 'dashboard' || chrome === 'modal' ? 'min-h-0 flex-1' : 'min-h-screen'
 
   useEffect(() => {
-    if (currentStep !== 'research' || article.id === 'new' || !canManageArticleResearch) return
+    const onResearchOrMedia =
+      currentStep === 'research' || currentStep === 'media'
+    if (!onResearchOrMedia || article.id === 'new' || !canManageArticleResearch) return
     let cancelled = false
     ;(async () => {
       try {
@@ -1435,6 +1437,129 @@ export default function EnhancedArticleEditor({
     )
   }
 
+  const researchStatus = (researchInfo?.status as string) || ''
+  const heroRegenBusy = !!(
+    researchInfo?.hero_regen_agent_id && researchInfo?.hero_regen_run_id
+  )
+  const galleryGenBusy = !!(
+    researchInfo?.gallery_gen_agent_id && researchInfo?.gallery_gen_run_id
+  )
+  const researchRunBusy = researchStatus === 'running' || researchStatus === 'queued'
+  const researchBusy = researchRunBusy || heroRegenBusy || galleryGenBusy
+
+  const renderGalleryCursorControls = () => {
+    if (!canManageArticleResearch || article.id === 'new') return null
+    return (
+      <div className="mt-6 rounded-lg border border-border-default p-4 bg-surface text-sm space-y-3">
+        <p className="font-medium text-text">Generate gallery image (Cursor)</p>
+        <p className="text-text-muted">
+          Describe what this image should show. The agent reads{' '}
+          <code className="text-xs bg-[rgb(var(--color-surface-raised))] px-1 rounded">
+            research/&lt;slug&gt;.md
+          </code>{' '}
+          and creates one new{' '}
+          <code className="text-xs bg-[rgb(var(--color-surface-raised))] px-1 rounded">
+            research/&lt;slug&gt;-gallery-N.*
+          </code>{' '}
+          file distinct from the hero.
+        </p>
+        <div className="space-y-3 rounded-lg border border-border-default p-3 bg-[rgb(var(--color-surface-raised)/0.35)]">
+          <div>
+            <label className={cmsLabel}>Gallery image prompt</label>
+            <textarea
+              value={galleryImagePrompt}
+              onChange={(e) => setGalleryImagePrompt(e.target.value)}
+              rows={3}
+              disabled={isGeneratingGallery || galleryGenBusy || researchBusy}
+              className={`${cmsTextarea} text-sm`}
+              placeholder="e.g. Editorial photo of Broederstroom market stalls on a Saturday morning"
+            />
+          </div>
+          <div className="grid sm:grid-cols-2 gap-3">
+            <div>
+              <label className={cmsLabel}>Image type</label>
+              <select
+                value={galleryImageType}
+                onChange={(e) =>
+                  setGalleryImageType(
+                    e.target.value as 'photo' | 'infographic' | 'chart' | 'map'
+                  )
+                }
+                disabled={isGeneratingGallery || galleryGenBusy || researchBusy}
+                className={cmsFieldSm}
+              >
+                <option value="photo">Photo</option>
+                <option value="infographic">Infographic</option>
+                <option value="chart">Chart</option>
+                <option value="map">Map</option>
+              </select>
+            </div>
+            <div>
+              <label className={cmsLabel}>Section heading (optional)</label>
+              <input
+                type="text"
+                value={gallerySectionHeading}
+                onChange={(e) => setGallerySectionHeading(e.target.value)}
+                disabled={isGeneratingGallery || galleryGenBusy || researchBusy}
+                className={cmsFieldSm}
+                placeholder="Match a ## heading from the article"
+              />
+            </div>
+          </div>
+        </div>
+        {galleryGenBusy ? (
+          <p className="text-sm text-text-muted">
+            Cursor is creating one gallery image — the gallery below will refresh when the run
+            completes.
+          </p>
+        ) : null}
+        {researchInfo?.gallery_gen_error ? (
+          <p className="text-red-700">
+            <span className="font-medium">Gallery generation:</span>{' '}
+            {String(researchInfo.gallery_gen_error)}
+          </p>
+        ) : null}
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={handleGenerateGalleryCursor}
+            disabled={
+              isGeneratingGallery ||
+              galleryGenBusy ||
+              researchBusy ||
+              !galleryImagePrompt.trim()
+            }
+            className="btn btn-primary inline-flex items-center px-4 py-2 min-h-[44px] disabled:opacity-50"
+          >
+            {isGeneratingGallery ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                Starting…
+              </>
+            ) : (
+              'Generate one gallery image (Cursor)'
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={handleSyncCursorGallery}
+            disabled={isSyncingCursorGallery || galleryGenBusy}
+            className="btn btn-secondary inline-flex items-center px-4 py-2 min-h-[44px] disabled:opacity-50"
+          >
+            {isSyncingCursorGallery ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                Importing…
+              </>
+            ) : (
+              'Import gallery from GitHub / agent'
+            )}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   const renderStepContent = () => {
     switch (currentStep) {
       case 'basic':
@@ -1770,6 +1895,7 @@ export default function EnhancedArticleEditor({
                   />
                 </div>
               )}
+              {renderGalleryCursorControls()}
             </div>
           </div>
         )
@@ -1958,14 +2084,8 @@ export default function EnhancedArticleEditor({
           )
         }
         {
-          const st = (researchInfo?.status as string) || ''
-          const heroRegenBusy = !!(
-            researchInfo?.hero_regen_agent_id && researchInfo?.hero_regen_run_id
-          )
-          const galleryGenBusy = !!(
-            researchInfo?.gallery_gen_agent_id && researchInfo?.gallery_gen_run_id
-          )
-          const busy = st === 'running' || st === 'queued' || heroRegenBusy || galleryGenBusy
+          const st = researchStatus
+          const busy = researchBusy
           const agentUrl = researchInfo?.agent_url as string | undefined
           return (
             <div className="space-y-6">
@@ -2209,100 +2329,7 @@ export default function EnhancedArticleEditor({
                   )}
                 </button>
               </div>
-              <div className="rounded-lg border border-border-default p-4 bg-surface text-sm space-y-3">
-                <p className="font-medium text-text">Article gallery (Cursor)</p>
-                <p className="text-text-muted">
-                  Nothing is added automatically. Use the controls below only when <strong className="text-text">you</strong>{' '}
-                  choose: <strong className="text-text">Generate one gallery image</strong> starts a Cursor run (one
-                  new <code className="text-xs bg-[rgb(var(--color-surface-raised))] px-1 rounded">research/&lt;slug&gt;-gallery-N.*</code> per
-                  click). The agent reads <code className="text-xs bg-[rgb(var(--color-surface-raised))] px-1 rounded">research/&lt;slug&gt;.md</code>{' '}
-                  and your prompt, then creates a gallery image distinct from the hero. When that run finishes, the
-                  new file is imported automatically. Or use{' '}
-                  <strong className="text-text">Import from GitHub / agent</strong> to pull every gallery file that
-                  already exists on the branch or in artifacts — still only when you click.
-                </p>
-                <div className="space-y-3 rounded-lg border border-border-default p-3 bg-[rgb(var(--color-surface-raised)/0.35)]">
-                  <div>
-                    <label className={cmsLabel}>Gallery image prompt</label>
-                    <textarea
-                      value={galleryImagePrompt}
-                      onChange={(e) => setGalleryImagePrompt(e.target.value)}
-                      rows={3}
-                      disabled={isGeneratingGallery || galleryGenBusy || busy}
-                      className={`${cmsTextarea} text-sm`}
-                      placeholder="Describe exactly what this gallery image should show."
-                    />
-                  </div>
-                  <div className="grid sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className={cmsLabel}>Image type</label>
-                      <select
-                        value={galleryImageType}
-                        onChange={(e) =>
-                          setGalleryImageType(
-                            e.target.value as 'photo' | 'infographic' | 'chart' | 'map'
-                          )
-                        }
-                        disabled={isGeneratingGallery || galleryGenBusy || busy}
-                        className={cmsFieldSm}
-                      >
-                        <option value="photo">Photo</option>
-                        <option value="infographic">Infographic</option>
-                        <option value="chart">Chart</option>
-                        <option value="map">Map</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className={cmsLabel}>Section heading (optional)</label>
-                      <input
-                        type="text"
-                        value={gallerySectionHeading}
-                        onChange={(e) => setGallerySectionHeading(e.target.value)}
-                        disabled={isGeneratingGallery || galleryGenBusy || busy}
-                        className={cmsFieldSm}
-                        placeholder="Match a ## heading from the article"
-                      />
-                    </div>
-                  </div>
-                </div>
-                {galleryGenBusy ? (
-                  <p className="text-sm text-text-muted">
-                    Cursor is creating one gallery image — the list below will refresh when the run completes.
-                  </p>
-                ) : null}
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={handleGenerateGalleryCursor}
-                    disabled={isGeneratingGallery || galleryGenBusy || busy || !galleryImagePrompt.trim()}
-                    className="btn btn-primary inline-flex items-center px-4 py-2 min-h-[44px] disabled:opacity-50"
-                  >
-                    {isGeneratingGallery ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                        Starting…
-                      </>
-                    ) : (
-                      'Generate one gallery image (Cursor)'
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSyncCursorGallery}
-                    disabled={isSyncingCursorGallery || galleryGenBusy}
-                    className="btn btn-secondary inline-flex items-center px-4 py-2 min-h-[44px] disabled:opacity-50"
-                  >
-                    {isSyncingCursorGallery ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                        Importing…
-                      </>
-                    ) : (
-                      'Import gallery from GitHub / agent'
-                    )}
-                  </button>
-                </div>
-              </div>
+              {renderGalleryCursorControls()}
             </div>
           )
         }
