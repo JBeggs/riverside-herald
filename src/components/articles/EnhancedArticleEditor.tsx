@@ -228,6 +228,11 @@ export default function EnhancedArticleEditor({
   const [isRegeneratingHero, setIsRegeneratingHero] = useState(false)
   const [isGeneratingGallery, setIsGeneratingGallery] = useState(false)
   const [isSyncingCursorGallery, setIsSyncingCursorGallery] = useState(false)
+  const [galleryImagePrompt, setGalleryImagePrompt] = useState('')
+  const [galleryImageType, setGalleryImageType] = useState<
+    'photo' | 'infographic' | 'chart' | 'map'
+  >('photo')
+  const [gallerySectionHeading, setGallerySectionHeading] = useState('')
   const prevHeroJobRef = useRef(false)
   const prevGalleryJobRef = useRef(false)
   const [linkedinDialogOpen, setLinkedinDialogOpen] = useState(false)
@@ -793,9 +798,18 @@ export default function EnhancedArticleEditor({
 
   const handleGenerateGalleryCursor = async () => {
     if (article.id === 'new' || !canManageArticleResearch) return
+    const prompt = galleryImagePrompt.trim()
+    if (!prompt) {
+      showError('Add a gallery image prompt before starting the Cursor run.')
+      return
+    }
     setIsGeneratingGallery(true)
     try {
-      const data: any = await newsApi.articles.researchGenerateGallery(article.id)
+      const data: any = await newsApi.articles.researchGenerateGallery(article.id, {
+        prompt,
+        image_type: galleryImageType,
+        section_heading: gallerySectionHeading.trim() || undefined,
+      })
       setResearchInfo(data.research ?? null)
       const galleryJob =
         !!(data.research?.gallery_gen_agent_id && data.research?.gallery_gen_run_id)
@@ -2198,13 +2212,59 @@ export default function EnhancedArticleEditor({
               <div className="rounded-lg border border-border-default p-4 bg-surface text-sm space-y-3">
                 <p className="font-medium text-text">Article gallery (Cursor)</p>
                 <p className="text-text-muted">
-                  Nothing is added automatically. Use the buttons below only when <strong className="text-text">you</strong>{' '}
+                  Nothing is added automatically. Use the controls below only when <strong className="text-text">you</strong>{' '}
                   choose: <strong className="text-text">Generate one gallery image</strong> starts a Cursor run (one
                   new <code className="text-xs bg-[rgb(var(--color-surface-raised))] px-1 rounded">research/&lt;slug&gt;-gallery-N.*</code> per
-                  click). When that run finishes, the new file is imported automatically. Or use{' '}
+                  click). The agent reads <code className="text-xs bg-[rgb(var(--color-surface-raised))] px-1 rounded">research/&lt;slug&gt;.md</code>{' '}
+                  and your prompt, then creates a gallery image distinct from the hero. When that run finishes, the
+                  new file is imported automatically. Or use{' '}
                   <strong className="text-text">Import from GitHub / agent</strong> to pull every gallery file that
                   already exists on the branch or in artifacts — still only when you click.
                 </p>
+                <div className="space-y-3 rounded-lg border border-border-default p-3 bg-[rgb(var(--color-surface-raised)/0.35)]">
+                  <div>
+                    <label className={cmsLabel}>Gallery image prompt</label>
+                    <textarea
+                      value={galleryImagePrompt}
+                      onChange={(e) => setGalleryImagePrompt(e.target.value)}
+                      rows={3}
+                      disabled={isGeneratingGallery || galleryGenBusy || busy}
+                      className={`${cmsTextarea} text-sm`}
+                      placeholder="Describe exactly what this gallery image should show."
+                    />
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className={cmsLabel}>Image type</label>
+                      <select
+                        value={galleryImageType}
+                        onChange={(e) =>
+                          setGalleryImageType(
+                            e.target.value as 'photo' | 'infographic' | 'chart' | 'map'
+                          )
+                        }
+                        disabled={isGeneratingGallery || galleryGenBusy || busy}
+                        className={cmsFieldSm}
+                      >
+                        <option value="photo">Photo</option>
+                        <option value="infographic">Infographic</option>
+                        <option value="chart">Chart</option>
+                        <option value="map">Map</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className={cmsLabel}>Section heading (optional)</label>
+                      <input
+                        type="text"
+                        value={gallerySectionHeading}
+                        onChange={(e) => setGallerySectionHeading(e.target.value)}
+                        disabled={isGeneratingGallery || galleryGenBusy || busy}
+                        className={cmsFieldSm}
+                        placeholder="Match a ## heading from the article"
+                      />
+                    </div>
+                  </div>
+                </div>
                 {galleryGenBusy ? (
                   <p className="text-sm text-text-muted">
                     Cursor is creating one gallery image — the list below will refresh when the run completes.
@@ -2214,7 +2274,7 @@ export default function EnhancedArticleEditor({
                   <button
                     type="button"
                     onClick={handleGenerateGalleryCursor}
-                    disabled={isGeneratingGallery || galleryGenBusy || busy}
+                    disabled={isGeneratingGallery || galleryGenBusy || busy || !galleryImagePrompt.trim()}
                     className="btn btn-primary inline-flex items-center px-4 py-2 min-h-[44px] disabled:opacity-50"
                   >
                     {isGeneratingGallery ? (

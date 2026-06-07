@@ -23,7 +23,8 @@ Paste-ready seeds for the **Cursor research workflow** in the article editor. Re
 2. **Basic Info:** paste **Headline** → Title; **Subtitle** → Subtitle.
 3. **Research tab:** paste the full **Editor brief** block from a pilot file (includes image direction + details).
 4. Run **Start research**; poll until complete; apply text (and hero if not “text only”).
-5. Before publish, run through [REVIEW-CHECKLIST.md](./REVIEW-CHECKLIST.md).
+5. For gallery images, use **Generate one gallery image** with a per-image prompt (photo, infographic, chart, or map). For long pieces, add a `##` section heading so the visual anchors to that part of the story.
+6. Before publish, run through [REVIEW-CHECKLIST.md](./REVIEW-CHECKLIST.md).
 
 ## Files
 

@@ -998,8 +998,14 @@ export const newsApi = {
     researchRegenerateHero: (id: string) =>
       apiClient.post(`/news/articles/${id}/research-regenerate-hero/`, {}),
     /** Start one Cursor run to add research/{stem}-gallery-N.* (owner/admin). Poll GET research. */
-    researchGenerateGallery: (id: string) =>
-      apiClient.post(`/news/articles/${id}/research-generate-gallery/`, {}),
+    researchGenerateGallery: (
+      id: string,
+      data: {
+        prompt: string
+        image_type?: 'photo' | 'infographic' | 'chart' | 'map'
+        section_heading?: string
+      }
+    ) => apiClient.post(`/news/articles/${id}/research-generate-gallery/`, data),
     /** Append gallery images from Cursor research/{stem}-gallery-* artifacts (owner/admin). */
     researchCursorGallery: (id: string) =>
       apiClient.post(`/news/articles/${id}/research-cursor-gallery/`, {}),
