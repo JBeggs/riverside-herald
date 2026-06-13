@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Check, Copy, Facebook, Linkedin, Mail, Twitter } from 'lucide-react'
+import { Check, Link2, Facebook, Linkedin, Mail, Twitter } from 'lucide-react'
 import { openWhatsAppWithText, shareTextWithOptionalImage } from '@/lib/share-with-image'
 
 interface ArticleShareDialogProps {
@@ -180,7 +180,7 @@ export default function ArticleShareDialog({
               className="inline-flex items-center gap-1 text-xs font-medium text-text-muted hover:text-text"
               disabled={sharingWhatsApp}
             >
-              {copiedLink ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+              {copiedLink ? <Check className="h-3.5 w-3.5" /> : <Link2 className="h-3.5 w-3.5" />}
               {copiedLink ? 'Copied link' : 'Copy link'}
             </button>
           </div>
