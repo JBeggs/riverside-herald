@@ -14,9 +14,9 @@ import { ArticleViewCount } from '@/components/articles/ArticleViewCount'
 import { formatArticleDate } from '@/lib/date-utils'
 import {
   getArticleImageUrl,
-  getArticleOpenGraphImageUrls,
 } from '@/lib/image-utils'
 import { buildArticleShareImageUrl } from '@/lib/article-share'
+import { getRequestSiteOrigin } from '@/lib/media-proxy'
 import {
   parseSiteSettingsRows,
   stringFromMap,
@@ -139,7 +139,11 @@ async function getArticleDataBuildTime(slug: string) {
 
 export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
   const { slug } = await params
-  const article = await getArticleDataBuildTime(slug)
+  const [article, pageSettings, requestSiteOrigin] = await Promise.all([
+    getArticleDataBuildTime(slug),
+    getArticlePageSettings(),
+    getRequestSiteOrigin(),
+  ])
 
   if (!article) {
     return {
@@ -153,25 +157,38 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
     article.excerpt ||
     ''
   ).trim()
+  const metadataSiteOrigin = (requestSiteOrigin || pageSettings.siteOrigin || '').replace(/\/$/, '')
+  const canonical = metadataSiteOrigin ? `${metadataSiteOrigin}/articles/${slug}` : undefined
+  const ogImage = buildArticleShareImageUrl(article, metadataSiteOrigin)
 
   return {
     title: displayTitle || article.title,
     description: ogDescription,
+    ...(canonical ? { alternates: { canonical } } : {}),
     openGraph: {
       title: displayTitle || article.title,
       description: ogDescription,
-      images: getArticleOpenGraphImageUrls(article),
+      type: 'article',
+      ...(canonical ? { url: canonical } : {}),
+      images: [{ url: ogImage, alt: displayTitle || article.title }],
       publishedTime: article.published_at,
       authors: [article.author?.full_name || 'Staff Writer'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: displayTitle || article.title,
+      description: ogDescription,
+      images: [ogImage],
     },
   }
 }
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
   const { slug } = await params
-  const [article, pageSettings] = await Promise.all([
+  const [article, pageSettings, requestSiteOrigin] = await Promise.all([
     getArticleData(slug),
     getArticlePageSettings(),
+    getRequestSiteOrigin(),
   ])
 
   if (!article) {
@@ -180,7 +197,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   const readingTime = article.read_time_minutes || calculateReadingTime(article.content || '')
   const heroSrc = getArticleImageUrl(article)
-  const shareImageUrl = buildArticleShareImageUrl(article, pageSettings.siteOrigin)
+  const resolvedSiteOrigin = requestSiteOrigin || pageSettings.siteOrigin
+  const shareImageUrl = buildArticleShareImageUrl(article, resolvedSiteOrigin)
   const publishedDateSource =
     article.published_at ||
     (article.status === 'published' ? article.created_at : null)
@@ -284,7 +302,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           <ShareButtons
             title={article.title}
             url={`/articles/${article.slug}`}
-            siteOrigin={pageSettings.siteOrigin}
+            siteOrigin={resolvedSiteOrigin}
             excerpt={article.excerpt}
             subtitle={article.subtitle}
             seoDescription={article.seo_description}

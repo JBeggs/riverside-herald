@@ -17,6 +17,18 @@ describe('buildArticleWhatsAppMessage', () => {
     expect(msg).toContain('https://riverside.example/articles/local-business')
     expect(msg).toContain('Read on Riverside Herald')
   })
+
+  it('falls back to seo description when excerpt is empty', () => {
+    const msg = buildArticleWhatsAppMessage({
+      title: 'Community Event',
+      excerpt: '',
+      seo_description: 'Join us this Sunday at the market.',
+      pageUrl: 'https://riverside.example/articles/community-event',
+      siteName: 'Riverside Herald',
+    })
+    expect(msg).toContain('Community Event')
+    expect(msg).toContain('Join us this Sunday at the market.')
+  })
 })
 
 describe('buildArticleShareImageUrl', () => {

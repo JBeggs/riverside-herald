@@ -1,5 +1,6 @@
 import { getPublicSiteUrl } from '@/lib/public-site-url'
 import { getArticleImageUrl } from '@/lib/image-utils'
+import { buildArticleShareImageUrl } from '@/lib/article-share'
 
 export const LINKEDIN_POST_MAX_CHARS = 3000
 
@@ -68,11 +69,19 @@ export function buildLinkedInPostText(params: {
 
 /** Absolute image URL for LinkedIn ARTICLE thumbnail (empty if none). */
 export function resolveLinkedInShareThumbnailUrl(article?: {
-  social_image?: { file_url?: string | null } | null
-  featured_media?: { file_url?: string | null } | null
+  social_image?: { file_url?: string | null; thumbnail_url?: string | null } | null
+  featured_media?: { file_url?: string | null; thumbnail_url?: string | null } | null
   featured_image_url?: string | null
 } | null): string {
-  const url = resolveLinkedInShareImageUrl(article)
+  const url = buildArticleShareImageUrl({
+    title: '',
+    social_image: article?.social_image,
+    featured_media: article?.featured_media?.file_url
+      ? article.featured_media
+      : article?.featured_image_url
+        ? { file_url: article.featured_image_url }
+        : null,
+  })
   if (url.startsWith('http://') || url.startsWith('https://')) {
     return url
   }

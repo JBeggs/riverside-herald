@@ -31,6 +31,23 @@ export function getPublicSiteOrigin(): string | null {
   return raw.replace(/\/$/, '')
 }
 
+/** Prefer the current request host (custom domain) over build-time env vars for OG/share URLs. */
+export async function getRequestSiteOrigin(): Promise<string | null> {
+  try {
+    const { headers } = await import('next/headers')
+    const h = await headers()
+    const host = (h.get('x-forwarded-host') || h.get('host') || '')
+      .split(',')[0]
+      ?.trim()
+    if (host && !host.startsWith('localhost') && !host.startsWith('127.0.0.1')) {
+      return `https://${host}`
+    }
+  } catch {
+    // Static or edge contexts where headers are unavailable.
+  }
+  return getPublicSiteOrigin()
+}
+
 /** Validate upstream media URL for proxy routes (open-redirect safe). */
 export function parseAllowedMediaSrc(src: string | null): URL | null {
   if (!src || src.length > 2048) return null
