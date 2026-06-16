@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Check, Link2, Facebook, Linkedin, Mail, Twitter } from 'lucide-react'
 import { openWhatsAppWithText, shareTextWithOptionalImage } from '@/lib/share-with-image'
 
@@ -30,6 +31,11 @@ export default function ArticleShareDialog({
   const [messageText, setMessageText] = useState(initialMessage)
   const [sharingWhatsApp, setSharingWhatsApp] = useState(false)
   const [copiedLink, setCopiedLink] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     if (!open) return
@@ -76,7 +82,7 @@ export default function ArticleShareDialog({
     }
   }, [open])
 
-  if (!open) return null
+  if (!open || !mounted) return null
 
   const message = messageText.trim()
 
@@ -123,94 +129,110 @@ export default function ArticleShareDialog({
     window.setTimeout(() => setCopiedLink(false), 2000)
   }
 
-  return (
+  const dialog = (
     <div
-      className="fixed inset-0 z-[120] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-[120] overflow-y-auto overscroll-contain"
       role="dialog"
       aria-modal="true"
       aria-labelledby="article-share-dialog-title"
-      onClick={(event) => {
-        if (event.target === event.currentTarget && !sharingWhatsApp) onClose()
-      }}
     >
-      <div className="w-full max-w-2xl rounded-2xl border border-border-default bg-white shadow-2xl">
-        <div className="p-5 sm:p-6">
-          <h2 id="article-share-dialog-title" className="text-2xl font-playfair font-semibold text-text mb-2">
-            Share this article
-          </h2>
-          <p className="text-sm text-text-muted mb-4">
-            Edit your message before sharing. Facebook and LinkedIn only accept the page URL and
-            use the article preview from Open Graph metadata.
-          </p>
+      <div
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+        aria-hidden
+        onClick={() => {
+          if (!sharingWhatsApp) onClose()
+        }}
+      />
 
-          {shareImageUrl ? (
-            <div className="mb-4 rounded-xl border border-border-default bg-surface-raised p-2">
-              <img
-                src={shareImageUrl}
-                alt={title}
-                className="h-36 w-full rounded-lg object-cover"
-              />
-            </div>
-          ) : null}
-
-          <label htmlFor="article-share-message" className="mb-2 block text-xs font-medium uppercase tracking-wide text-text-muted">
-            Message text
-          </label>
-          <textarea
-            id="article-share-message"
-            rows={8}
-            value={messageText}
-            onChange={(event) => setMessageText(event.target.value)}
-            className="w-full rounded-xl border border-border-default bg-surface px-3 py-2 text-sm leading-relaxed text-text focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-            placeholder="Write your share message"
-          />
-
-          <div className="mt-2 flex justify-between gap-2">
-            <button
-              type="button"
-              onClick={() => setMessageText(initialMessage)}
-              className="text-xs font-medium text-primary hover:underline"
-              disabled={sharingWhatsApp}
-            >
-              Reset to default
-            </button>
-            <button
-              type="button"
-              onClick={() => void handleCopyLink()}
-              className="inline-flex items-center gap-1 text-xs font-medium text-text-muted hover:text-text"
-              disabled={sharingWhatsApp}
-            >
-              {copiedLink ? <Check className="h-3.5 w-3.5" /> : <Link2 className="h-3.5 w-3.5" />}
-              {copiedLink ? 'Copied link' : 'Copy link'}
-            </button>
+      <div className="flex min-h-full items-end justify-center p-0 sm:items-center sm:p-4">
+        <div
+          className="relative flex w-full max-w-2xl max-h-[100dvh] flex-col overflow-hidden rounded-t-2xl border border-border-default bg-white shadow-2xl sm:max-h-[min(90dvh,calc(100dvh-2rem))] sm:rounded-2xl"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div className="flex-shrink-0 px-5 pt-5 pb-2 sm:p-6 sm:pb-3">
+            <h2 id="article-share-dialog-title" className="text-2xl font-playfair font-semibold text-text mb-2">
+              Share this article
+            </h2>
+            <p className="text-sm text-text-muted">
+              Edit your message before sharing. Facebook and LinkedIn only accept the page URL and
+              use the article preview from Open Graph metadata.
+            </p>
           </div>
 
-          <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3">
-            <button type="button" onClick={() => void handleWhatsAppShare()} className="btn btn-primary min-h-[44px]" disabled={!message || sharingWhatsApp}>
-              {sharingWhatsApp ? 'Preparing…' : 'WhatsApp'}
-            </button>
-            <button type="button" onClick={handleTwitterShare} className="btn btn-secondary inline-flex items-center justify-center gap-2 min-h-[44px]" disabled={!message || sharingWhatsApp}>
-              <Twitter className="h-4 w-4" />
-              Twitter
-            </button>
-            <button type="button" onClick={handleEmailShare} className="btn btn-secondary inline-flex items-center justify-center gap-2 min-h-[44px]" disabled={!message || sharingWhatsApp}>
-              <Mail className="h-4 w-4" />
-              Email
-            </button>
-            <button type="button" onClick={handleFacebookShare} className="btn btn-secondary inline-flex items-center justify-center gap-2 min-h-[44px]" disabled={sharingWhatsApp}>
-              <Facebook className="h-4 w-4" />
-              Facebook
-            </button>
-            <button type="button" onClick={handleLinkedInShare} className="btn btn-secondary inline-flex items-center justify-center gap-2 min-h-[44px]" disabled={sharingWhatsApp}>
-              <Linkedin className="h-4 w-4" />
-              LinkedIn
-            </button>
-            <button type="button" onClick={onClose} className="btn btn-secondary min-h-[44px]" disabled={sharingWhatsApp}>
-              Close
-            </button>
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-4 sm:px-6">
+            {shareImageUrl ? (
+              <div className="mb-4 rounded-xl border border-border-default bg-surface-raised p-2">
+                <img
+                  src={shareImageUrl}
+                  alt={title}
+                  className="h-36 w-full rounded-lg object-cover"
+                />
+              </div>
+            ) : null}
+
+            <label htmlFor="article-share-message" className="mb-2 block text-xs font-medium uppercase tracking-wide text-text-muted">
+              Message text
+            </label>
+            <textarea
+              id="article-share-message"
+              rows={6}
+              value={messageText}
+              onChange={(event) => setMessageText(event.target.value)}
+              className="w-full rounded-xl border border-border-default bg-surface px-3 py-2 text-sm leading-relaxed text-text focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              placeholder="Write your share message"
+            />
+
+            <div className="mt-2 flex justify-between gap-2">
+              <button
+                type="button"
+                onClick={() => setMessageText(initialMessage)}
+                className="text-xs font-medium text-primary hover:underline"
+                disabled={sharingWhatsApp}
+              >
+                Reset to default
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleCopyLink()}
+                className="inline-flex items-center gap-1 text-xs font-medium text-text-muted hover:text-text"
+                disabled={sharingWhatsApp}
+              >
+                {copiedLink ? <Check className="h-3.5 w-3.5" /> : <Link2 className="h-3.5 w-3.5" />}
+                {copiedLink ? 'Copied link' : 'Copy link'}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-shrink-0 border-t border-border-default bg-white px-5 py-4 safe-pb sm:px-6">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              <button type="button" onClick={() => void handleWhatsAppShare()} className="btn btn-primary min-h-[44px]" disabled={!message || sharingWhatsApp}>
+                {sharingWhatsApp ? 'Preparing…' : 'WhatsApp'}
+              </button>
+              <button type="button" onClick={handleTwitterShare} className="btn btn-secondary inline-flex items-center justify-center gap-2 min-h-[44px]" disabled={!message || sharingWhatsApp}>
+                <Twitter className="h-4 w-4" />
+                Twitter
+              </button>
+              <button type="button" onClick={handleEmailShare} className="btn btn-secondary inline-flex items-center justify-center gap-2 min-h-[44px]" disabled={!message || sharingWhatsApp}>
+                <Mail className="h-4 w-4" />
+                Email
+              </button>
+              <button type="button" onClick={handleFacebookShare} className="btn btn-secondary inline-flex items-center justify-center gap-2 min-h-[44px]" disabled={sharingWhatsApp}>
+                <Facebook className="h-4 w-4" />
+                Facebook
+              </button>
+              <button type="button" onClick={handleLinkedInShare} className="btn btn-secondary inline-flex items-center justify-center gap-2 min-h-[44px]" disabled={sharingWhatsApp}>
+                <Linkedin className="h-4 w-4" />
+                LinkedIn
+              </button>
+              <button type="button" onClick={onClose} className="btn btn-secondary min-h-[44px]" disabled={sharingWhatsApp}>
+                Close
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
   )
+
+  return createPortal(dialog, document.body)
 }

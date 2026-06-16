@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import { Calendar, Clock, User, Tag } from 'lucide-react'
 import EnhancedArticleEditor from '@/components/articles/EnhancedArticleEditor'
 import ShareButtons from '@/components/articles/ShareButtons'
+import ArticlePrintLabelButton from '@/components/articles/ArticlePrintLabelButton'
 import StaffLinkedInPostHint from '@/components/articles/StaffLinkedInPostHint'
 import RelatedArticles from '@/components/articles/RelatedArticles'
 import { ArticleHero } from '@/components/articles/ArticleHero'
@@ -298,6 +299,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           ) : null}
 
           <StaffLinkedInPostHint articleSlug={article.slug} />
+
+          <div className="mb-8">
+            <ArticlePrintLabelButton article={{ slug: article.slug }} />
+          </div>
 
           <ShareButtons
             title={article.title}

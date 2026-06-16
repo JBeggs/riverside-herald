@@ -539,6 +539,21 @@ h6 {
   @apply bg-neutral-200 animate-pulse rounded;
 }
 
+/* On-screen + print: label route hides storefront header, footer, and nav */
+body:has([data-print-label-page]) header,
+body:has([data-print-label-page]) footer,
+body:has([data-print-label-page]) nav,
+body.article-print-label-active header,
+body.article-print-label-active footer,
+body.article-print-label-active nav {
+  display: none !important;
+}
+
+body:has([data-print-label-page]) main,
+body.article-print-label-active main {
+  padding: 0 !important;
+}
+
 @media print {
   .no-print {
     display: none !important;
@@ -547,6 +562,39 @@ h6 {
   body {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+
+  body:has([data-print-label-page]) header,
+  body:has([data-print-label-page]) footer,
+  body:has([data-print-label-page]) nav,
+  body:has([data-print-label-page]) [data-print-chrome],
+  body:has([data-print-label-page]) .no-print,
+  body.article-print-label-active header,
+  body.article-print-label-active footer,
+  body.article-print-label-active nav,
+  body.article-print-label-active [data-print-chrome],
+  body.article-print-label-active .no-print {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body:has([data-print-label-page]) .article-print-label-page,
+  body.article-print-label-active .article-print-label-page {
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: auto !important;
+    background: #fff !important;
+  }
+
+  body:has([data-print-label-page]) main,
+  body.article-print-label-active main {
+    padding: 0 !important;
+    margin: 0 !important;
   }
 }
 

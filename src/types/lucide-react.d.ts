@@ -45,6 +45,7 @@ declare module 'lucide-react' {
   export const FileText: FC<IconProps>
   export const Images: FC<IconProps>
   export const ArrowLeft: FC<IconProps>
+  export const Printer: FC<IconProps>
   export const Tag: FC<IconProps>
   export const Trash2: FC<IconProps>
   export const Info: FC<IconProps>

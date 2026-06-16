@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter, Playfair_Display } from 'next/font/google'
 import { Suspense } from 'react'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import './globals.css'
 import '../styles/pages.css'
@@ -131,8 +131,10 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const cookieStore = await cookies()
+  const [cookieStore, headersList] = await Promise.all([cookies(), headers()])
   const themeCookie = cookieStore.get(THEME_COOKIE_KEY)?.value
+  const pathname = headersList.get('x-pathname') || ''
+  const isPrintLabelPage = pathname.includes('/print-label')
 
   let settingsMap: SiteSettingsMap = {}
   try {
@@ -165,14 +167,20 @@ export default async function RootLayout({
             <ToastProvider>
               <ConfirmDialogProvider>
                 <AuthProvider>
-                  <div className="min-h-screen flex flex-col">
-                    <Header />
-                    <main className="flex min-h-0 flex-1 flex-col">{children}</main>
-                    <Footer />
-                  </div>
-                  <Suspense fallback={null}>
-                    <AuthMessage />
-                  </Suspense>
+                  {isPrintLabelPage ? (
+                    children
+                  ) : (
+                    <div className="min-h-screen flex flex-col">
+                      <Header />
+                      <main className="flex min-h-0 flex-1 flex-col">{children}</main>
+                      <Footer />
+                    </div>
+                  )}
+                  {!isPrintLabelPage ? (
+                    <Suspense fallback={null}>
+                      <AuthMessage />
+                    </Suspense>
+                  ) : null}
                 </AuthProvider>
               </ConfirmDialogProvider>
             </ToastProvider>
