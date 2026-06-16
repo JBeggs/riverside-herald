@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import QRCode from 'qrcode'
 import {
-  formatPrintLabelUrlLines,
   labelAccentSoft,
   labelTypeScale,
   ARTICLE_PRINT_LABEL_CSS,
@@ -113,7 +112,6 @@ export default function ArticlePrintLabelCard({
   }, [logoSrc])
 
   const soft = labelAccentSoft(accent)
-  const urlLines = formatPrintLabelUrlLines(articleUrl)
 
   return (
     <>
@@ -140,6 +138,13 @@ export default function ArticlePrintLabelCard({
                 <p className="brand-name">{companyName}</p>
                 {tagline ? <p className="brand-tagline">{tagline}</p> : null}
               </div>
+              {lowResImage ? (
+                <div className="body">
+                  <div className="photo-frame">
+                    <img className="article-image" src={lowResImage} alt="" />
+                  </div>
+                </div>
+              ) : null}
               {authorName || publishedLabel ? (
                 <div className="meta">
                   {authorName ? (
@@ -160,11 +165,6 @@ export default function ArticlePrintLabelCard({
 
             <section className="page page-article">
               <div className="body">
-                {lowResImage ? (
-                  <div className="photo-frame">
-                    <img className="article-image" src={lowResImage} alt="" />
-                  </div>
-                ) : null}
                 <h1>{articleTitle}</h1>
                 {blurb ? <p className="desc">{blurb}</p> : null}
                 {contentExcerpt ? <p className="content-excerpt">{contentExcerpt}</p> : null}
@@ -179,13 +179,6 @@ export default function ArticlePrintLabelCard({
                 ) : (
                   <div className="qr" aria-hidden="true" />
                 )}
-                <div className="url">
-                  {urlLines.map((line, index) => (
-                    <span key={index} className="url-line">
-                      {line}
-                    </span>
-                  ))}
-                </div>
               </div>
             </section>
           </div>

@@ -130,48 +130,7 @@ export function labelAccentSoft(accent: string): string {
   return 'rgba(153, 27, 27, 0.12)'
 }
 
-/** Split an article URL across up to 3 lines for label printing. */
-export function formatPrintLabelUrlLines(url: string): string[] {
-  const trimmed = url.trim()
-  if (!trimmed) return []
-
-  try {
-    const absolute = trimmed.startsWith('http') ? trimmed : `https://${trimmed}`
-    const parsed = new URL(absolute)
-    const origin = `${parsed.protocol}//${parsed.host}`
-    const pathAndQuery = `${parsed.pathname}${parsed.search}${parsed.hash}`.replace(/^\//, '')
-
-    if (!pathAndQuery) return [origin]
-
-    const lines = [origin]
-    if (pathAndQuery.length <= 32) {
-      lines.push(pathAndQuery)
-      return lines
-    }
-
-    const segments = pathAndQuery.split('/')
-    if (segments.length >= 2) {
-      const mid = Math.ceil(segments.length / 2)
-      lines.push(segments.slice(0, mid).join('/'))
-      const tail = segments.slice(mid).join('/')
-      if (tail) lines.push(tail)
-      return lines.filter(Boolean).slice(0, 3)
-    }
-
-    const chunk = Math.ceil(pathAndQuery.length / 2)
-    lines.push(pathAndQuery.slice(0, chunk))
-    lines.push(pathAndQuery.slice(chunk))
-    return lines.filter(Boolean).slice(0, 3)
-  } catch {
-    const chunk = Math.ceil(trimmed.length / 3)
-    return [
-      trimmed.slice(0, chunk),
-      trimmed.slice(chunk, chunk * 2),
-      trimmed.slice(chunk * 2),
-    ].filter(Boolean)
-  }
-}
-
+/** Strip HTML and return plain text for print labels. */
 function decodeBasicEntities(text: string): string {
   return text
     .replace(/&nbsp;/g, ' ')
@@ -182,7 +141,6 @@ function decodeBasicEntities(text: string): string {
     .replace(/&#39;/g, "'")
 }
 
-/** Strip HTML and return plain text for print labels. */
 export function htmlToPlainText(html: string): string {
   return decodeBasicEntities(
     html
@@ -235,7 +193,6 @@ export const ARTICLE_PRINT_LABEL_CSS = `
     --label-fs-meta: calc(9.5mm * var(--label-type-scale) * var(--label-preview-scale));
     --label-fs-meta-label: calc(7.5mm * var(--label-type-scale) * var(--label-preview-scale));
     --label-fs-scan: calc(13mm * var(--label-type-scale) * var(--label-preview-scale));
-    --label-fs-url: calc(8mm * var(--label-type-scale) * var(--label-preview-scale));
   }
   .article-print-label-root .label {
     max-width: 360px;
@@ -397,21 +354,11 @@ export const ARTICLE_PRINT_LABEL_CSS = `
     display: block;
     margin: 0 auto;
   }
-  .article-print-label-root .url {
-    font-size: var(--label-fs-url);
-    color: #8a837a;
-    line-height: 1.35;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    width: 90%;
-    margin: 12px auto 0;
-    padding-bottom: 6mm;
-  }
-  .article-print-label-root .url-line {
-    display: block;
-    word-break: break-all;
-  }
   .article-print-label-root .page-qr .footer {
     padding-bottom: 10mm;
+  }
+  .article-print-label-root .page-brand .body {
+    padding-top: 0;
   }
 
   .article-print-label-root[data-thermal="true"] .header {
@@ -426,8 +373,7 @@ export const ARTICLE_PRINT_LABEL_CSS = `
   .article-print-label-root[data-thermal="true"] .content-excerpt,
   .article-print-label-root[data-thermal="true"] .meta-row,
   .article-print-label-root[data-thermal="true"] .meta-label,
-  .article-print-label-root[data-thermal="true"] .meta-value,
-  .article-print-label-root[data-thermal="true"] .url {
+  .article-print-label-root[data-thermal="true"] .meta-value {
     color: #000 !important;
   }
   .article-print-label-root[data-thermal="true"] .photo-frame,
@@ -489,7 +435,6 @@ export const ARTICLE_PRINT_LABEL_CSS = `
       --label-fs-meta: calc(9.5mm * var(--label-type-scale));
       --label-fs-meta-label: calc(7.5mm * var(--label-type-scale));
       --label-fs-scan: calc(13mm * var(--label-type-scale));
-      --label-fs-url: calc(8mm * var(--label-type-scale));
     }
     .article-print-label-root,
     .article-print-label-root * {
@@ -505,7 +450,6 @@ export const ARTICLE_PRINT_LABEL_CSS = `
     .article-print-label-root .meta-value { font-size: var(--label-fs-meta) !important; }
     .article-print-label-root .meta-label { font-size: var(--label-fs-meta-label) !important; }
     .article-print-label-root .scan-label { font-size: var(--label-fs-scan) !important; }
-    .article-print-label-root .url { font-size: var(--label-fs-url) !important; }
     .article-print-label-root .card {
       page-break-inside: auto !important;
       break-inside: auto !important;
