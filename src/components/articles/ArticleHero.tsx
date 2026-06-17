@@ -4,13 +4,14 @@ import SafeImage from '@/components/ui/SafeImage'
 
 export function ArticleHero({ src, alt }: { src: string; alt: string }) {
   return (
-    <div className="relative w-full h-64 sm:h-80 md:h-96 lg:h-[500px] rounded-xl md:rounded-2xl overflow-hidden bg-neutral-200">
+    <div className="w-full overflow-hidden rounded-xl bg-neutral-200 md:rounded-2xl">
       <SafeImage
         src={src}
         alt={alt}
-        fill
-        className="rounded-xl md:rounded-2xl"
-        imgClassName="object-cover"
+        width={1200}
+        height={630}
+        className="w-full rounded-xl md:rounded-2xl"
+        imgClassName="mx-auto block h-auto max-h-[min(70vh,560px)] w-full object-contain"
         loading="eager"
         decoding="sync"
       />

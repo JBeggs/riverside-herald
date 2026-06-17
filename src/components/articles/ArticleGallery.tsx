@@ -86,13 +86,14 @@ function GalleryTile({ item, slideIndex, onOpen, featured = false }: GalleryTile
           className="group relative block w-full overflow-hidden rounded-xl border border-border-default bg-neutral-900/5 md:rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           aria-label={`View full size: ${label}`}
         >
-          <div className="relative h-[min(60vh,520px)] w-full sm:aspect-video sm:h-auto sm:max-h-[560px]">
+          <div className="relative w-full">
             <SafeImage
               src={imageUrl}
               alt={alt}
-              fill
-              className="rounded-xl md:rounded-2xl"
-              imgClassName="object-contain sm:object-cover transition-transform duration-300 group-hover:scale-[1.01]"
+              width={1200}
+              height={675}
+              className="w-full rounded-xl md:rounded-2xl"
+              imgClassName="mx-auto block h-auto max-h-[min(70vh,560px)] w-full object-contain transition-transform duration-300 group-hover:scale-[1.01]"
               loading="lazy"
             />
             <div className="absolute inset-x-0 bottom-0 flex items-end justify-center bg-gradient-to-t from-black/60 via-black/20 to-transparent p-4 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100 sm:group-focus-visible:opacity-100">
@@ -124,7 +125,7 @@ function GalleryTile({ item, slideIndex, onOpen, featured = false }: GalleryTile
             alt={alt}
             fill
             className="rounded-lg"
-            imgClassName="object-contain sm:object-cover transition-transform duration-300 group-hover:scale-105"
+            imgClassName="object-contain transition-transform duration-300 group-hover:scale-105"
             loading="lazy"
           />
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent p-2 sm:hidden">

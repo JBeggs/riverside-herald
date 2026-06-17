@@ -334,6 +334,17 @@ h6 {
   @apply underline hover:opacity-90;
 }
 
+/* Article body HTML from CMS — keep images fully visible on narrow viewports (Brave/mobile). */
+[data-cy='article-content'] img,
+.prose .rh-article-body img {
+  @apply my-6 h-auto max-w-full w-auto rounded-lg;
+  object-fit: contain;
+}
+
+.prose .rh-article-body {
+  @apply max-w-none;
+}
+
 .breaking-ticker {
   background: linear-gradient(
     90deg,

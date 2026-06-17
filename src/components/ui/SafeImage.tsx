@@ -25,6 +25,13 @@ type SafeImageProps = {
 
 const PLACEHOLDER = '/image-placeholder.png'
 
+function resolveObjectFitClass(fill: boolean | undefined, imgClassName: string): string {
+  if (/\bobject-(contain|cover|fill|none|scale-down)\b/.test(imgClassName)) {
+    return ''
+  }
+  return fill ? 'object-cover' : ''
+}
+
 /**
  * Hide image until loaded so alt text never flashes; skeleton beneath.
  * Native <img> avoids Next image optimizer timeouts on slow API hosts.
@@ -88,7 +95,11 @@ export default function SafeImage({
   const imageClass = [
     'transition-opacity duration-200',
     loaded ? 'opacity-100' : 'opacity-0',
-    fill ? 'absolute inset-0 h-full w-full object-cover' : '',
+    fill
+      ? ['absolute inset-0 h-full w-full', resolveObjectFitClass(fill, imgClassName)]
+          .filter(Boolean)
+          .join(' ')
+      : '',
     imgClassName,
   ]
     .filter(Boolean)
