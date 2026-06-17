@@ -71,6 +71,14 @@ const ChevronRight = ({ className }: { className: string }) => (
   </svg>
 )
 import { newsApi, apiClient } from '@/lib/api'
+import {
+  WRITING_STYLE_OPTIONS,
+  REFERENCE_DENSITY_OPTIONS,
+  DEFAULT_WRITING_STYLE,
+  DEFAULT_REFERENCE_DENSITY,
+  type WritingStyleKey,
+  type ReferenceDensityKey,
+} from '@/lib/research-writing-styles'
 import ShareToLinkedInDialog from '@/components/social/ShareToLinkedInDialog'
 import {
   buildArticlePublicUrl,
@@ -218,6 +226,10 @@ export default function EnhancedArticleEditor({
 
   const [researchBrief, setResearchBrief] = useState('')
   const [researchTextOnly, setResearchTextOnly] = useState(false)
+  const [researchStyle, setResearchStyle] = useState<WritingStyleKey>(DEFAULT_WRITING_STYLE)
+  const [researchDensity, setResearchDensity] = useState<ReferenceDensityKey>(
+    DEFAULT_REFERENCE_DENSITY
+  )
   const [researchInfo, setResearchInfo] = useState<Record<string, unknown> | null>(null)
   const [researchPoll, setResearchPoll] = useState(false)
   const [isStartingResearch, setIsStartingResearch] = useState(false)
@@ -235,6 +247,7 @@ export default function EnhancedArticleEditor({
   const [gallerySectionHeading, setGallerySectionHeading] = useState('')
   const prevHeroJobRef = useRef(false)
   const prevGalleryJobRef = useRef(false)
+  const researchHydratedRef = useRef(false)
   const [linkedinDialogOpen, setLinkedinDialogOpen] = useState(false)
   const [linkedinDialogKey, setLinkedinDialogKey] = useState(0)
   
@@ -452,6 +465,10 @@ export default function EnhancedArticleEditor({
     chrome === 'dashboard' || chrome === 'modal' ? 'min-h-0 flex-1' : 'min-h-screen'
 
   useEffect(() => {
+    researchHydratedRef.current = false
+  }, [article.id])
+
+  useEffect(() => {
     const onResearchOrMedia =
       currentStep === 'research' || currentStep === 'media'
     if (!onResearchOrMedia || article.id === 'new' || !canManageArticleResearch) return
@@ -463,6 +480,18 @@ export default function EnhancedArticleEditor({
         setResearchInfo(data.research ?? null)
         if (data.research != null && 'apply_text_only' in data.research) {
           setResearchTextOnly(Boolean(data.research.apply_text_only))
+        }
+        if (!researchHydratedRef.current && data.research != null) {
+          if (typeof data.research.context === 'string') {
+            setResearchBrief(data.research.context)
+          }
+          if (data.research.writing_style) {
+            setResearchStyle(data.research.writing_style as WritingStyleKey)
+          }
+          if (data.research.reference_density) {
+            setResearchDensity(data.research.reference_density as ReferenceDensityKey)
+          }
+          researchHydratedRef.current = true
         }
         if (data.article) {
           setEditData(prev => ({
@@ -666,6 +695,8 @@ export default function EnhancedArticleEditor({
       const data: any = await newsApi.articles.researchStart(article.id, {
         context: researchBrief.trim(),
         apply_text_only: researchTextOnly,
+        writing_style: researchStyle,
+        reference_density: researchDensity,
       })
       setResearchInfo(data.research ?? null)
       if (data.research != null && 'apply_text_only' in data.research) {
@@ -2107,6 +2138,61 @@ export default function EnhancedArticleEditor({
                   className={`${cmsTextarea} text-sm`}
                   placeholder="Angles, sources to check, local context, spellings, etc."
                 />
+              </div>
+              <div>
+                <label className={cmsLabel}>Writing style</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {WRITING_STYLE_OPTIONS.map((opt) => {
+                    const selected = researchStyle === opt.key
+                    return (
+                      <button
+                        key={opt.key}
+                        type="button"
+                        onClick={() => setResearchStyle(opt.key)}
+                        disabled={busy}
+                        aria-pressed={selected}
+                        className={`text-left rounded-lg border p-3 transition-colors disabled:opacity-50 ${
+                          selected
+                            ? 'border-primary bg-[rgb(var(--color-surface-raised))] ring-1 ring-primary'
+                            : 'border-border-default hover:border-primary/50'
+                        }`}
+                      >
+                        <span className="block text-sm font-medium text-text">{opt.label}</span>
+                        <span className="block text-xs text-text-muted mt-1">{opt.description}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+              <div>
+                <label className={cmsLabel}>Reference density</label>
+                <div className="flex flex-wrap gap-2">
+                  {REFERENCE_DENSITY_OPTIONS.map((opt) => {
+                    const selected = researchDensity === opt.key
+                    return (
+                      <button
+                        key={opt.key}
+                        type="button"
+                        onClick={() => setResearchDensity(opt.key)}
+                        disabled={busy}
+                        aria-pressed={selected}
+                        className={`rounded-full border px-4 py-2 text-sm transition-colors disabled:opacity-50 ${
+                          selected
+                            ? 'border-primary bg-primary text-white'
+                            : 'border-border-default text-text hover:border-primary/50'
+                        }`}
+                      >
+                        {opt.label}
+                        <span className={`ml-1 text-xs ${selected ? 'text-white/80' : 'text-text-muted'}`}>
+                          {opt.maxSources === null ? '(no cap)' : `(${opt.maxSources})`}
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
+                <p className="text-xs text-text-muted mt-2">
+                  Fewer links = easier to read; Full matches old research runs.
+                </p>
               </div>
               <label className="flex items-start gap-2 cursor-pointer text-text max-w-xl">
                 <input

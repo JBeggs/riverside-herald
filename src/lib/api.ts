@@ -982,7 +982,12 @@ export const newsApi = {
     /** Cursor AI research (company owner / news admin only) */
     researchStart: (
       id: string,
-      data?: { context?: string; apply_text_only?: boolean }
+      data?: {
+        context?: string
+        apply_text_only?: boolean
+        writing_style?: string
+        reference_density?: string
+      }
     ) => apiClient.post(`/news/articles/${id}/research-start/`, data || {}),
     researchStatus: (id: string) => apiClient.get(`/news/articles/${id}/research/`),
     researchStop: (id: string) => apiClient.post(`/news/articles/${id}/research-stop/`, {}),

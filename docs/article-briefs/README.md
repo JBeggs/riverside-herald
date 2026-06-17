@@ -21,7 +21,10 @@ Paste-ready seeds for the **Cursor research workflow** in the article editor. Re
 
 1. **Admin → Articles → Add** (save once so Research tab is available).
 2. **Basic Info:** paste **Headline** → Title; **Subtitle** → Subtitle.
-3. **Research tab:** paste the full **Editor brief** block from a pilot file (includes image direction + details).
+3. **Research tab:** paste the full **Editor brief** block from a pilot file (includes image direction + details), then pick a **Writing style** and **Reference density** before starting:
+   - **Writing style** (default *Neighbourhood Report*): *Wire Brief* (short news), *Deep Read* (longform), *Editor's Column* (opinion), *Explainer* (best for long pasted briefs — it restructures instead of mirroring).
+   - **Reference density** (default *Moderate*, 6 sources): *Light* (3), *Standard* (10), *Full* (no cap, legacy). Fewer links read easier; the cap is also enforced when the article is applied.
+   - Handy pairings: **Wire + Light** for short news; **Explainer + Moderate** for long briefs; **Deep Read + Standard** for features.
 4. Run **Start research**; poll until complete; apply text (and hero if not “text only”).
 5. For gallery images, use **Generate one gallery image** with a per-image prompt (photo, infographic, chart, or map). For long pieces, add a `##` section heading so the visual anchors to that part of the story.
 6. Before publish, run through [REVIEW-CHECKLIST.md](./REVIEW-CHECKLIST.md).
