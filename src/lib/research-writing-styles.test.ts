@@ -7,7 +7,7 @@ import {
 } from './research-writing-styles'
 
 describe('research-writing-styles', () => {
-  it('exposes the five writing styles with neighbourhood default', () => {
+  it('exposes the six writing styles with neighbourhood default', () => {
     expect(DEFAULT_WRITING_STYLE).toBe('neighbourhood')
     expect(WRITING_STYLE_OPTIONS.map((o) => o.key)).toEqual([
       'neighbourhood',
@@ -15,6 +15,7 @@ describe('research-writing-styles', () => {
       'deep_read',
       'column',
       'explainer',
+      'riversideherald',
     ])
     expect(WRITING_STYLE_OPTIONS.find((o) => o.key === DEFAULT_WRITING_STYLE)).toBeDefined()
     for (const opt of WRITING_STYLE_OPTIONS) {

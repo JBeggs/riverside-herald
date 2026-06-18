@@ -11,6 +11,7 @@ export type WritingStyleKey =
   | 'deep_read'
   | 'column'
   | 'explainer'
+  | 'riversideherald'
 
 export interface WritingStyleOption {
   key: WritingStyleKey
@@ -45,6 +46,12 @@ export const WRITING_STYLE_OPTIONS: WritingStyleOption[] = [
     key: 'explainer',
     label: 'Explainer',
     description: 'Plain-language, scannable guide. 600–800 words. Best for long pasted briefs.',
+  },
+  {
+    key: 'riversideherald',
+    label: 'Riverside Herald AI Author',
+    description:
+      'Minimal copy-edit. Keeps your text as close to the original as possible — spelling and grammar only.',
   },
 ]
 
